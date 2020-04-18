@@ -36,6 +36,7 @@ project "Bisa"
 
     includedirs
     {
+        "%{prj.name}/vendor/json/include",
         "%{prj.name}/vendor/spdlog/include",
         "/usr/local/Cellar/root/6.18.04_1/include/root"
     }
@@ -100,14 +101,20 @@ project "Commissioning"
 
     includedirs
     {
+        "Bisa/vendor/json/include",
         "Bisa/vendor/spdlog/include",
         "Bisa/src",
         "/usr/local/Cellar/root/6.18.04_1/include/root"
     }
     
+    libdirs
+    {
+        "/usr/local/lib/root"
+    }
     links
     {
-        "Bisa"
+        "Bisa",
+        ROOTLibs
     }
 
     filter "configurations:"
