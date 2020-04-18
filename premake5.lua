@@ -9,24 +9,39 @@ workspace "Bisa"
     }
 
 outputdir = "%{cfg.buildcfg}-%{cfg.system}-%{cfg.architecture}"
+ROOTSYS = "/usr/local/Cellar/root/*/"
 
-ROOTLibs = {
-    "Core",
-    "Hist",
-    "RIO",
-    "Tree",
-    "Gpad"
-}
+function includeRoot()
+    includedirs "%{ROOTSYS}/include"
+end
+
+function linkRoot()
+    libdirs "%{ROOTSYS}/lib/root"
+
+    filter "kind:not StaticLib"
+        links 
+        {
+            "Core", "Imt", "RIO", "Net", "Hist", 
+            "Graf", "Graf3d", "Gpad", "ROOTVecOps", 
+            "Tree", "TreePlayer", "Rint", "Postscript",
+            "Matrix", "Physics", "MathCore", "Thread",
+            "Multiproc", "ROOTDataFrame", "pthread"
+        }
+    filter {}
+end
 
 project "Bisa"
     location "Bisa"
-    kind "StaticLib"
+    kind "SharedLib"
     language "C++"
     cppdialect "C++11"
     staticruntime "on"
     
     targetdir ("bin/" .. outputdir .. "/%{prj.name}")
     objdir ("bin-int/" .. outputdir .. "/%{prj.name}")
+
+    includeRoot()
+    linkRoot()
 
     files
     {
@@ -38,17 +53,11 @@ project "Bisa"
     {
         "%{prj.name}/vendor/json/include",
         "%{prj.name}/vendor/spdlog/include",
-        "/usr/local/Cellar/root/6.18.04_1/include/root"
+        "%{prj.name}/src"
     }
 
-    libdirs
-    {
-        "/usr/local/lib/root"
-    }
-    links
-    {
-        ROOTLibs
-    }
+    pchheader "bapch.h"
+    pchsource "Bisa/src/bapch.cpp"
 
     filter "configurations:"
 
@@ -83,6 +92,12 @@ project "Bisa"
         runtime "Release"
         optimize "on"
 
+function useBisa()
+    includedirs "Bisa"
+    links "Bisa"
+    linkRoot()
+end
+
 project "Commissioning"
     location "Commissioning"
     kind "ConsoleApp"
@@ -98,24 +113,8 @@ project "Commissioning"
         "%{prj.name}/src/**.h",
         "%{prj.name}/src/**.cpp"
     }
-
-    includedirs
-    {
-        "Bisa/vendor/json/include",
-        "Bisa/vendor/spdlog/include",
-        "Bisa/src",
-        "/usr/local/Cellar/root/6.18.04_1/include/root"
-    }
     
-    libdirs
-    {
-        "/usr/local/lib/root"
-    }
-    links
-    {
-        "Bisa",
-        ROOTLibs
-    }
+    useBisa()
 
     filter "configurations:"
 

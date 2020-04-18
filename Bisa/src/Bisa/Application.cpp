@@ -1,3 +1,4 @@
+#include "bapch.h"
 #include "Application.h"
 
 namespace Bisa {
