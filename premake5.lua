@@ -10,9 +10,17 @@ workspace "Bisa"
 
 outputdir = "%{cfg.buildcfg}-%{cfg.system}-%{cfg.architecture}"
 
+ROOTLibs = {
+    "Core",
+    "Hist",
+    "RIO",
+    "Tree",
+    "Gpad"
+}
+
 project "Bisa"
     location "Bisa"
-    kind "SharedLib"
+    kind "StaticLib"
     language "C++"
     cppdialect "C++11"
     staticruntime "on"
@@ -28,8 +36,17 @@ project "Bisa"
 
     includedirs
     {
-        -- "%{prj.name}/src",
-        "%{prj.name}/vendor/spdlog/include"
+        "%{prj.name}/vendor/spdlog/include",
+        "/usr/local/Cellar/root/6.18.04_1/include/root"
+    }
+
+    libdirs
+    {
+        "/usr/local/lib/root"
+    }
+    links
+    {
+        ROOTLibs
     }
 
     filter "configurations:"
@@ -85,9 +102,9 @@ project "Commissioning"
     {
         "Bisa/vendor/spdlog/include",
         "Bisa/src",
-        "Bisa/vendor"
+        "/usr/local/Cellar/root/6.18.04_1/include/root"
     }
-
+    
     links
     {
         "Bisa"
