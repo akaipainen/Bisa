@@ -1,0 +1,16 @@
+# Folders
+bin/*
+bin-int/*
+
+# Files
+.DS_Store
+
+# Xcode
+*.xcodeproj
+*.xcworkspace
+
+# Vscode
+.vscode
+
+# Gmake
+Makefile
