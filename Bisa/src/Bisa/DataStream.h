@@ -23,12 +23,12 @@ namespace Bisa {
     class BISA_API DataStream
     {
     public:
-        using NewHitCallbackFn = std::function<void(Hits&)>;
+        using NewEventCallbackFn = std::function<void(Hits&)>;
 
         DataStream(const StreamProps& props);
         virtual ~DataStream();
 
-        void SetNewDataCallback(const NewHitCallbackFn& callback) { m_NewHitCallback = callback; }
+        void SetNewDataCallback(const NewEventCallbackFn& callback) { m_NewEventCallback = callback; }
 
         bool FillNextEvent();
 
@@ -37,6 +37,49 @@ namespace Bisa {
         virtual void Shutdown();
 
         void FillBufferWithNextPacket();
+
+        class IdCounter
+        {
+        public:
+            IdCounter(int max=255)
+             : m_Max(max)
+             , m_LastValue(0)
+             , m_LastTrue(0)
+            {
+            }
+
+            int get(int value)
+            {
+                // In case this is first value
+                if (m_LastValue == 0 && m_LastTrue == 0)
+                {
+                    m_LastValue = value;
+                    m_LastTrue = value;
+                    return value;
+                }
+                if (value < m_LastValue) // New value is smaller
+                {
+                    if (m_LastValue - value > m_Max / 2) // Rolled over (255 -> 0)
+                        m_LastTrue += m_Max + value - m_LastValue;
+                    else // Else, decreased normally (Ex. 133 -> 132)
+                        m_LastTrue += value - m_LastValue;
+                    
+                }
+                else // New value is larger
+                {
+                    if (value - m_LastValue > m_Max / 2) // Rolled back (0 -> 255)
+                        m_LastTrue += value - m_LastValue - m_Max;
+                    else // Else, increased normally (Ex. 123 -> 124)
+                        m_LastTrue += value - m_LastValue;
+                }
+                m_LastValue = value;
+                return m_LastTrue;
+            }
+        private:
+            unsigned int m_Max;
+            unsigned int m_LastValue;
+            unsigned int m_LastTrue;
+        };
         
         struct Packet
         {
@@ -78,11 +121,12 @@ namespace Bisa {
         Hits DecodePacket(Packet packet);
 
     private:
-        bool m_PairMode;
         std::fstream m_DataFile;
         std::deque<Hits> m_HitsBuffer;
+        IdCounter m_IdCounter;
+        bool m_PairMode;
 
-        NewHitCallbackFn m_NewHitCallback;
+        NewEventCallbackFn m_NewEventCallback;
 
         unsigned int m_NumberOfPackets;
         bool m_FileFinished = false;

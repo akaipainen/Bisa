@@ -2,6 +2,7 @@
 
 #include "Bisa/Core.h"
 #include "Bisa/Features/Hits.h"
+#include "Bisa/DataStream.h"
 
 namespace Bisa {
     
@@ -14,6 +15,7 @@ namespace Bisa {
         void Run();
     private:
         Scope<Hits> m_Hits;
+        Scope<DataStream> m_DataStream;
     };
 
     // To be defined in CLIENT

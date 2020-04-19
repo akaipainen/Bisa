@@ -21,6 +21,8 @@ namespace Bisa {
 
         m_DataFile.open(props.filename);
         BA_CORE_ASSERT(m_DataFile.is_open(), "Could not open file!")
+
+        m_IdCounter = IdCounter(255);
     }
 
     void DataStream::Shutdown()
@@ -116,7 +118,7 @@ namespace Bisa {
         for (auto wordId = 0; wordId < packet.numWords; wordId++)
         {
             Hit newHit;
-            newHit.triggerId = Packet::Slice(packet.FpgaHeader(), 16, 8);
+            newHit.triggerId = m_IdCounter.get(Packet::Slice(packet.FpgaHeader(), 16, 8));
             newHit.bcidFpga = Packet::Slice(packet.FpgaHeader(), 0, 16);
             newHit.felixCounter = packet.Bits(26+(packet.numWords+1)*8, 2);
 
