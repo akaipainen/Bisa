@@ -1,6 +1,7 @@
 # Folders
 bin/*
 bin-int/*
+data/*
 
 # Files
 .DS_Store

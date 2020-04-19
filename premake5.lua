@@ -12,7 +12,7 @@ outputdir = "%{cfg.buildcfg}-%{cfg.system}-%{cfg.architecture}"
 ROOTSYS = "/usr/local/Cellar/root/*/"
 
 function includeRoot()
-    includedirs "%{ROOTSYS}/include"
+    includedirs "%{ROOTSYS}/include/root"
 end
 
 function linkRoot()
@@ -93,9 +93,17 @@ project "Bisa"
         optimize "on"
 
 function useBisa()
-    includedirs "Bisa"
-    links "Bisa"
+    includeRoot()
     linkRoot()
+
+    includedirs 
+    {
+        "Bisa/src",
+        "Bisa/vendor/json/include",
+        "Bisa/vendor/spdlog/include"
+    }
+    links "Bisa"
+    
 end
 
 project "Commissioning"

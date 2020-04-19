@@ -1,6 +1,7 @@
 #pragma once
 
-#include "Core.h"
+#include "Bisa/Core.h"
+#include "Bisa/Features/Hits.h"
 
 namespace Bisa {
     
@@ -11,6 +12,8 @@ namespace Bisa {
         virtual ~Application();
 
         void Run();
+    private:
+        Scope<Hits> m_Hits;
     };
 
     // To be defined in CLIENT

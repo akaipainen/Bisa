@@ -1,5 +1,7 @@
 #pragma once
 
+#include <memory>
+
 // Platform detection using predefined macros
 #if defined _WIN32
     #if defined _WIN64
@@ -51,3 +53,38 @@
 #else
     #error "Unsupported platform!"
 #endif
+
+#if defined BA_DEBUG
+    #define BA_ENABLE_ASSERTS
+#endif
+
+#ifdef BA_ENABLE_ASSERTS
+    #if defined BA_PLATFORM_WINDOWS
+        #define BA_ASSERT(x, ...) { if(!(x)) { BA_ERROR("Assertion Failed: {0}", __VA_ARGS__); __debugbreak(); } }
+        #define BA_CORE_ASSERT(x, ...) { if(!(x)) { BA_CORE_ERROR("Assertion Failed: {0}", __VA_ARGS__); __debugbreak(); } }
+    #else
+        #define BA_ASSERT(x, ...) { if(!(x)) { BA_ERROR("Assertion Failed: {0}", __VA_ARGS__); } }
+        #define BA_CORE_ASSERT(x, ...) { if(!(x)) { BA_CORE_ERROR("Assertion Failed: {0}", __VA_ARGS__); } }
+    #endif
+#else
+	#define BA_ASSERT(x, ...)
+	#define BA_CORE_ASSERT(x, ...)
+#endif
+
+namespace Bisa {
+    template <typename T>
+    using Scope = std::unique_ptr<T>;
+    // template <typename T, typename ... Args>
+    // constexpr Scope<T> CreateScope(Args&& ... args)
+    // {
+    //     return std::make_unique<T>(std::forward<Args>(args)...);
+    // }
+
+    template<typename T>
+	using Ref = std::shared_ptr<T>;
+	// template<typename T, typename ... Args>
+	// constexpr Ref<T> CreateRef(Args&& ... args)
+	// {
+	// 	return std::make_shared<T>(std::forward<Args>(args)...);
+	// }
+}

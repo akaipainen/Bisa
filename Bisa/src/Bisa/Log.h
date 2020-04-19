@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Core.h"
+#include "Bisa/Core.h"
 #include "spdlog/spdlog.h"
 
 namespace Bisa {
