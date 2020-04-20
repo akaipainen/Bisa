@@ -31,12 +31,14 @@ namespace Bisa {
             {
                 BA_CORE_INFO("{}", h.second->toString());
             }
+            
+            Step();
         }
     }
 
     void Application::Step()
     {
-        
+
     }
 
 }

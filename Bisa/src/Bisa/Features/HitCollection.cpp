@@ -6,27 +6,6 @@ namespace Bisa {
 
     unsigned int Hit::UniqueIdCounter = 0;
 
-    // HitCollection::~HitCollection()
-    // {
-    // }
-
-    // HitCollection::HitCollection(const HitCollection& other)
-    //  : triggerId_(other.triggerId)
-    // {
-    //     for (auto it = other.begin(); it != other.end(); it++)
-    //     {
-    //         hits_.insert(std::make_pair(it->first, it->second));
-    //     }
-    // }
-
-    // HitCollection& HitCollection::operator=(const HitCollection& other)
-    // {
-    //     HitCollection temp(other);
-    //     std::swap(hits_, temp.hits_);
-    //     std::swap(triggerId_, temp.triggerId_);
-    //     return *this;
-    // }
-
     void HitCollection::add(Ref<Hit> newHit)
     {
         // Gains ownership of hit

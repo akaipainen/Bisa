@@ -1,5 +1,7 @@
 #include <Bisa.h>
 
+#include "Features/SpaceCluster.h"
+
 class AnalysisApp : public Bisa::Application
 {
 public:
@@ -14,19 +16,37 @@ public:
 
     void Step() override
     {
-        // FeatureCollection sparks = SparkSelector(HitCollection m_Hits);
+        BA_INFO("Initializing Space Cluster Selector");
+        SpaceClusterSelector spaceClusterSelector;
+        BA_INFO("Creating Space Clusters");
+        Bisa::FeatureCollection spaceClusters = spaceClusterSelector(*hits_);
 
-        // HitCollection spark_filter = Bisa::HitCollection().add(space_clusters.Hit() - sparks.hits());
+        BA_INFO("Printing space clusters ({})", spaceClusters.size());
+        for (auto itCluster = spaceClusters.begin(); itCluster != spaceClusters.end(); itCluster++)
+        {
+            BA_TRACE("New Cluster: ");
+            for (auto itHit = itCluster->second->hits().begin(); itHit != itCluster->second->hits().end(); itHit++)
+            {
+                BA_TRACE("{}", itHit->second->toString());
+            }
+        }
+        
+        // BA_TRACE(spaceClusters);
+
+        // SparkSelector sparkSelector;
+        // FirstHitSelector firstHitSelector;
+
+        // FeatureCollection spark_selector = sparkSelector(allHits);
+
+        // Bisa::HitCollection sparksHits = Bisa::HitCollection().add(sparks.Hit());
 
         // FeatureCollection space_clusters = SpaceClustersSelector();
 
-        // HitCollection spark_filter = Bisa::HitFilter(m_Hits, sparks, remove=true);
+        // Bisa::HitCollection spark_filter = Bisa::HitFilter(m_Hits, sparks, remove=true);
 
-        // HitCollection clusters = ClustersSelector(spark_filter);
+        // Bisa::HitCollection clusters = ClustersSelector(spark_filter);
 
-        // Bisa::HitFilter()
-
-
+        // Bisa::HitFilter();
     }
 };
 
