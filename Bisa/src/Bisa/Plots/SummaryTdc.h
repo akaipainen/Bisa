@@ -1,8 +1,11 @@
 #pragma once
 #include "bapch.h"
 
+#include "Plot.h"
+
 #include <TString.h>
 #include <TCanvas.h>
+#include <TH1.h>
 
 namespace Bisa {
 
@@ -74,7 +77,7 @@ namespace Bisa {
         {
             for (auto &&tdc : tdcs_)
             {
-                f(tdc);
+                f(*tdc);
             }
         }
 
@@ -87,11 +90,11 @@ namespace Bisa {
             }
         }
 
-        void draw(TCanvas* canvas, bool divide=true, const char* options="")
+        void draw(TCanvas* canvas, bool divideCanvas=true, const char* options="")
         {
             // Create sub-pads
             // Divide should only be false if drawing on SAME canvas
-            if (divide) canvas->Divide(3, 3, 0, 0);
+            if (divideCanvas) canvas->Divide(3, 3, 0, 0);
 
             for (unsigned int tdc = 0; tdc < 9; tdc++)
             {

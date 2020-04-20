@@ -33,6 +33,19 @@ namespace Bisa {
         {
         }
 
+        HitCollection hits()
+        {
+            HitCollection hc;
+            for (auto &&feature : features_)
+            {
+                for (auto &&hit : feature.second->hits())
+                {
+                    hc.add(hit.second);
+                }
+            }
+            return hc;
+        }
+
         unsigned size() { return features_.size(); }
 
         std::unordered_map<unsigned int, Ref<Feature>>::iterator begin() { return features_.begin(); }

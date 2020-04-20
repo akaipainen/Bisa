@@ -1,9 +1,10 @@
 #pragma once
+#include "bapch.h"
 
 // For use by Bisa applications
 
 #include "Bisa/Application.h"
-#include "Bisa/Log.h"
+// #include "Bisa/Log.h"
 
 // ------- Entry Point -------
 #include "Bisa/EntryPoint.h"
@@ -17,4 +18,5 @@
 #include "Bisa/Features/HitCollection.h"
 
 // Plots
+#include "Bisa/Plots/Plot.h"
 #include "Bisa/Plots/SummaryTdc.h"
