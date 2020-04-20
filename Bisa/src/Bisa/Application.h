@@ -18,9 +18,9 @@ namespace Bisa {
 
     protected:
         Scope<HitCollection> hits_;
+        Scope<DataStream> dataStream_;
 
     private:
-        Scope<DataStream> dataStream_;
         // Scope<FeatureCollection> m_FeatureCollection;
     };
 

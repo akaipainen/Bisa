@@ -23,7 +23,7 @@ public:
     {
         Bisa::FeatureCollection fc; // output list of features
 
-        BA_TRACE("Initializing variables");
+        // BA_TRACE("Initializing variables");
 
         std::deque<Bisa::Ref<SpaceCluster>> featureList;
         std::deque<Bisa::Ref<Bisa::Hit>> hits;
@@ -34,7 +34,7 @@ public:
         }
 
         // Form initial cluster
-        BA_TRACE("Form initial cluster");
+        // BA_TRACE("Form initial cluster");
         if (hits.size() != 0)
         {
             Bisa::Ref<SpaceCluster> cluster = Bisa::CreateRef<SpaceCluster>();
@@ -46,23 +46,23 @@ public:
         else return fc;
 
         // Loop over all digits to if any can be added to created cluster
-        BA_TRACE("Loop over all digits to see if any can be added to created cluster");
+        // BA_TRACE("Loop over all digits to see if any can be added to created cluster");
         unsigned int notAddedCounter = 0;
         while (hits.size() > 0)
         {
             // Process first hit in hits deque
-            BA_TRACE("Process first hit in hits deque");
+            // BA_TRACE("Process first hit in hits deque");
             auto hit = *hits.begin();
             // Loop through all hits in last cluster to check if
             // it satisfies the condition
-            BA_TRACE("Loop through all hits");
+            // BA_TRACE("Loop through all hits");
             auto itHit = featureList.back()->hits().begin();
             for (; itHit != featureList.back()->hits().end(); itHit++)
             {
                 if (around(*hit, *itHit->second))
                 {
                     // If hit is around another hit, add it to the cluster
-                    BA_TRACE("Adding hit to cluster");
+                    // BA_TRACE("Adding hit to cluster");
                     featureList.back()->hits().add(hit);
                     hits.pop_front();
                     notAddedCounter = 0;
@@ -91,7 +91,7 @@ public:
             }
         }
 
-        BA_TRACE("Finished creating ({}) space clusters", featureList.size());
+        // BA_TRACE("Finished creating ({}) space clusters", featureList.size());
 
 
         // Fill fc
@@ -100,7 +100,7 @@ public:
             fc.add(f);
         }
 
-        BA_TRACE("Size: {}", fc.size());
+        // BA_TRACE("Size: {}", fc.size());
         
         // Return the FeatureCollection
         return fc;

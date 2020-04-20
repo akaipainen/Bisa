@@ -33,7 +33,7 @@ namespace Bisa {
     {
         while (!fileFinished_ && hitsBuffer_.size() < 10)
         {
-            BA_CORE_INFO("Hits buffer size: {}", hitsBuffer_.size());
+            // BA_CORE_INFO("Hits buffer size: {}", hitsBuffer_.size());
             FillBufferWithNextPacket();
         }
         if (hitsBuffer_.size() > 0)
@@ -76,17 +76,17 @@ namespace Bisa {
         bool ok = true;
         if (data[2*numBytes - 2] != 'a' || data[2*numBytes - 1] != 'a')
         {
-            BA_CORE_WARN("Skipping packet ({0:10s}...): Missing trailing 'aa'", data);
+            BA_CORE_WARN("Skipping packet ({0}...): Missing trailing 'aa'", data.substr(0, 15));
             ok = false;
         }
         // If number of bytes is < 24, this is an error. Log it
         if (numBytes < 24) {
-            BA_CORE_WARN("Skipping packet ({0:10s}...): {1} bytes", data, numBytes);
+            BA_CORE_WARN("Skipping packet ({0}...): {1} bytes", data.substr(0, 15), numBytes);
             ok = false;
         }
         // If number of bytes is > 10000, this is an error. Log it
         if (numBytes > 1000) {
-            BA_CORE_WARN("Skipping packet ({0:10s}...): {1} bytes", data, numBytes);
+            BA_CORE_WARN("Skipping packet ({0}...): {1} bytes", data.substr(0, 15), numBytes);
             ok = false;
         }
 
@@ -100,14 +100,14 @@ namespace Bisa {
         {
             if (hits.triggerId() == it->triggerId())
             {
-                BA_CORE_TRACE("Merging hits with Trigger ID = {} in buffer", hits.triggerId());
+                // BA_CORE_TRACE("Merging hits with Trigger ID = {} in buffer", hits.triggerId());
                 it->add(hits);
                 break;
             }
         }
         if (it == hitsBuffer_.end())
         {
-            BA_CORE_TRACE("Adding packet with Trigger ID = {} to buffer", hits.triggerId());
+            // BA_CORE_TRACE("Adding packet with Trigger ID = {} to buffer", hits.triggerId());
             hitsBuffer_.emplace_back(hits);
         }
     }
@@ -130,10 +130,10 @@ namespace Bisa {
 
             // newHit.strip
 
-            BA_CORE_TRACE("Added new hit to hits ({})", newHit.toString());
+            // BA_CORE_TRACE("Added new hit to hits ({})", newHit.toString());
             hits.add(CreateRef<Hit>(newHit));
         }
-        BA_CORE_TRACE("Finished decoding packet ({})", hits.toString());
+        // BA_CORE_TRACE("Finished decoding packet ({})", hits.toString());
         return hits;
     }
 

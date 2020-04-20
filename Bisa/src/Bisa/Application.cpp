@@ -12,7 +12,7 @@ namespace Bisa {
         auto props = StreamProps("data/ModA04_BIS7_IntMDT_autotrigger_5700V_040320201053.dat");
         dataStream_ = CreateScope<DataStream>(props);
         dataStream_->SetNewDataCallback([&](HitCollection& hits) {
-            BA_CORE_INFO("Added {0} hits to event", hits.size());
+            // BA_CORE_INFO("Added {0} hits to event", hits.size());
             *hits_ = hits;
         });
     }
@@ -31,7 +31,7 @@ namespace Bisa {
             {
                 BA_CORE_INFO("{}", h.second->toString());
             }
-            
+
             Step();
         }
     }

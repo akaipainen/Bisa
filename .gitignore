@@ -5,6 +5,7 @@ data/*
 
 # Files
 .DS_Store
+*.pdf
 
 # Xcode
 *.xcodeproj
