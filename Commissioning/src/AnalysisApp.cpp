@@ -1,17 +1,15 @@
 #include <Bisa.h>
 
 #include "Features/SpaceCluster.h"
-#include <TH1F.h>
-#include <TCanvas.h>
+#include "Features/NoiseBurst.h"
+
+#include "Plots/EventSummary.h"
 
 class AnalysisApp : public Bisa::Application
 {
 public:
     AnalysisApp()
-     : strip_("Total hit rate")
-     , canvas_(new TCanvas("test", "Test", 500, 300))
     {
-        strip_.init(32, 0, 32);
     }
 
     ~AnalysisApp()
@@ -30,43 +28,27 @@ public:
             
             Step();
         }
-        strip_.draw(canvas_);
-        canvas_->Print("test.pdf");
     }
 
     void Step() override
     {
-        // BA_INFO("Initializing Space Cluster Selector");
         SpaceClusterSelector spaceClusterSelector;
-        // spaceClusterSelector.setCreateFeatureCallback([&](Bisa::Feature& f) {
-            
-        // });
-        // BA_INFO("Creating Space Clusters");
         Bisa::FeatureCollection spaceClusters = spaceClusterSelector(*hits_);
 
+        NoiseBurstSelector noiseBurstSelector;
+        Bisa::FeatureCollection noiseBursts = noiseBurstSelector(*hits_);
 
-        // BA_INFO("Printing space clusters ({})", spaceClusters.size());
-        for (auto itCluster = spaceClusters.begin(); itCluster != spaceClusters.end(); itCluster++)
+        if (event_counter_++ < 100)
         {
-            // BA_TRACE("New Cluster: ");
-            for (auto itHit = itCluster->second->hits().begin(); itHit != itCluster->second->hits().end(); itHit++)
-            {
-                // BA_TRACE("{}", itHit->second->toString());
-            }
-        }
-        
-        const std::vector<int> strip_mapping = {
-            0, 4, 8, 12, 16, 20, 24, 28,
-            1, 5, 9, 13, 17, 21, 25, 29,
-            2, 6,10, 14, 18, 22, 26, 30,
-            3, 7,11, 15, 19, 23, 27, 31
-        };
-
-        // Add hits to graph
-        for (auto &&hit : *hits_)
-        {
-            auto strip = strip_mapping[hit.second->channel];
-            strip_[hit.second->tdc].Fill(strip);
+            EventSummary es1("events_noise_burst");
+            es1.configureAllHits(*hits_);
+            es1.addHits(*hits_, kBlack);
+            es1.addHits(noiseBursts.hits(), kRed);
+            
+            EventSummary es2("events_space_cluster");
+            es2.configureAllHits(*hits_);
+            es2.addHits(*hits_, kBlack);
+            es2.addHits(spaceClusters.hits(), kRed);
         }
         
         // BA_TRACE(spaceClusters);
@@ -88,8 +70,7 @@ public:
     }
 
 private:
-    Bisa::SummaryTdc<TH1F> strip_;
-    TCanvas* canvas_;
+    unsigned int event_counter_ = 0;
 };
 
 Bisa::Application* Bisa::CreateApplication()

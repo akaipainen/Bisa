@@ -11,31 +11,7 @@ class EventSummary : Bisa::Plot
 public:
     EventSummary(const char* name)
      : Bisa::Plot(name, 1, 1)
-     , noise_bursts_("noise_bursts")
-     , other_("other")
     {
-        // Initialize plots
-        noise_bursts_.init(32, 0, 32, 50/25*128, 0, 50);
-        noise_bursts_.for_each([](TH2F& hist) {
-            hist.SetFillColor(kRed);
-        });
-        noise_bursts_.for_each([](TH2F& hist) {
-            for (int strip = 0; strip < 32; strip++)
-            {
-                hist.GetXaxis()->SetBinLabel(strip+1, Form("%d", strip));
-            }
-        });
-
-        other_.init(32, 0, 32, 50/25*128, 0, 50);
-        other_.for_each([](TH2F& hist) {
-            hist.SetFillColor(kBlack);
-        });
-        other_.for_each([](TH2F& hist) {
-            for (int strip = 0; strip < 32; strip++)
-            {
-                hist.GetXaxis()->SetBinLabel(strip+1, Form("%d", strip));
-            }
-        });
     }
 
     ~EventSummary()
@@ -58,20 +34,25 @@ public:
         }
     }
 
-    void fillNoiseBursts(Bisa::HitCollection hits)
+    void addHits(Bisa::HitCollection hits, EColor color)
     {
+        Bisa::SummaryTdc<TH2F> layer((name_ + std::to_string(layers_.size())).c_str());
+        layer.init(32, 0, 32, 50/25*128, 0, 50);
+        layer.for_each([&](TH2F& hist) {
+            hist.SetFillColor(color);
+        });
+        layer.for_each([](TH2F& hist) {
+            for (int strip = 0; strip < 32; strip++)
+            {
+                hist.GetXaxis()->SetBinLabel(strip+1, Form("%d", strip));
+            }
+        });
         for (auto &&hit : hits)
         {
-            noise_bursts_[hit.second->tdc].Fill(strip(*hit.second), time(*hit.second) - first_time_ + 5);
+            layer[hit.second->tdc].Fill(strip(*hit.second), time(*hit.second) - first_time_ + 5);
         }
-    }
 
-    void fillOther(Bisa::HitCollection hits)
-    {
-        for (auto &&hit : hits)
-        {
-            other_[hit.second->tdc].Fill(strip(*hit.second), time(*hit.second) - first_time_ + 5);
-        }
+        layers_.push_back(layer);
     }
 
     void save()
@@ -79,9 +60,27 @@ public:
         gStyle->SetOptStat(0);
         gStyle->SetOptFit(0);
 
-        other_.draw(canvas_, true, "BOX");
-        noise_bursts_.draw(canvas_, false, "BOX SAME");
+        // Print first canvas with something on it
+        for (auto &&l : layers_)
+        {
+            if (l.size() > 0) 
+            {
+                l.draw(canvas_, true, "BOX");
+                break;
+            }
+            else {
+                layers_.push_back(layers_.front());
+                layers_.pop_front();
+            }
+        }
 
+        auto itLayer = next(layers_.begin());
+        for (; itLayer != layers_.end(); itLayer++)
+        {
+            itLayer->draw(canvas_, false, "BOX SAME");
+        }
+
+        gSystem->mkdir(Form("output/%s", name_), true);
         canvas_->Print(Form("output/%s/event_%u.pdf", name_, event_id_));
     }
 
@@ -105,8 +104,7 @@ private:
     }
 
 private:
-    Bisa::SummaryTdc<TH2F> noise_bursts_;
-    Bisa::SummaryTdc<TH2F> other_;
+    std::list<Bisa::SummaryTdc<TH2F>> layers_;
     
     double first_time_;
     unsigned int event_id_;

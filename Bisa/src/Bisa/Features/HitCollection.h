@@ -77,9 +77,7 @@ namespace Bisa {
     {
     public:
         HitCollection() = default;
-        // ~HitCollection();
-        // HitCollection(const HitCollection& other);
-        // HitCollection& operator=(const HitCollection& other);
+        virtual ~HitCollection() {}
 
         void add(Ref<Hit> hit);
         void remove(Ref<Hit> hit);
