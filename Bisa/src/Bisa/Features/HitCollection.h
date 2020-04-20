@@ -2,7 +2,7 @@
 
 #include "Bisa/Core.h"
 
-#include <vector>
+#include <unordered_map>
 #include <string>
 #include <sstream>
 
@@ -48,7 +48,7 @@ namespace Bisa {
         {
         }
 
-        std::string ToString()
+        std::string toString()
         {
             std::stringstream ret;
             ret << "Unique ID: " << uniqueId;
@@ -73,50 +73,38 @@ namespace Bisa {
         static unsigned int UniqueIdCounter;
     };
 
-    class BISA_API Hits
+    class BISA_API HitCollection
     {
     public:
-        Hits() = default;
-        ~Hits();
-        Hits(const Hits& other);
-        Hits& operator=(const Hits& other);
+        HitCollection() = default;
+        // ~HitCollection();
+        // HitCollection(const HitCollection& other);
+        // HitCollection& operator=(const HitCollection& other);
 
-        void PushHit(Hit* hit);
-        void PopHit(Hit* hit);
+        void add(Ref<Hit> hit);
+        void remove(Ref<Hit> hit);
 
-        void Merge(const Hits& hits);
+        unsigned int triggerId() { return triggerId_; }
+        unsigned int size() { return hits_.size(); }
+        
+        void add(const HitCollection& hits);
+        void remove(const HitCollection& hits);
 
-        unsigned int TriggerId() { return m_TriggerId; }
+        HitCollection operator&(const HitCollection& other); // intersection
+        HitCollection operator|(const HitCollection& other); // add/union
+        HitCollection operator-(const HitCollection& other); // subtract
 
-        std::string ToString();
+        std::string toString();
 
-        unsigned int size() { return size_first(); }
-        unsigned int size_first() { return m_FirstHits.size(); }
-        unsigned int size_add() { return m_AdditionalHits.size(); }
+        std::unordered_map<unsigned int, Ref<Hit>>::iterator begin() { return hits_.begin(); }
+        std::unordered_map<unsigned int, Ref<Hit>>::iterator end() { return hits_.end(); }
 
-        std::vector<Hit*>::iterator begin() { return begin_first(); }
-        std::vector<Hit*>::iterator end() { return end_first(); }
-
-        std::vector<Hit*>::iterator begin_first() { return m_FirstHits.begin(); }
-        std::vector<Hit*>::iterator end_first() { return m_FirstHits.end(); }
-
-        std::vector<Hit*>::iterator begin_add() { return m_AdditionalHits.begin(); }
-        std::vector<Hit*>::iterator end_add() { return m_AdditionalHits.end(); }
-
-        std::vector<Hit*>::const_iterator begin() const { return begin_first(); }
-        std::vector<Hit*>::const_iterator end() const { return end_first(); }
-
-        std::vector<Hit*>::const_iterator begin_first() const { return m_FirstHits.begin(); }
-        std::vector<Hit*>::const_iterator end_first() const { return m_FirstHits.end(); }
-
-        std::vector<Hit*>::const_iterator begin_add() const { return m_AdditionalHits.begin(); }
-        std::vector<Hit*>::const_iterator end_add() const { return m_AdditionalHits.end(); }
+        std::unordered_map<unsigned int, Ref<Hit>>::const_iterator begin() const { return hits_.begin(); }
+        std::unordered_map<unsigned int, Ref<Hit>>::const_iterator end() const { return hits_.end(); }
 
     private:
-        std::vector<Hit*> m_FirstHits;
-        std::vector<Hit*> m_AdditionalHits;
-
-        unsigned int m_TriggerId;
+        std::unordered_map<unsigned int, Ref<Hit>> hits_;
+        unsigned int triggerId_;
     };
 
 }

@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Bisa/Core.h"
-#include "Bisa/Features/Hits.h"
+#include "Bisa/Features/HitCollection.h"
 #include "Bisa/DataStream.h"
 
 namespace Bisa {
@@ -12,10 +12,16 @@ namespace Bisa {
         Application();
         virtual ~Application();
 
-        void Run();
+        virtual void Run();
+
+        virtual void Step();
+
+    protected:
+        Scope<HitCollection> hits_;
+
     private:
-        Scope<Hits> m_Hits;
-        Scope<DataStream> m_DataStream;
+        Scope<DataStream> dataStream_;
+        // Scope<FeatureCollection> m_FeatureCollection;
     };
 
     // To be defined in CLIENT

@@ -7,13 +7,13 @@ namespace Bisa {
     
     Application::Application()
     {
-        m_Hits = CreateScope<Hits>();
+        hits_ = CreateScope<HitCollection>();
 
         auto props = StreamProps("data/ModA04_BIS7_IntMDT_autotrigger_5700V_040320201053.dat");
-        m_DataStream = CreateScope<DataStream>(props);
-        m_DataStream->SetNewDataCallback([&](Hits& hits) {
+        dataStream_ = CreateScope<DataStream>(props);
+        dataStream_->SetNewDataCallback([&](HitCollection& hits) {
             BA_CORE_INFO("Added {0} hits to event", hits.size());
-            *m_Hits = hits;
+            *hits_ = hits;
         });
     }
 
@@ -25,13 +25,18 @@ namespace Bisa {
     {
         for (int i = 0; i < 5; i++)
         {
-            auto ok = m_DataStream->FillNextEvent();
+            auto ok = dataStream_->FillNextEvent();
             BA_CORE_INFO("Data found: {}", ok);
-            for (auto &&h : *m_Hits)
+            for (auto &&h : *hits_)
             {
-                BA_CORE_INFO("{}", h->ToString());
+                BA_CORE_INFO("{}", h.second->toString());
             }
         }
+    }
+
+    void Application::Step()
+    {
+        
     }
 
 }

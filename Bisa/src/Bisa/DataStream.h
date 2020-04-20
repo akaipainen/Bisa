@@ -3,7 +3,7 @@
 #include "bapch.h"
 
 #include "Bisa/Core.h"
-#include "Bisa/Features/Hits.h"
+#include "Bisa/Features/HitCollection.h"
 
 namespace Bisa {
 
@@ -23,12 +23,12 @@ namespace Bisa {
     class BISA_API DataStream
     {
     public:
-        using NewEventCallbackFn = std::function<void(Hits&)>;
+        using NewEventCallbackFn = std::function<void(HitCollection&)>;
 
         DataStream(const StreamProps& props);
         virtual ~DataStream();
 
-        void SetNewDataCallback(const NewEventCallbackFn& callback) { m_NewEventCallback = callback; }
+        void SetNewDataCallback(const NewEventCallbackFn& callback) { newEventCallback_ = callback; }
 
         bool FillNextEvent();
 
@@ -42,43 +42,43 @@ namespace Bisa {
         {
         public:
             IdCounter(int max=255)
-             : m_Max(max)
-             , m_LastValue(0)
-             , m_LastTrue(0)
+             : max_(max)
+             , lastValue_(0)
+             , lastTrue_(0)
             {
             }
 
             int get(int value)
             {
                 // In case this is first value
-                if (m_LastValue == 0 && m_LastTrue == 0)
+                if (lastValue_ == 0 && lastTrue_ == 0)
                 {
-                    m_LastValue = value;
-                    m_LastTrue = value;
+                    lastValue_ = value;
+                    lastTrue_ = value;
                     return value;
                 }
-                if (value < m_LastValue) // New value is smaller
+                if (value < lastValue_) // New value is smaller
                 {
-                    if (m_LastValue - value > m_Max / 2) // Rolled over (255 -> 0)
-                        m_LastTrue += m_Max + value - m_LastValue;
+                    if (lastValue_ - value > max_ / 2) // Rolled over (255 -> 0)
+                        lastTrue_ += max_ + value - lastValue_;
                     else // Else, decreased normally (Ex. 133 -> 132)
-                        m_LastTrue += value - m_LastValue;
+                        lastTrue_ += value - lastValue_;
                     
                 }
                 else // New value is larger
                 {
-                    if (value - m_LastValue > m_Max / 2) // Rolled back (0 -> 255)
-                        m_LastTrue += value - m_LastValue - m_Max;
+                    if (value - lastValue_ > max_ / 2) // Rolled back (0 -> 255)
+                        lastTrue_ += value - lastValue_ - max_;
                     else // Else, increased normally (Ex. 123 -> 124)
-                        m_LastTrue += value - m_LastValue;
+                        lastTrue_ += value - lastValue_;
                 }
-                m_LastValue = value;
-                return m_LastTrue;
+                lastValue_ = value;
+                return lastTrue_;
             }
         private:
-            unsigned int m_Max;
-            unsigned int m_LastValue;
-            unsigned int m_LastTrue;
+            unsigned int max_;
+            unsigned int lastValue_;
+            unsigned int lastTrue_;
         };
         
         struct Packet
@@ -118,18 +118,18 @@ namespace Bisa {
             }
         };
 
-        Hits DecodePacket(Packet packet);
+        HitCollection DecodePacket(Packet packet);
 
     private:
-        std::fstream m_DataFile;
-        std::deque<Hits> m_HitsBuffer;
-        IdCounter m_IdCounter;
-        bool m_PairMode;
+        std::fstream dataFile_;
+        std::deque<HitCollection> hitsBuffer_;
+        IdCounter idCounter_;
+        bool pairMode_;
 
-        NewEventCallbackFn m_NewEventCallback;
+        NewEventCallbackFn newEventCallback_;
 
-        unsigned int m_NumberOfPackets;
-        bool m_FileFinished = false;
+        unsigned int numberOfPackets_;
+        bool fileFinished_ = false;
     };
 
 }
