@@ -20,6 +20,7 @@ namespace Bisa {
 
         Feature(const HitCollection& hits)
          : hits_(hits)
+         , uniqueId_(uniqueIdCounter++)
         {
         }
 

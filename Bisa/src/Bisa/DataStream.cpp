@@ -63,12 +63,13 @@ namespace Bisa {
         // Read packet into data
         int numBytes;
         dataFile_ >> numBytes;
-        std::string data;
-        std::string byte;
-        for (int i = 0; i < numBytes; i++)
-        {
-            dataFile_ >> byte;
-            data += byte;
+        char* data = new char[numBytes*2 + 1];
+        data[numBytes*2] = '\0';
+
+        // file_stream_.ignore(40); // ignore the header
+        for (int i = 0; i < numBytes; i++) {
+            dataFile_.ignore(1);
+            dataFile_.read(data+i*2, 2);
         }
         Packet packet(data);
         
@@ -76,17 +77,17 @@ namespace Bisa {
         bool ok = true;
         if (data[2*numBytes - 2] != 'a' || data[2*numBytes - 1] != 'a')
         {
-            BA_CORE_WARN("Skipping packet ({0}...): Missing trailing 'aa'", data.substr(0, 15));
+            BA_CORE_WARN("Skipping packet: Missing trailing 'aa'");
             ok = false;
         }
         // If number of bytes is < 24, this is an error. Log it
         if (numBytes < 24) {
-            BA_CORE_WARN("Skipping packet ({0}...): {1} bytes", data.substr(0, 15), numBytes);
+            BA_CORE_WARN("Skipping packet: {} bytes", numBytes);
             ok = false;
         }
         // If number of bytes is > 10000, this is an error. Log it
         if (numBytes > 1000) {
-            BA_CORE_WARN("Skipping packet ({0}...): {1} bytes", data.substr(0, 15), numBytes);
+            BA_CORE_WARN("Skipping packet: {} bytes", numBytes);
             ok = false;
         }
 
@@ -115,12 +116,12 @@ namespace Bisa {
     HitCollection DataStream::DecodePacket(Packet packet)
     {
         HitCollection hits;
-        for (auto wordId = 0; wordId < packet.numWords; wordId++)
+        for (auto wordId = 0; wordId < packet.numWords(); wordId++)
         {
             Hit newHit;
             newHit.triggerId = idCounter_.get(Packet::Slice(packet.FpgaHeader(), 16, 8));
             newHit.bcidFpga = Packet::Slice(packet.FpgaHeader(), 0, 16);
-            newHit.felixCounter = packet.Bits(26+(packet.numWords+1)*8, 2);
+            newHit.felixCounter = packet.raw_bits(26+(packet.numWords()+1)*8, 2);
 
             newHit.tdc = Packet::Slice(packet.Word(wordId), 24, 4);
             newHit.channel = Packet::Slice(packet.Word(wordId), 19, 5);

@@ -20,7 +20,7 @@ namespace Bisa {
         unsigned int bcidTdc;
         unsigned int fineTime;
 
-        unsigned int strip;
+        // unsigned int strip;
         unsigned int uniqueId;
 
         Hit()
@@ -77,7 +77,9 @@ namespace Bisa {
     {
     public:
         HitCollection() = default;
-        virtual ~HitCollection() {}
+        // ~HitCollection() = default;
+        // HitCollection(HitCollection&& hits) = default;
+        // HitCollection& operator(HitCollection&& hits) = default;
 
         void add(Ref<Hit> hit);
         void remove(Ref<Hit> hit);

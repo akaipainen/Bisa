@@ -80,26 +80,82 @@ namespace Bisa {
             unsigned int lastValue_;
             unsigned int lastTrue_;
         };
-        
-        struct Packet
-        {
-            std::string data;
-            unsigned int numWords;
-            
-            Packet(const std::string& hexData)
-             : data(hexData)
+
+        class Packet {
+        public:
+            Packet() // default ctor
+             : raw_data_(new char[1]), size_(1)
             {
-                numWords = (data.size()/2 - 20) / 4;
+            }
+
+            Packet(const char *packet_data)  // ctor
+             : size_(strlen(packet_data))
+            {
+                raw_data_ = new char[size_ + 1];
+                strcpy(raw_data_, packet_data);
+                raw_data_[size_] = '\0';
+            }
+
+            Packet(const Packet &other) // copy ctor
+             : size_(other.size_)
+            {
+                raw_data_ = new char[size_ + 1];
+                strcpy(raw_data_, other.raw_data_);
+            }
+
+            Packet(Packet &&other) // move ctor
+             : raw_data_(nullptr), size_(0)
+            {
+                size_ = other.size_;
+                raw_data_ = other.raw_data_;
+
+                other.raw_data_ = nullptr;
+                other.size_ = 0;
+            }
+
+            ~Packet() // dtor
+            {
+                delete[] raw_data_;
+            }
+
+            Packet & operator=(const Packet &rhs) // copy assign
+            {
+                if (this != &rhs)
+                {
+                    Packet temp(rhs);
+                    std::swap(raw_data_, temp.raw_data_);
+                    std::swap(size_, temp.size_);
+                }
+                return *this;
+            }
+
+            Packet & operator=(Packet && rhs) // move assign
+            {
+                if (this != &rhs)
+                {
+                    delete[] raw_data_;
+                    raw_data_ = rhs.raw_data_;
+                    size_ = rhs.size_;
+
+                    rhs.raw_data_ = nullptr;
+                    rhs.size_ = 0;
+                }
+                return *this;
             }
 
             unsigned long Word(unsigned int i)
             {
-                return Bits(26 + i * 8, 8);
+                return raw_bits(26 + i * 8, 8);
+            }
+
+            unsigned long numWords()
+            {
+                return (size_/2 - 20) / 4;
             }
 
             unsigned long FpgaHeader()
             {
-                return Word(numWords);
+                return Word(numWords());
             }
 
             static unsigned long Slice(unsigned long bits, unsigned int shift, unsigned int length)
@@ -107,15 +163,22 @@ namespace Bisa {
                 return bits >> shift & (1 << length) - 1;
             }
 
-            unsigned long Bits(unsigned int start, unsigned int length)
+            unsigned long raw_bits(size_t start, size_t length) const
             {
-                BA_CORE_ASSERT(length <= 8, "Cannot return more than 8 bytes (32 bits)!");
-                BA_CORE_ASSERT(start < data.size(), "Start must be before end of data string!");
-                std::stringstream ss(data.substr(start, length));
-                unsigned long ret;
-                ss >> std::hex >> ret;
-                return ret;
+                BA_CORE_ASSERT(start < size_, "Start location of read raw bits is past end");
+                
+                char * start_ptr = raw_data_ + start;
+                char temp[length + 1];
+                strncpy(temp, start_ptr, length);
+                temp[length] = '\0';
+                // printf("%s = %lu\n", temp, strtoul(temp, nullptr, 16));
+                return strtoul(temp, nullptr, 16);
             }
+
+        private:
+            char * raw_data_;
+            unsigned int size_;
+            bool fragment_;
         };
 
         HitCollection DecodePacket(Packet packet);

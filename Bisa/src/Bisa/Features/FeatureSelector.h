@@ -27,6 +27,8 @@ namespace Bisa {
         virtual FeatureCollection operator()(const HitCollection& filterHits) const = 0;
 
     protected:
+        static const int strip_mapping[32];
+
         CreateFeatureCallbackFn createFeatureCallback_;
     };
 

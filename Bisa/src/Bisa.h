@@ -16,6 +16,7 @@
 #include "Bisa/Features/FeatureSelector.h"
 #include "Bisa/Features/FeatureCollection.h"
 #include "Bisa/Features/HitCollection.h"
+#include "Bisa/Features/HitSelector.h"
 
 // Plots
 #include "Bisa/Plots/Plot.h"

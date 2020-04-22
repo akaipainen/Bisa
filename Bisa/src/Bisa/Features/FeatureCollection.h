@@ -12,13 +12,11 @@ namespace Bisa {
     class BISA_API FeatureCollection
     {
     public:
-        FeatureCollection()
-        {
-        }
+        FeatureCollection() = default;
 
-        virtual ~FeatureCollection()
-        {
-        }
+        // virtual ~FeatureCollection()
+        // {
+        // }
 
         void add(Ref<Feature> feature)
         {
@@ -44,6 +42,21 @@ namespace Bisa {
                 }
             }
             return hc;
+        }
+
+        static FeatureCollection pairwise_intersect(const FeatureCollection& fc1, 
+                                                    const FeatureCollection& fc2)
+        {
+            FeatureCollection fc;
+            for (auto &&feature1 : fc1)
+            {
+                for (auto &&feature2 : fc2)
+                {
+                    auto f = CreateRef<Feature>(feature1.second->hits() & feature2.second->hits());
+                    fc.add(f);
+                }
+            }
+            return fc;
         }
 
         unsigned size() { return features_.size(); }

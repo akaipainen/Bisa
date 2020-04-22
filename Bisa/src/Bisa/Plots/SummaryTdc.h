@@ -13,7 +13,7 @@ namespace Bisa {
     class SummaryTdc
     {
     public:
-        SummaryTdc(std::string name, bool separate=false)
+        SummaryTdc(const char* name, bool separate=false)
          : name_(name)
          , separate_(separate)
         {
@@ -51,7 +51,7 @@ namespace Bisa {
             {
                 tdcs_.emplace_back(
                     new H(
-                        Form("%s_tdc_%d", name_.c_str(), i),
+                        Form("%s_tdc_%d", name_, i),
                         Form("TDC %d", i),
                         std::forward<Args>(args)...
                     )
@@ -59,9 +59,15 @@ namespace Bisa {
             }
         }
 
-        // TODO: Implement fill command with variable number of arguments and
-        // with both Hit and Feature Collections (first merge those)
-        // void fill()
+        unsigned int size() const
+        {
+            unsigned int sum;
+            for (auto &&tdc : tdcs_)
+            {
+                sum += tdc->GetEntries();
+            }
+            return sum;
+        }
 
         H& operator[](unsigned int i)
         {
@@ -87,6 +93,20 @@ namespace Bisa {
             {
                 tdc.GetXaxis()->SetTitle(xtitle);
                 tdc.GetYaxis()->SetTitle(ytitle);
+            }
+        }
+
+        void configure()
+        {
+            // Set histogram maximum
+            double max = 0;
+            for (auto it = tdcs_.begin(); it != tdcs_.end(); it++)
+            {
+                if ((*it)->GetMaximum() > max) max = (*it)->GetMaximum();
+            }
+            for (auto it = tdcs_.begin(); it != tdcs_.end(); it++)
+            {
+                (*it)->SetMaximum(max*1.1);
             }
         }
 
@@ -116,6 +136,8 @@ namespace Bisa {
                     // Configure margins to be equal
                     gPad->SetMargin(0.1, 0.1, 0.1, 0.1);
                 }
+
+                gPad->SetLogy();
                 
                 tdcs_[tdc]->Draw(options);
             }
@@ -123,7 +145,7 @@ namespace Bisa {
 
     private:
         std::vector<H*> tdcs_;
-        std::string name_;
+        const char* name_;
         bool separate_;
     };
 

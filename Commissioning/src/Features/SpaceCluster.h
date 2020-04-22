@@ -7,6 +7,7 @@ class SpaceCluster : public Bisa::Feature
 public:
     SpaceCluster()
     {
+
     }
 
     ~SpaceCluster()
@@ -97,7 +98,7 @@ public:
         // Fill fc
         for (auto &&f : featureList)
         {
-            fc.add(f);
+            if (f->hits().size() > 1) fc.add(f);
         }
 
         // BA_TRACE("Size: {}", fc.size());
@@ -110,12 +111,6 @@ private:
     // TODO: Replace fixed values for constant functions with configuration service
     bool adjacent(const Bisa::Hit& hit1, const Bisa::Hit& hit2) const
     {
-        const std::vector<int> strip_mapping = {
-            0, 4, 8, 12, 16, 20, 24, 28,
-            1, 5, 9, 13, 17, 21, 25, 29,
-            2, 6,10, 14, 18, 22, 26, 30,
-            3, 7,11, 15, 19, 23, 27, 31
-        };
         
         if (hit1.tdc == hit2.tdc) 
             return std::abs(strip_mapping[hit1.channel] - strip_mapping[hit2.channel]) <= 1;
@@ -148,6 +143,21 @@ private:
 
     bool around(const Bisa::Hit& hit1, const Bisa::Hit& hit2) const
     {
-        return stacked(hit1, hit2) || adjacent(hit1, hit2);
+        if (hit1.tdc < 3 && hit2.tdc < 3) 
+            return std::abs(strip_mapping[hit1.channel] - strip_mapping[hit2.channel]) <= 1;
+        else if ((hit1.tdc >= 3 && hit1.tdc % 2 == 1) &&
+                 (hit2.tdc >= 3 && hit2.tdc % 2 == 1))
+            return std::abs(strip_mapping[hit1.channel] - strip_mapping[hit2.channel]) <= 1;
+        else if ((hit1.tdc >= 3 && hit1.tdc % 2 == 0) &&
+                 (hit2.tdc >= 3 && hit2.tdc % 2 == 0))
+            return std::abs(strip_mapping[hit1.channel] - strip_mapping[hit2.channel]) <= 1;
+        else if ((hit1.tdc >= 3 && hit2.tdc >= 3) &&
+                 (hit1.tdc % 2 == 0 && hit2.tdc % 2 == 1))
+            return strip_mapping[hit1.channel] == 0 && strip_mapping[hit2.channel] == 31;
+        else if ((hit1.tdc >= 3 && hit2.tdc >= 3) &&
+                 (hit2.tdc % 2 == 0 && hit1.tdc % 2 == 1))
+            return strip_mapping[hit1.channel] == 31 && strip_mapping[hit2.channel] == 0;
+        else
+            return false;
     }
 };

@@ -2,28 +2,28 @@
 
 #include <Bisa.h>
 
-class NoiseBurst : public Bisa::Feature
+class TimeCluster : public Bisa::Feature
 {
 public:
-    NoiseBurst()
+    TimeCluster()
     {
     }
 
-    ~NoiseBurst()
+    ~TimeCluster()
     {
     }
 };
 
-class NoiseBurstSelector : public Bisa::FeatureSelector
+class TimeClusterSelector : public Bisa::FeatureSelector
 {
 public:
-    NoiseBurstSelector() = default;
+    TimeClusterSelector() = default;
 
     Bisa::FeatureCollection operator()(const Bisa::HitCollection& filterHits) const
     {
         Bisa::FeatureCollection fc; // output list of features
 
-        std::deque<Bisa::Ref<NoiseBurst>> featureList;
+        std::deque<Bisa::Ref<TimeCluster>> featureList;
         std::deque<Bisa::Ref<Bisa::Hit>> hits;
 
         // Initialize hits deque (need ordered container)
@@ -35,7 +35,7 @@ public:
         // Form initial cluster
         if (hits.size() != 0)
         {
-            Bisa::Ref<NoiseBurst> cluster = Bisa::CreateRef<NoiseBurst>();
+            Bisa::Ref<TimeCluster> cluster = Bisa::CreateRef<TimeCluster>();
             Bisa::Ref<Bisa::Hit> hit = *hits.begin();
             cluster->hits().add(hit);
             hits.pop_front();
@@ -56,8 +56,7 @@ public:
             {
                 // To add hit to the cluster, it must be adjacent to 
                 // and within 10 ns of a hit in the cluster
-                if (adjacent(*hit, *itHit->second) &&
-                    std::abs(time(*hit) - time(*itHit->second)) < 10)
+                if (std::abs(time(*hit) - time(*itHit->second)) < 10)
                 {
                     // If hit is around another hit, add it to the cluster
                     featureList.back()->hits().add(hit);
@@ -73,7 +72,7 @@ public:
                 // Create a new cluster
                 if (++notAddedCounter == hits.size())
                 {
-                    auto cluster = Bisa::CreateRef<NoiseBurst>();
+                    auto cluster = Bisa::CreateRef<TimeCluster>();
                     cluster->hits().add(hit);
                     hits.pop_front();
                     featureList.push_back(cluster);
@@ -91,12 +90,7 @@ public:
         // Fill fc
         for (auto &&f : featureList)
         {
-            // Only consider this a noise burst if there are 8 or more hits
-            // in the cluster
-            if (f->hits().size() >= 8)
-            {
-                fc.add(f);
-            }
+            if (f->hits().size() > 1) fc.add(f);
         }
         
         // Return the FeatureCollection
@@ -107,6 +101,13 @@ private:
     // TODO: Replace fixed values for constant functions with configuration service
     bool adjacent(const Bisa::Hit& hit1, const Bisa::Hit& hit2) const
     {
+        const std::vector<int> strip_mapping = {
+            0, 4, 8, 12, 16, 20, 24, 28,
+            1, 5, 9, 13, 17, 21, 25, 29,
+            2, 6,10, 14, 18, 22, 26, 30,
+            3, 7,11, 15, 19, 23, 27, 31
+        };
+        
         if (hit1.tdc == hit2.tdc) 
             return std::abs(strip_mapping[hit1.channel] - strip_mapping[hit2.channel]) <= 1;
         
