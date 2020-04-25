@@ -35,14 +35,14 @@ public:
         int count_phi = 0;
         for (auto &&hit : hits)
         {
-            if (direction_eta(*hit.second))
+            if (direction_eta(hit))
             {
-                mean_time_eta += time(*hit.second);
+                mean_time_eta += time(hit);
                 count_eta++;
             }
             else
             {
-                mean_time_phi += time(*hit.second);
+                mean_time_phi += time(hit);
                 count_phi++;
             }
         }
@@ -54,8 +54,8 @@ public:
     {
         for (auto &&hit : hits)
         {
-            if (direction_eta(*hit.second)) tdcs_[hit.second->tdc]->Fill(time(*hit.second) - mean_time_eta);
-            else tdcs_[hit.second->tdc]->Fill(time(*hit.second) - mean_time_phi);
+            if (direction_eta(hit)) tdcs_[hit.tdc()]->Fill(time(hit) - mean_time_eta);
+            else tdcs_[hit.tdc()]->Fill(time(hit) - mean_time_phi);
         }
     }
 
@@ -122,12 +122,12 @@ private:
 
     bool direction_eta(const Bisa::Hit& hit)
     {
-        return tdc_directions_[hit.tdc];
+        return tdc_directions_[hit.tdc()];
     }
 
     double time(const Bisa::Hit& hit)
     {
-        return hit.bcidTdc * 25 + hit.fineTime * 25.0/128.0;
+        return hit.bcid_tdc() * 25 + hit.fine_time() * 25.0/128.0;
     }
 
     void full_width_r_max(const TH1 &hist, TF1 &formula, const double r=0.5)

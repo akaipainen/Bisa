@@ -21,10 +21,10 @@ public:
     {
         for (auto &&hit : hits)
         {
-            strip_rate_[hit.second->tdc].Fill(strip(*hit.second));
-            channel_rate_[hit.second->tdc].Fill(hit.second->channel);
-            strip_count_[hit.second->tdc].Fill(strip(*hit.second));
-            channel_count_[hit.second->tdc].Fill(hit.second->channel);
+            strip_rate_[hit.tdc()].Fill(strip(hit));
+            channel_rate_[hit.tdc()].Fill(hit.channel());
+            strip_count_[hit.tdc()].Fill(strip(hit));
+            channel_count_[hit.tdc()].Fill(hit.channel());
         }
         event_counter_++;
     }

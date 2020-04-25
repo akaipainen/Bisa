@@ -30,10 +30,10 @@ public:
     {
         for (auto &&hit : hits)
         {
-            strip_rate_[hit.second->tdc].Fill(strip(*hit.second));
-            channel_rate_[hit.second->tdc].Fill(hit.second->channel);
-            strip_count_[hit.second->tdc].Fill(strip(*hit.second));
-            channel_count_[hit.second->tdc].Fill(hit.second->channel);
+            strip_rate_[hit.tdc()].Fill(strip(hit));
+            channel_rate_[hit.tdc()].Fill(hit.channel());
+            strip_count_[hit.tdc()].Fill(strip(hit));
+            channel_count_[hit.tdc()].Fill(hit.channel());
         }
     }
 
@@ -132,7 +132,7 @@ protected:
             2, 6,10, 14, 18, 22, 26, 30,
             3, 7,11, 15, 19, 23, 27, 31
         };
-        return strip_mapping[hit.channel];
+        return strip_mapping[hit.channel()];
     }
 
 public:

@@ -2,7 +2,7 @@
 
 #include "Bisa/Core.h"
 #include "Bisa/Features/HitCollection.h"
-#include "Bisa/DataStream.h"
+#include "Bisa/Data/DataStream.h"
 
 namespace Bisa {
     
@@ -19,9 +19,6 @@ namespace Bisa {
     protected:
         Scope<HitCollection> hits_;
         Scope<DataStream> dataStream_;
-
-    private:
-        // Scope<FeatureCollection> m_FeatureCollection;
     };
 
     // To be defined in CLIENT

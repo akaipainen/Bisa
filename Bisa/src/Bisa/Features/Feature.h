@@ -6,37 +6,48 @@
 
 namespace Bisa {
     
-    class Feature
+    class BISA_API Feature
     {
     public:
+        // Default constructor
         Feature()
-         : uniqueId_(uniqueIdCounter++)
+         : unique_id_(s_unique_id_counter++)
         {
         }
 
-        virtual ~Feature()
-        {
-        }
-
+        // Constructor from existing hit collection
         Feature(const HitCollection& hits)
          : hits_(hits)
-         , uniqueId_(uniqueIdCounter++)
+         , unique_id_(s_unique_id_counter++)
         {
         }
 
+        // Return hits by reference (non-const)
         HitCollection& hits()
         {
             return hits_;
         }
 
-        unsigned int uniqueId() { return uniqueId_; }
+        // Get unique id of this feature
+        unsigned int unique_id() { return unique_id_; }
+
+        // Compare if two features are the same
+        bool operator==(const Feature& other)
+        {
+            return unique_id_ == other.unique_id_;
+        }
+        // Compare if two features are different
+        bool operator!=(const Feature& other)
+        {
+            return !operator==(other);
+        }
 
     protected:
-        static unsigned int uniqueIdCounter;
+        static unsigned int s_unique_id_counter;
 
     private:
         HitCollection hits_;
-        unsigned int uniqueId_;
+        unsigned int unique_id_;
 
     };
 

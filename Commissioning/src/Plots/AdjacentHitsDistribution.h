@@ -26,7 +26,7 @@ public:
     {
         for (auto &&hit : hits)
         {
-            strip_[hit.second->tdc].Fill(strip(*hit.second));
+            strip_[hit.tdc()].Fill(strip(hit));
         }
     }
 
@@ -79,7 +79,7 @@ public:
 private:
     unsigned int strip(const Bisa::Hit& hit)
     {
-        return strip_mapping_[hit.channel];
+        return strip_mapping_[hit.channel()];
     }
 
 private:

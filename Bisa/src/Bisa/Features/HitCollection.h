@@ -1,110 +1,104 @@
 #pragma once
 
-#include "Bisa/Core.h"
+#include "bapch.h"
 
-#include <unordered_map>
-#include <string>
-#include <sstream>
+#include "Bisa/Core.h"
+#include "Bisa/Features/Hit.h"
 
 namespace Bisa {
-
-    struct Hit
-    {
-        unsigned int triggerId;
-        unsigned int bcidFpga;
-        unsigned int felixCounter;
-
-        unsigned int tdc;
-        unsigned int channel;
-        unsigned int width;
-        unsigned int bcidTdc;
-        unsigned int fineTime;
-
-        // unsigned int strip;
-        unsigned int uniqueId;
-
-        Hit()
-         : uniqueId(UniqueIdCounter++)
-        {
-        }
-
-        Hit(unsigned int triggerId, 
-            unsigned int bcidFpga,
-            unsigned int felixCounter,
-            unsigned int tdc,
-            unsigned int channel,
-            unsigned int width,
-            unsigned int bcidTdc,
-            unsigned int fineTime)
-         : triggerId(triggerId)
-         , bcidFpga(bcidFpga)
-         , felixCounter(felixCounter)
-         , tdc(tdc)
-         , channel(channel)
-         , width(width)
-         , bcidTdc(bcidTdc)
-         , fineTime(fineTime)
-         , uniqueId(UniqueIdCounter++)
-        {
-        }
-
-        std::string toString()
-        {
-            std::stringstream ret;
-            ret << "Unique ID: " << uniqueId;
-            ret << ", Trigger ID: " << triggerId;
-            ret << ", TDC: " << tdc;
-            ret << ", Channel: " << channel;
-            ret << ", BCID (TDC): " << bcidTdc;
-            ret << ", Fine Time: " << fineTime;
-            return ret.str();
-        }
-
-        bool operator==(const Hit& other)
-        {
-            return uniqueId == other.uniqueId;
-        }
-        bool operator!=(const Hit& other)
-        {
-            return !operator==(other);
-        }
-
-    private:
-        static unsigned int UniqueIdCounter;
-    };
 
     class BISA_API HitCollection
     {
     public:
-        HitCollection() = default;
-        // ~HitCollection() = default;
-        // HitCollection(HitCollection&& hits) = default;
-        // HitCollection& operator(HitCollection&& hits) = default;
+        class Iterator : public ::std::list<Ref<Hit>>::iterator
+        {
+        protected:
+            using parent = ::std::list<Ref<Hit>>::iterator;
 
+        public:
+            Iterator(parent it)
+             : parent(std::move(it)) { }
+
+            Hit& operator*() { return *(parent::operator*()); }
+
+            Ref<Hit> operator->() { return *(parent::operator->()); }
+
+            Ref<Hit> get() { return *(parent::operator->()); }
+        };
+
+        class ConstIterator : public ::std::list<Ref<Hit>>::const_iterator
+        {
+        protected:
+            using parent = std::list<Ref<Hit>>::const_iterator;
+
+        public:
+            ConstIterator(parent it)
+             : parent(std::move(it)) { }
+
+            Hit& operator*() { return *(parent::operator*()); }
+
+            Ref<Hit> operator->() { return *(parent::operator->()); }
+
+            Ref<Hit> get() { return *(parent::operator->()); }
+        };
+
+    public:
+        // Default constructor
+        HitCollection() = default;
+
+        // Add a single hit to this collection
         void add(Ref<Hit> hit);
+
+        // Remove a single feature from this collection
+        void remove(Iterator hit_iter);
+
+        // Remove a single feature from this collection
+        void remove(ConstIterator hit_iter);
+
+        // Remove a single feature from this collection
         void remove(Ref<Hit> hit);
 
-        unsigned int triggerId() { return triggerId_; }
-        unsigned int size() { return hits_.size(); }
+        // Get the trigger id of this collection 
+        unsigned int trigger_id() const { return trigger_id_; }
+
+        // Return the number of hits in this collection
+        unsigned int size() const { return hits_.size(); }
         
+        // Add a collection of hits to this collection
         void add(const HitCollection& hits);
+
+        // Remove a collection of hits from this collection
         void remove(const HitCollection& hits);
 
-        HitCollection operator&(const HitCollection& other); // intersection
-        HitCollection operator|(const HitCollection& other); // add/union
-        HitCollection operator-(const HitCollection& other); // subtract
+        // Return set intersection of this collection with another
+        HitCollection operator&(const HitCollection& other) const;
 
-        std::string toString();
+        // Return set union of this collection with another
+        HitCollection operator|(const HitCollection& other) const;
 
-        std::unordered_map<unsigned int, Ref<Hit>>::iterator begin() { return hits_.begin(); }
-        std::unordered_map<unsigned int, Ref<Hit>>::iterator end() { return hits_.end(); }
+        // Return set difference of this collection with another
+        HitCollection operator-(const HitCollection& other) const;
 
-        std::unordered_map<unsigned int, Ref<Hit>>::const_iterator begin() const { return hits_.begin(); }
-        std::unordered_map<unsigned int, Ref<Hit>>::const_iterator end() const { return hits_.end(); }
+        // Return string interpretation of this object (debug tool)
+        ::std::string to_string() const;
+
+        // Return begin iterator (non-const)
+        Iterator begin() { return hits_.begin(); }
+        
+        // Return end iterator (non-const)
+        Iterator end() { return hits_.end(); }
+
+        // Return begin iterator (const)
+        ConstIterator begin() const { return hits_.begin(); }
+        
+        // Return end iterator (const)
+        ConstIterator end() const { return hits_.end(); }
 
     private:
-        std::unordered_map<unsigned int, Ref<Hit>> hits_;
-        unsigned int triggerId_;
+        ::std::list<Ref<Hit>> hits_;
+        ::std::unordered_set<unsigned int> hit_ids_;
+
+        unsigned int trigger_id_;
     };
 
 }

@@ -39,7 +39,7 @@ public:
 
     void Run() override
     {
-        while (dataStream_->FillNextEvent())
+        while (dataStream_->fill_next_event())
         {        
             Step();
         }
@@ -55,7 +55,7 @@ public:
         
         Bisa::FeatureCollection timeClusters = timeClusterSelector(firstHits);
 
-        Bisa::FeatureCollection spaceTimeCluster = Bisa::FeatureCollection::pairwise_intersect(timeClusters, spaceClusters);
+        Bisa::FeatureCollection spaceTimeCluster = timeClusters & spaceClusters;
 
         Bisa::HitCollection randomNoise = (firstHits - timeClusters.hits()) - spaceClusters.hits();
 

@@ -22,11 +22,11 @@ public:
     void configureAllHits(Bisa::HitCollection hits)
     {
         auto itHit = hits.begin();
-        event_id_ = itHit->second->triggerId;
-        first_time_ = time(*(itHit++)->second);
-        for (; itHit != hits.end(); itHit++)
+        event_id_ = itHit->trigger_id();
+        first_time_ = time(*itHit);
+        for (itHit++; itHit != hits.end(); itHit++)
         {
-            auto t = time(*itHit->second);
+            auto t = time(*itHit);
             if (t < first_time_)
             {
                 first_time_ = t;
@@ -49,7 +49,7 @@ public:
         });
         for (auto &&hit : hits)
         {
-            layer[hit.second->tdc].Fill(strip(*hit.second), time(*hit.second) - first_time_ + 5);
+            layer[hit.tdc()].Fill(strip(hit), time(hit) - first_time_ + 5);
         }
 
         layers_.push_back(layer);
@@ -101,7 +101,7 @@ private:
     // TODO: Move time into config file
     double time(const Bisa::Hit& hit) const
     {
-        return hit.bcidTdc * 25 + hit.fineTime * 25.0/128.0;
+        return hit.bcid_tdc() * 25 + hit.fine_time() * 25.0/128.0;
     }
 
     unsigned int strip(const Bisa::Hit& hit) const
@@ -113,7 +113,7 @@ private:
             3, 7,11, 15, 19, 23, 27, 31
         };
 
-        return strip_mapping[hit.channel];
+        return strip_mapping[hit.channel()];
     }
 
 private:

@@ -28,8 +28,8 @@ public:
     {
         for (auto &&hit : hits)
         {
-            strip_[hit.second->tdc].Fill(strip(*hit.second), hit.second->width);
-            channel_[hit.second->tdc].Fill(hit.second->channel, hit.second->width);
+            strip_[hit.tdc()].Fill(strip(hit), hit.width());
+            channel_[hit.tdc()].Fill(hit.channel(), hit.width());
         }
     }
 
@@ -106,7 +106,7 @@ private:
     // TODO: Move to config file
     unsigned int strip(const Bisa::Hit& hit)
     {
-        return strip_mapping_[hit.channel];
+        return strip_mapping_[hit.channel()];
     }
 
 private:

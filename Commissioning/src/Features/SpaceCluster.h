@@ -29,9 +29,9 @@ public:
         std::deque<Bisa::Ref<SpaceCluster>> featureList;
         std::deque<Bisa::Ref<Bisa::Hit>> hits;
         // Initialize hits deque (need ordered container)
-        for (auto itHit = filterHits.begin(); itHit != filterHits.end(); itHit++)
+        for (auto hit_it = filterHits.begin(); hit_it != filterHits.end(); hit_it++)
         {
-            hits.push_back(itHit->second);
+            hits.push_back(hit_it.get());
         }
 
         // Form initial cluster
@@ -60,7 +60,7 @@ public:
             auto itHit = featureList.back()->hits().begin();
             for (; itHit != featureList.back()->hits().end(); itHit++)
             {
-                if (around(*hit, *itHit->second))
+                if (around(*hit, *itHit))
                 {
                     // If hit is around another hit, add it to the cluster
                     // BA_TRACE("Adding hit to cluster");
@@ -111,52 +111,51 @@ private:
     // TODO: Replace fixed values for constant functions with configuration service
     bool adjacent(const Bisa::Hit& hit1, const Bisa::Hit& hit2) const
     {
+        if (hit1.tdc() == hit2.tdc()) 
+            return std::abs(strip_mapping[hit1.channel()] - strip_mapping[hit2.channel()]) <= 1;
         
-        if (hit1.tdc == hit2.tdc) 
-            return std::abs(strip_mapping[hit1.channel] - strip_mapping[hit2.channel]) <= 1;
-        
-        else if ((hit1.tdc == 3 && hit2.tdc == 4) ||
-                 (hit1.tdc == 5 && hit2.tdc == 6) ||
-                 (hit1.tdc == 7 && hit2.tdc == 8))
-            return strip_mapping[hit1.channel] == 31 && strip_mapping[hit2.channel] == 0;
-        else if ((hit1.tdc == 4 && hit2.tdc == 3) ||
-                 (hit1.tdc == 6 && hit2.tdc == 5) ||
-                 (hit1.tdc == 8 && hit2.tdc == 7))
-            return strip_mapping[hit1.channel] == 0 && strip_mapping[hit2.channel] == 31;
+        else if ((hit1.tdc() == 3 && hit2.tdc() == 4) ||
+                 (hit1.tdc() == 5 && hit2.tdc() == 6) ||
+                 (hit1.tdc() == 7 && hit2.tdc() == 8))
+            return strip_mapping[hit1.channel()] == 31 && strip_mapping[hit2.channel()] == 0;
+        else if ((hit1.tdc() == 4 && hit2.tdc() == 3) ||
+                 (hit1.tdc() == 6 && hit2.tdc() == 5) ||
+                 (hit1.tdc() == 8 && hit2.tdc() == 7))
+            return strip_mapping[hit1.channel()] == 0 && strip_mapping[hit2.channel()] == 31;
         else
             return false;
     }
 
     bool stacked(const Bisa::Hit& hit1, const Bisa::Hit& hit2) const
     {
-        if (hit1.tdc < 3 && hit2.tdc < 3) 
-            return hit1.channel == hit2.channel;
-        else if ((hit1.tdc >= 3 && hit1.tdc % 2 == 1) &&
-                 (hit2.tdc >= 3 && hit2.tdc % 2 == 1))
-            return hit1.channel == hit2.channel;
-        else if ((hit1.tdc >= 3 && hit1.tdc % 2 == 0) &&
-                 (hit2.tdc >= 3 && hit2.tdc % 2 == 0))
-            return hit1.channel == hit2.channel;
+        if (hit1.tdc() < 3 && hit2.tdc() < 3) 
+            return hit1.channel() == hit2.channel();
+        else if ((hit1.tdc() >= 3 && hit1.tdc() % 2 == 1) &&
+                 (hit2.tdc() >= 3 && hit2.tdc() % 2 == 1))
+            return hit1.channel() == hit2.channel();
+        else if ((hit1.tdc() >= 3 && hit1.tdc() % 2 == 0) &&
+                 (hit2.tdc() >= 3 && hit2.tdc() % 2 == 0))
+            return hit1.channel() == hit2.channel();
         else
             return false;
     }
 
     bool around(const Bisa::Hit& hit1, const Bisa::Hit& hit2) const
     {
-        if (hit1.tdc < 3 && hit2.tdc < 3) 
-            return std::abs(strip_mapping[hit1.channel] - strip_mapping[hit2.channel]) <= 1;
-        else if ((hit1.tdc >= 3 && hit1.tdc % 2 == 1) &&
-                 (hit2.tdc >= 3 && hit2.tdc % 2 == 1))
-            return std::abs(strip_mapping[hit1.channel] - strip_mapping[hit2.channel]) <= 1;
-        else if ((hit1.tdc >= 3 && hit1.tdc % 2 == 0) &&
-                 (hit2.tdc >= 3 && hit2.tdc % 2 == 0))
-            return std::abs(strip_mapping[hit1.channel] - strip_mapping[hit2.channel]) <= 1;
-        else if ((hit1.tdc >= 3 && hit2.tdc >= 3) &&
-                 (hit1.tdc % 2 == 0 && hit2.tdc % 2 == 1))
-            return strip_mapping[hit1.channel] == 0 && strip_mapping[hit2.channel] == 31;
-        else if ((hit1.tdc >= 3 && hit2.tdc >= 3) &&
-                 (hit2.tdc % 2 == 0 && hit1.tdc % 2 == 1))
-            return strip_mapping[hit1.channel] == 31 && strip_mapping[hit2.channel] == 0;
+        if (hit1.tdc() < 3 && hit2.tdc() < 3) 
+            return std::abs(strip_mapping[hit1.channel()] - strip_mapping[hit2.channel()]) <= 1;
+        else if ((hit1.tdc() >= 3 && hit1.tdc() % 2 == 1) &&
+                 (hit2.tdc() >= 3 && hit2.tdc() % 2 == 1))
+            return std::abs(strip_mapping[hit1.channel()] - strip_mapping[hit2.channel()]) <= 1;
+        else if ((hit1.tdc() >= 3 && hit1.tdc() % 2 == 0) &&
+                 (hit2.tdc() >= 3 && hit2.tdc() % 2 == 0))
+            return std::abs(strip_mapping[hit1.channel()] - strip_mapping[hit2.channel()]) <= 1;
+        else if ((hit1.tdc() >= 3 && hit2.tdc() >= 3) &&
+                 (hit1.tdc() % 2 == 0 && hit2.tdc() % 2 == 1))
+            return strip_mapping[hit1.channel()] == 0 && strip_mapping[hit2.channel()] == 31;
+        else if ((hit1.tdc() >= 3 && hit2.tdc() >= 3) &&
+                 (hit2.tdc() % 2 == 0 && hit1.tdc() % 2 == 1))
+            return strip_mapping[hit1.channel()] == 31 && strip_mapping[hit2.channel()] == 0;
         else
             return false;
     }

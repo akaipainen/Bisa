@@ -1,70 +1,77 @@
-#include "bapch.h"
-
 #include "Bisa/Features/HitCollection.h"
 
 namespace Bisa {
 
-    unsigned int Hit::UniqueIdCounter = 0;
-
-    void HitCollection::add(Ref<Hit> newHit)
+    void HitCollection::add(Ref<Hit> new_hit)
     {
-        // Gains ownership of hit
-        BA_CORE_ASSERT(newHit->triggerId == triggerId_ || size() == 0, 
+        BA_CORE_ASSERT(new_hit->trigger_id() == trigger_id_ || size() == 0, 
                        "Adding new hit with different Trigger ID to HitCollection");
         
-        auto found = hits_.find(newHit->uniqueId);
-        if (found == hits_.end()) // if not found, add it
+        // Only add the new Hit if not already in Collection
+        auto found = hit_ids_.find(new_hit->unique_id());
+        if (found == hit_ids_.end()) 
         {
-            hits_.insert({newHit->uniqueId, newHit});
-            triggerId_ = newHit->triggerId;
+            hits_.emplace_back(new_hit);
+            hit_ids_.emplace(new_hit->unique_id());
+            trigger_id_ = new_hit->trigger_id();
         }
+    }
+
+    void HitCollection::remove(Iterator hit_it)
+    {
+        std::list<Ref<Hit>>::iterator pit = hit_it;
+        hits_.erase(pit);
+    }
+
+    void HitCollection::remove(ConstIterator hit_it)
+    {
+        std::list<Ref<Hit>>::const_iterator pit = hit_it;
+        hits_.erase(pit);
     }
 
     void HitCollection::remove(Ref<Hit> hit)
     {
-        auto found = hits_.find(hit->uniqueId);
-        if (found != hits_.end()) // if found, 
+        // If this feature exists in this collection, find it and remove it
+        auto search = hit_ids_.find(hit->unique_id());
+        if (search != hit_ids_.end())
         {
-            hits_.erase(found);
+            auto found = std::find(begin(), end(), *hit);
+            remove(found);
         }
     }
 
     void HitCollection::add(const HitCollection& other)
     {
-        for (auto it = other.begin(); it != other.end(); it++)
+        for (auto hit_it = other.begin(); hit_it != other.end(); hit_it++)
         {
-            hits_.insert(*it);
+            add(hit_it.get());
         }
     }
 
     void HitCollection::remove(const HitCollection& other)
     {
-        for (auto it = other.begin(); it != other.end(); it++)
+        for (auto hit_it = other.begin(); hit_it != other.end(); hit_it++)
         {
-            auto found = hits_.find(it->first);
-            if (found != hits_.end())
-            {
-                hits_.erase(found);
-            }
+            remove(hit_it);
         }
     }
 
-    HitCollection HitCollection::operator&(const HitCollection& other)
+    HitCollection HitCollection::operator&(const HitCollection& other) const
     {
         HitCollection hc;
         const HitCollection& smaller = other.hits_.size() < hits_.size() ? other : *this;
         const HitCollection& bigger = other.hits_.size() < hits_.size() ? *this : other;
-        for (auto &&hitPair : smaller)
+        for (auto hit_it = smaller.begin(); hit_it != smaller.end(); hit_it++)
         {
-            if (bigger.hits_.find(hitPair.first) != bigger.end())
+            if (bigger.hit_ids_.find(hit_it->unique_id()) != bigger.hit_ids_.end())
             {
-                hc.add(hitPair.second);
+                hc.add(hit_it.get());
             }
         }
         return hc;
     }
 
-    HitCollection HitCollection::operator|(const HitCollection& other)
+    HitCollection HitCollection::operator|(const HitCollection& other) const
     {
         HitCollection hc;
         hc.add(*this);
@@ -72,17 +79,17 @@ namespace Bisa {
         return hc;
     }
 
-    HitCollection HitCollection::operator-(const HitCollection& other)
+    HitCollection HitCollection::operator-(const HitCollection& other) const
     {
         HitCollection hc(*this);
         hc.remove(other);
         return hc;
     }
 
-    std::string HitCollection::toString()
+    std::string HitCollection::to_string() const
         {
             std::stringstream ret;
-            ret << "Trigger ID: " << triggerId_;
+            ret << "Trigger ID: " << trigger_id_;
             ret << ", Number of hits: " << size();
             return ret.str();
         }

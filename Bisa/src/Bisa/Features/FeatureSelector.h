@@ -12,7 +12,7 @@ namespace Bisa {
     class BISA_API FeatureSelector
     {
     public:
-        using CreateFeatureCallbackFn = std::function<void(Feature&)>;
+        using CreateFeatureCallbackFn = ::std::function<void(Feature&)>;
 
         FeatureSelector()
         {
