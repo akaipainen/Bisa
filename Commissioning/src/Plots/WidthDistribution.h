@@ -75,13 +75,13 @@ public:
             }
             else if (tdc % 2 == 1) 
             {
-                strip_[tdc].SetOption("COLZ");
-                channel_[tdc].SetOption("COLZ");
+                strip_[tdc].SetOption("COL");
+                channel_[tdc].SetOption("COL");
             }
             else if (tdc % 2 == 0)    
             {
-                strip_[tdc].SetOption("COL");
-                channel_[tdc].SetOption("COL");
+                strip_[tdc].SetOption("COLZ");
+                channel_[tdc].SetOption("COLZ");
             }
         }
     }
@@ -93,11 +93,11 @@ public:
 
         gSystem->mkdir("output/width_distribution", true);
 
-        strip_.draw(canvas_, true);
+        strip_.draw(canvas_, Bisa::SummaryTdc<TH2F>::DrawProps());
         canvas_->Print(Form("output/width_distribution/%s_strip_rate.pdf", name_));
         canvas_->Clear();
 
-        channel_.draw(canvas_, true);
+        channel_.draw(canvas_, Bisa::SummaryTdc<TH2F>::DrawProps());
         canvas_->Print(Form("output/width_distribution/%s_channel_rate.pdf", name_));
         canvas_->Clear();
     }
@@ -106,13 +106,7 @@ private:
     // TODO: Move to config file
     unsigned int strip(const Bisa::Hit& hit)
     {
-        const std::vector<int> strip_mapping = {
-            0, 4, 8, 12, 16, 20, 24, 28,
-            1, 5, 9, 13, 17, 21, 25, 29,
-            2, 6,10, 14, 18, 22, 26, 30,
-            3, 7,11, 15, 19, 23, 27, 31
-        };
-        return strip_mapping[hit.channel];
+        return strip_mapping_[hit.channel];
     }
 
 private:

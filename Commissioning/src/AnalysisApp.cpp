@@ -4,23 +4,32 @@
 #include "Features/NoiseBurst.h"
 #include "Features/TimeCluster.h"
 #include "Features/FirstHitOnStrip.h"
+#include "Features/AdjacentHits.h"
 
 #include "Plots/EventSummary.h"
 #include "Plots/HitDistribution.h"
+#include "Plots/RandomNoiseDistribution.h"
+#include "Plots/FirstHitsDistribution.h"
+#include "Plots/MuonHitsDistribution.h"
+#include "Plots/NoiseBurstDistribution.h"
 #include "Plots/WidthDistribution.h"
+#include "Plots/TimingResolution.h"
+#include "Plots/AdjacentHitsDistribution.h"
 
 class AnalysisApp : public Bisa::Application
 {
 public:
     AnalysisApp()
-    : all_first_hd_("all_first_hits", 1)
-    , muon_hd_("muon_hits", 1/(10*60*60))
-    , random_noise_hd_("random_noise_hits", 1/(0.0000016*85000))
-    , noise_burst_hd_("noise_burst_hits", 1)
+    : all_first_hd_("all_first_hits", 10*60) // run duration in seconds
+    , muon_hd_("muon_hits", 10*60)
+    , random_noise_hd_("random_noise_hits")
+    , noise_burst_hd_("noise_burst_hits", 10*60)
     , all_first_wd_("all_first_width")
     , muon_wd_("muon_width")
     , random_noise_wd_("random_noise_width")
     , noise_burst_wd_("noise_burst_width")
+    , timing_resolution_("timing_resolution")
+    , adjacent_hits_("adjacent_hits")
     {
     }
 
@@ -50,6 +59,8 @@ public:
 
         Bisa::HitCollection randomNoise = (firstHits - timeClusters.hits()) - spaceClusters.hits();
 
+        Bisa::FeatureCollection adjacentHits = adjacentHitsSelector(firstHits - noiseBursts.hits());
+
         if (event_counter_++ < 100)
         {
             EventSummary es1("events_noise_burst");
@@ -78,40 +89,33 @@ public:
         muon_wd_.addHits(spaceTimeCluster.hits());
         random_noise_wd_.addHits(randomNoise);
         noise_burst_wd_.addHits(noiseBursts.hits());
-        
-        // BA_TRACE(spaceClusters);
 
-        // SparkSelector sparkSelector;
-        // FirstHitSelector firstHitSelector;
+        timing_resolution_.calculateMeanTime(spaceTimeCluster.hits());
+        timing_resolution_.fillHits(spaceClusters.hits());
 
-        // FeatureCollection spark_selector = sparkSelector(allHits);
-
-        // Bisa::HitCollection sparksHits = Bisa::HitCollection().add(sparks.Hit());
-
-        // FeatureCollection space_clusters = SpaceClustersSelector();
-
-        // Bisa::HitCollection spark_filter = Bisa::HitFilter(m_Hits, sparks, remove=true);
-
-        // Bisa::HitCollection clusters = ClustersSelector(spark_filter);
-
-        // Bisa::HitFilter();
+        adjacent_hits_.addHits(adjacentHits.hits());
     }
 
 private:
-    HitDistribution all_first_hd_;
-    HitDistribution muon_hd_;
-    HitDistribution random_noise_hd_;
-    HitDistribution noise_burst_hd_;
+    FirstHitsDistribution all_first_hd_;
+    MuonHitsDistribution muon_hd_;
+    RandomNoiseDistribution random_noise_hd_;
+    NoiseBurstDistribution noise_burst_hd_;
 
     WidthDistribution all_first_wd_;
     WidthDistribution muon_wd_;
     WidthDistribution random_noise_wd_;
     WidthDistribution noise_burst_wd_;
 
+    TimingResolution timing_resolution_;
+
+    AdjacentHitsDistribution adjacent_hits_;
+
     FirstHitOnStripSelector firstHitSelector;
     SpaceClusterSelector spaceClusterSelector;
     NoiseBurstSelector noiseBurstSelector;
     TimeClusterSelector timeClusterSelector;
+    AdjacentHitsSelector adjacentHitsSelector;
 
     unsigned int event_counter_ = 0;
 };

@@ -22,6 +22,9 @@ namespace Bisa {
     protected:
         const char* name_;
         TCanvas* canvas_;
+
+        static const bool tdc_directions_[9];
+        static const int strip_mapping_[32];
     };
 
 }

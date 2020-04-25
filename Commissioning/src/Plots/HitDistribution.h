@@ -10,9 +10,8 @@ class HitDistribution : Bisa::Plot
 {
 public:
 
-    HitDistribution(const char* name, double scale)
+    HitDistribution(const char* name)
      : Bisa::Plot(name, 1, 1)
-     , scale_(scale)
      , strip_rate_(Form("%s_strip_rate", name_))
      , channel_rate_(Form("%s_channel_rate", name_))
      , strip_count_(Form("%s_strip_count", name_))
@@ -21,18 +20,18 @@ public:
         init();
     }
 
-    ~HitDistribution()
+    virtual ~HitDistribution()
     {
         configure();
         save();
     }
 
-    void addHits(Bisa::HitCollection hits)
+    virtual void addHits(Bisa::HitCollection hits)
     {
         for (auto &&hit : hits)
         {
-            strip_rate_[hit.second->tdc].Fill(strip(*hit.second), scale_);
-            channel_rate_[hit.second->tdc].Fill(hit.second->channel, scale_);
+            strip_rate_[hit.second->tdc].Fill(strip(*hit.second));
+            channel_rate_[hit.second->tdc].Fill(hit.second->channel);
             strip_count_[hit.second->tdc].Fill(strip(*hit.second));
             channel_count_[hit.second->tdc].Fill(hit.second->channel);
         }
@@ -44,20 +43,6 @@ public:
         channel_rate_.init(32, 0, 32);
         strip_count_.init(32, 0, 32);
         channel_count_.init(32, 0, 32);
-    }
-
-    void same_configure(TH1F& hist)
-    {
-        for (int strip = 0; strip < 32; strip++)
-        {
-            hist.GetXaxis()->SetBinLabel(strip+1, Form("%d", strip));
-        }
-        hist.GetXaxis()->SetLabelSize(0.04);
-
-        hist.SetFillColor(16); // Bar color
-        hist.SetLineColor(kBlack); // Error bar color
-        hist.SetBarWidth(0.8); // Set bar width
-        hist.SetBarOffset(0.1);
     }
 
     void configure()
@@ -100,25 +85,45 @@ public:
 
         gSystem->mkdir("output/hit_distribution", true);
 
-        strip_rate_.draw(canvas_, true, "BAR E0");
+        Bisa::SummaryTdc<TH1F>::DrawProps props = {
+            true, // divide
+            false, // logy
+            false, // logz
+            "BAR E0" // options
+        };
+
+        strip_rate_.draw(canvas_, props);
         canvas_->Print(Form("output/hit_distribution/%s_strip_rate.pdf", name_));
         canvas_->Clear();
 
-        channel_rate_.draw(canvas_, true, "BAR E0");
+        channel_rate_.draw(canvas_, props);
         canvas_->Print(Form("output/hit_distribution/%s_channel_rate.pdf", name_));
         canvas_->Clear();
 
-        strip_count_.draw(canvas_, true, "BAR E0");
+        strip_count_.draw(canvas_, props);
         canvas_->Print(Form("output/hit_distribution/%s_strip_count.pdf", name_));
         canvas_->Clear();
         
-        channel_count_.draw(canvas_, true, "BAR E0");
+        channel_count_.draw(canvas_, props);
         canvas_->Print(Form("output/hit_distribution/%s_channel_count.pdf", name_));
         canvas_->Clear();
     }
 
-private:
-    // TODO: Move to config file
+protected:
+    void same_configure(TH1F& hist)
+    {
+        for (int strip = 0; strip < 32; strip++)
+        {
+            hist.GetXaxis()->SetBinLabel(strip+1, Form("%d", strip));
+        }
+        hist.GetXaxis()->SetLabelSize(0.04);
+
+        hist.SetFillColor(16); // Bar color
+        hist.SetLineColor(kBlack); // Error bar color
+        hist.SetBarWidth(0.8); // Set bar width
+        hist.SetBarOffset(0.1);
+    }
+
     unsigned int strip(const Bisa::Hit& hit)
     {
         const std::vector<int> strip_mapping = {
@@ -136,6 +141,4 @@ public:
 
     Bisa::SummaryTdc<TH1F> strip_count_;
     Bisa::SummaryTdc<TH1F> channel_count_;
-
-    double scale_;
 };

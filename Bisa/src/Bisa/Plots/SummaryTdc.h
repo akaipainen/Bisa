@@ -13,6 +13,22 @@ namespace Bisa {
     class SummaryTdc
     {
     public:
+
+        struct DrawProps {
+            bool divide_canvas;
+            bool logy;
+            bool logz;
+            const char* options;
+
+            DrawProps(bool divide_canvas=true,
+                      bool logy=false,
+                      bool logz=false,
+                      const char* options="")
+             : divide_canvas(divide_canvas), logy(logy), logz(logz), options(options)
+            {
+            }
+        };
+
         SummaryTdc(const char* name, bool separate=false)
          : name_(name)
          , separate_(separate)
@@ -107,14 +123,15 @@ namespace Bisa {
             for (auto it = tdcs_.begin(); it != tdcs_.end(); it++)
             {
                 (*it)->SetMaximum(max*1.1);
+                (*it)->SetMinimum(0);
             }
         }
 
-        void draw(TCanvas* canvas, bool divideCanvas=true, const char* options="")
+        void draw(TCanvas* canvas, DrawProps props=DrawProps())
         {
             // Create sub-pads
             // Divide should only be false if drawing on SAME canvas
-            if (divideCanvas) canvas->Divide(3, 3, 0, 0);
+            if (props.divide_canvas) canvas->Divide(3, 3, 0, 0);
 
             for (unsigned int tdc = 0; tdc < 9; tdc++)
             {
@@ -137,9 +154,10 @@ namespace Bisa {
                     gPad->SetMargin(0.1, 0.1, 0.1, 0.1);
                 }
 
-                gPad->SetLogy();
+                if (props.logy) gPad->SetLogy();
+                if (props.logz) gPad->SetLogz();
                 
-                tdcs_[tdc]->Draw(options);
+                tdcs_[tdc]->Draw(props.options);
             }
         }
 

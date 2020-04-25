@@ -60,12 +60,25 @@ public:
         gStyle->SetOptStat(0);
         gStyle->SetOptFit(0);
 
+        Bisa::SummaryTdc<TH2F>::DrawProps props = {
+            true,
+            false,
+            false,
+            "BOX"
+        };
+        Bisa::SummaryTdc<TH2F>::DrawProps propsSame = {
+            false,
+            false,
+            false,
+            "BOX SAME"
+        };
+
         // Print first canvas with something on it
         for (auto &&l : layers_)
         {
             if (l.size() > 0) 
             {
-                l.draw(canvas_, true, "BOX");
+                l.draw(canvas_, props);
                 break;
             }
             else {
@@ -77,7 +90,7 @@ public:
         auto itLayer = next(layers_.begin());
         for (; itLayer != layers_.end(); itLayer++)
         {
-            itLayer->draw(canvas_, false, "BOX SAME");
+            itLayer->draw(canvas_, propsSame);
         }
 
         gSystem->mkdir(Form("output/%s", name_), true);
