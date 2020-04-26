@@ -10,6 +10,10 @@ namespace Bisa {
     class BISA_API HitCollection
     {
     public:
+        // Custom iterators to make interface with HitCollection much nicer
+        // ConstIterator is const version of Iterator,
+        // both are derived classes of list::(const_)iterator
+
         class Iterator : public ::std::list<Ref<Hit>>::iterator
         {
         protected:

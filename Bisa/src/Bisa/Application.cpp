@@ -5,14 +5,12 @@
 
 namespace Bisa {
     
-    Application::Application()
+    Application::Application(const Config& config)
     {
         hits_ = CreateScope<HitCollection>();
 
-        auto props = StreamProps("/Users/alex/workspace/cern/Bisa/data/ModA04_BIS7_IntMDT_autotrigger_5700V_040320201053.dat");
-        dataStream_ = CreateScope<DataStream>(props);
+        dataStream_ = CreateScope<DataStream>(config);
         dataStream_->set_new_data_callback([&](HitCollection& hits) {
-            // BA_CORE_INFO("Added {0} hits to event", hits.size());
             *hits_ = hits;
         });
 

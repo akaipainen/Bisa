@@ -4,9 +4,9 @@
 
 namespace Bisa {
     
-    DataStream::DataStream(const StreamProps& props)
+    DataStream::DataStream(const Config& config)
     {
-        init(props);
+        init(config);
     }
 
     DataStream::~DataStream()
@@ -98,13 +98,13 @@ namespace Bisa {
         }
     }
 
-    void DataStream::init(const StreamProps& props)
+    void DataStream::init(const Config& config)
     {   
-        pairmode_ = props.pairmode;
+        pairmode_ = config.get_pairmode();
 
-        BA_CORE_INFO("Creating data stream from file: {0}", props.filename);
+        BA_CORE_INFO("Creating data stream from file: {0}", config.get_path_to_data());
 
-        data_file_.open(props.filename);
+        data_file_.open(config.get_path_to_data());
         BA_CORE_ASSERT(data_file_.is_open(), "Could not open file!")
 
         id_counter_ = IdCounter(255);

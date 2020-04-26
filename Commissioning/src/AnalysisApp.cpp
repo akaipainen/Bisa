@@ -19,8 +19,9 @@
 class AnalysisApp : public Bisa::Application
 {
 public:
-    AnalysisApp()
-    : all_first_hd_("all_first_hits", 10*60) // run duration in seconds
+    AnalysisApp(const Bisa::Config& config)
+    : Bisa::Application(config)
+    , all_first_hd_("all_first_hits", 10*60) // run duration in seconds
     , muon_hd_("muon_hits", 10*60)
     , random_noise_hd_("random_noise_hits")
     , noise_burst_hd_("noise_burst_hits", 10*60)
@@ -120,7 +121,7 @@ private:
     unsigned int event_counter_ = 0;
 };
 
-Bisa::Application* Bisa::CreateApplication()
+Bisa::Application* Bisa::CreateApplication(const Bisa::Config& config)
 {
-    return new AnalysisApp();
+    return new AnalysisApp(config);
 }

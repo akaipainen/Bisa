@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Bisa/Core.h"
+#include "Bisa/Config.h"
 #include "Bisa/Features/HitCollection.h"
 #include "Bisa/Data/DataStream.h"
 
@@ -9,7 +10,7 @@ namespace Bisa {
     class BISA_API Application
     {
     public:
-        Application();
+        Application(const Config& config);
         virtual ~Application();
 
         virtual void Run();
@@ -22,6 +23,6 @@ namespace Bisa {
     };
 
     // To be defined in CLIENT
-    Application* CreateApplication();
+    Application* CreateApplication(const Config& config);
     
 }

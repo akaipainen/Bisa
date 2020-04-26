@@ -1,6 +1,7 @@
 #pragma once
 #include "bapch.h"
 
+#include "Bisa/Config.h"
 #include "Bisa/Features/HitCollection.h"
 #include "Packet.h"
 
@@ -24,7 +25,7 @@ namespace Bisa {
     public:
         using NewEventCallbackFn = std::function<void(HitCollection&)>;
 
-        DataStream(const StreamProps& props);
+        DataStream(const Config& config);
         virtual ~DataStream();
 
         void set_new_data_callback(const NewEventCallbackFn& callback) { new_event_callback_ = callback; }
@@ -32,7 +33,7 @@ namespace Bisa {
         bool fill_next_event();
 
     private:
-        virtual void init(const StreamProps& props);
+        virtual void init(const Config& config);
         virtual void shutdown();
 
         void fill_buffer_with_next_packet();
