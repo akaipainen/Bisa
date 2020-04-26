@@ -17,7 +17,10 @@ public:
 class FirstHitOnStripSelector : public Bisa::HitSelector
 {
 public:
-    FirstHitOnStripSelector() = default;
+    FirstHitOnStripSelector(const Bisa::Config& config)
+     : Bisa::HitSelector(config)
+    {
+    }
 
     Bisa::HitCollection operator()(const Bisa::HitCollection& filterHits) const
     {
@@ -27,15 +30,15 @@ public:
 
         for (auto hit_iter = filterHits.begin(); hit_iter != filterHits.end(); hit_iter++)
         {
-            int uniqueStrip = hit_iter->tdc() * 32 + hit_iter->channel();
-            auto itHit = hit_strips_.find(uniqueStrip);
-            if (itHit == hit_strips_.end())
+            int unique_strip = hit_iter->tdc() * 32 + hit_iter->channel();
+            auto find_hit = hit_strips_.find(unique_strip);
+            if (find_hit == hit_strips_.end())
             {
-                hit_strips_[uniqueStrip] = hit_iter.get();
+                hit_strips_[unique_strip] = hit_iter.get();
             }
-            else if (time(*hit_iter) < time(*itHit->second))
+            else if (time(*hit_iter) < time(*find_hit->second))
             {
-                hit_strips_[uniqueStrip] = hit_iter.get();
+                hit_strips_[unique_strip] = hit_iter.get();
             }
         }
 
@@ -50,6 +53,6 @@ public:
 private:
     double time(const Bisa::Hit& hit) const
     {
-        return hit.bcid_tdc() * 25 + hit.fine_time() * 25.0/128.0;
+        return hit.bcid_tdc() * config_.bcid_resolution() + hit.fine_time() * config_.fine_time_resolution();
     }
 };

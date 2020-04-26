@@ -7,8 +7,8 @@
 class RandomNoiseDistribution : public HitDistribution
 {
 public:
-    RandomNoiseDistribution(const char* name)
-     : HitDistribution(name)
+    RandomNoiseDistribution(const char* name, const Bisa::Config& config)
+     : HitDistribution(name, config)
     {
     }
 

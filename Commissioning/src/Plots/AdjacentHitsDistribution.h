@@ -9,8 +9,8 @@
 class AdjacentHitsDistribution : public Bisa::Plot
 {
 public:
-    AdjacentHitsDistribution(const char* name)
-     : Bisa::Plot(name, 1, 1)
+    AdjacentHitsDistribution(const char* name, const Bisa::Config& config)
+     : Bisa::Plot(name, 1, 1, config)
      , strip_(Form("%s_strip", name_))
     {
         init();
@@ -79,7 +79,7 @@ public:
 private:
     unsigned int strip(const Bisa::Hit& hit)
     {
-        return strip_mapping_[hit.channel()];
+        return config_.strip(hit.channel());
     }
 
 private:

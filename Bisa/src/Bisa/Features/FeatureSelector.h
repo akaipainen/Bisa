@@ -2,6 +2,7 @@
 
 #include "bapch.h"
 
+#include "Bisa/Config.h"
 #include "Feature.h"
 #include "HitCollection.h"
 #include "FeatureCollection.h"
@@ -14,7 +15,8 @@ namespace Bisa {
     public:
         using CreateFeatureCallbackFn = ::std::function<void(Feature&)>;
 
-        FeatureSelector()
+        FeatureSelector(const Config& config)
+         : config_(config)
         {
         }
 
@@ -22,14 +24,13 @@ namespace Bisa {
         {
         }
 
-        void setCreateFeatureCallback(const CreateFeatureCallbackFn& callback) { createFeatureCallback_ = callback; }
+        // void setCreateFeatureCallback(const CreateFeatureCallbackFn& callback) { createFeatureCallback_ = callback; }
 
         virtual FeatureCollection operator()(const HitCollection& filterHits) const = 0;
 
     protected:
-        static const int strip_mapping[32];
-
-        CreateFeatureCallbackFn createFeatureCallback_;
+        const Config& config_;
+        // CreateFeatureCallbackFn createFeatureCallback_;
     };
 
 }

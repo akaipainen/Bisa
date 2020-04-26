@@ -25,10 +25,10 @@ namespace Bisa {
             file >> config_data_;
 
             // Reserve vector capacity
-            tdc_layer_mapping_.reserve(18);
-            tdc_orientation_mapping_.reserve(18);
-            tdc_coordinate_mapping_.reserve(18);
-            tdc_chamber_mapping_.reserve(18);
+            // std::fill(tdc_layer_mapping_, tdc_layer_mapping_+17, 0);
+            // std::fill(tdc_orientation_mapping_, tdc_layer_mapping_+17, 0);
+            // std::fill(tdc_coordinate_mapping_, tdc_layer_mapping_+17, 0);
+            // std::fill(tdc_chamber_mapping_, tdc_layer_mapping_+17, 0);
 
             // Initialize values from config file
             init();
@@ -36,8 +36,18 @@ namespace Bisa {
             BA_CORE_INFO("Initialized config");
         }
 
-        std::string get_path_to_data() const { return filename_; }
-        bool get_pairmode() const { return pairmode_; }
+        std::string path_to_data() const { return filename_; }
+        bool pairmode() const { return pairmode_; }
+        double bcid_resolution() const { return bcid_resolution_; }
+        double fine_time_resolution() const { return fine_time_resolution_; }
+        double run_duration() const { return run_duration_; }
+
+        int strip(unsigned int channel) const { return strip_mapping_[channel]; }
+        
+        int layer(unsigned int tdc) const { return tdc_layer_mapping_[tdc]; }
+        int orientation(unsigned int tdc) const { return tdc_orientation_mapping_[tdc]; }
+        int coordinate(unsigned int tdc) const { return tdc_coordinate_mapping_[tdc]; }
+        int chamber(unsigned int tdc) const { return tdc_chamber_mapping_[tdc]; }
         
     private:
         void init()
@@ -45,6 +55,11 @@ namespace Bisa {
             // Initialize data properties
             config_data_.at("path_to_data").get_to(filename_);
             config_data_.at("pairmode").get_to(pairmode_);
+            config_data_.at("run_duration_seconds").get_to(run_duration_);
+
+            // Initialize TDC constants
+            config_data_.at("tdc").at("bcid_resolution_ns").get_to(bcid_resolution_);
+            config_data_.at("tdc").at("fine_time_resolution_ns").get_to(fine_time_resolution_);
 
             // Initialize channel to strip mapping
             config_data_.at("channel_to_strip_cable_mapping").get_to(strip_mapping_);
@@ -166,13 +181,17 @@ namespace Bisa {
 
         std::string filename_;
         bool pairmode_;
+        double run_duration_;
 
-        std::vector<unsigned int> tdc_layer_mapping_; // 0, 1, 2
-        std::vector<unsigned int> tdc_orientation_mapping_; // LEFT/RIGHT
-        std::vector<Coordinate> tdc_coordinate_mapping_; // ETA/PHI
-        std::vector<unsigned int> tdc_chamber_mapping_; // 7/8
+        double bcid_resolution_;
+        double fine_time_resolution_;
+
+        unsigned int tdc_layer_mapping_[18]; // 0, 1, 2
+        unsigned int tdc_orientation_mapping_[18]; // LEFT/RIGHT
+        Coordinate tdc_coordinate_mapping_[18]; // ETA/PHI
+        unsigned int tdc_chamber_mapping_[18]; // 7/8
         
-        std::vector<unsigned int> strip_mapping_; // Channel -> Strip
+        unsigned int strip_mapping_[32]; // Channel -> Strip
     };
 
     extern Config& config;

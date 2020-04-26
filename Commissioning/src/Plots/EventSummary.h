@@ -9,8 +9,8 @@
 class EventSummary : Bisa::Plot
 {
 public:
-    EventSummary(const char* name)
-     : Bisa::Plot(name, 1, 1)
+    EventSummary(const char* name, const Bisa::Config& config)
+     : Bisa::Plot(name, 1, 1, config)
     {
     }
 
@@ -101,19 +101,12 @@ private:
     // TODO: Move time into config file
     double time(const Bisa::Hit& hit) const
     {
-        return hit.bcid_tdc() * 25 + hit.fine_time() * 25.0/128.0;
+        return hit.bcid_tdc() * config_.bcid_resolution() + hit.fine_time() * config_.fine_time_resolution();
     }
 
-    unsigned int strip(const Bisa::Hit& hit) const
+    unsigned int strip(const Bisa::Hit& hit)
     {
-        const std::vector<int> strip_mapping = {
-            0, 4, 8, 12, 16, 20, 24, 28,
-            1, 5, 9, 13, 17, 21, 25, 29,
-            2, 6,10, 14, 18, 22, 26, 30,
-            3, 7,11, 15, 19, 23, 27, 31
-        };
-
-        return strip_mapping[hit.channel()];
+        return config_.strip(hit.channel());
     }
 
 private:

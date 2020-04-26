@@ -12,7 +12,8 @@ namespace Bisa {
     public:
         using CreateHitCallbackFn = std::function<void(Feature&)>;
 
-        HitSelector()
+        HitSelector(const Config& config)
+         : config_(config)
         {
         }
 
@@ -26,6 +27,7 @@ namespace Bisa {
 
     protected:
         CreateHitCallbackFn createHitCallback_;
+        const Config& config_;
     };
 
 }

@@ -8,9 +8,10 @@ namespace Bisa {
     class Plot
     {
     public:
-        Plot(const char* name, int width, int height)
+        Plot(const char* name, int width, int height, const Config& config)
         : name_(name)
         , canvas_(new TCanvas(name, "", width*500, height*300))
+        , config_(config)
         {   
         }
 
@@ -22,9 +23,8 @@ namespace Bisa {
     protected:
         const char* name_;
         TCanvas* canvas_;
-
-        static const bool tdc_directions_[9];
-        static const int strip_mapping_[32];
+        
+        const Config& config_;
     };
 
 }

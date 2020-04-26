@@ -7,9 +7,8 @@
 class FirstHitsDistribution : public HitDistribution
 {
 public:
-    FirstHitsDistribution(const char* name, double run_duration)
-     : HitDistribution(name)
-     , run_duration_(run_duration)
+    FirstHitsDistribution(const char* name, const Bisa::Config& config)
+     : HitDistribution(name, config)
     {
     }
 
@@ -21,13 +20,11 @@ public:
     void extra_configure()
     {
         strip_rate_.for_each([&] (TH1F& hist) {
-            hist.Scale(1/(run_duration_));
+            hist.Scale(1/config_.run_duration());
         });
         channel_rate_.for_each([&] (TH1F& hist) {
-            hist.Scale(1/(run_duration_));
+            hist.Scale(1/config_.run_duration());
         });
     }
 
-private:
-    double run_duration_;
 };

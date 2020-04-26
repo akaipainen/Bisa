@@ -21,16 +21,21 @@ class AnalysisApp : public Bisa::Application
 public:
     AnalysisApp(const Bisa::Config& config)
     : Bisa::Application(config)
-    , all_first_hd_("all_first_hits", 10*60) // run duration in seconds
-    , muon_hd_("muon_hits", 10*60)
-    , random_noise_hd_("random_noise_hits")
-    , noise_burst_hd_("noise_burst_hits", 10*60)
-    , all_first_wd_("all_first_width")
-    , muon_wd_("muon_width")
-    , random_noise_wd_("random_noise_width")
-    , noise_burst_wd_("noise_burst_width")
-    , timing_resolution_("timing_resolution")
-    , adjacent_hits_("adjacent_hits")
+    , all_first_hd_("all_first_hits", config)
+    , muon_hd_("muon_hits", config)
+    , random_noise_hd_("random_noise_hits", config)
+    , noise_burst_hd_("noise_burst_hits", config)
+    , all_first_wd_("all_first_width", config)
+    , muon_wd_("muon_width", config)
+    , random_noise_wd_("random_noise_width", config)
+    , noise_burst_wd_("noise_burst_width", config)
+    , timing_resolution_("timing_resolution", config)
+    , adjacent_hits_("adjacent_hits", config)
+    , firstHitSelector(config)
+    , spaceClusterSelector(config)
+    , noiseBurstSelector(config)
+    , timeClusterSelector(config)
+    , adjacentHitsSelector(config)
     {
     }
 
@@ -64,17 +69,17 @@ public:
 
         if (event_counter_++ < 100)
         {
-            EventSummary es1("events_noise_burst");
+            EventSummary es1("events_noise_burst", config_);
             es1.configureAllHits(*hits_);
             es1.addHits(*hits_, kBlack);
             es1.addHits(noiseBursts.hits(), kRed);
             
-            EventSummary es2("events_space_cluster");
+            EventSummary es2("events_space_cluster", config_);
             es2.configureAllHits(*hits_);
             es2.addHits(*hits_, kBlack);
             es2.addHits(spaceClusters.hits(), kRed);
             
-            EventSummary es3("events_space_time_cluster");
+            EventSummary es3("events_space_time_cluster", config_);
             es3.configureAllHits(*hits_);
             es3.addHits(*hits_, kBlack);
             es3.addHits(spaceTimeCluster.hits(), kRed);

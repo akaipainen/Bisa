@@ -20,6 +20,8 @@ namespace Bisa {
     protected:
         Scope<HitCollection> hits_;
         Scope<DataStream> dataStream_;
+
+        Config config_;
     };
 
     // To be defined in CLIENT

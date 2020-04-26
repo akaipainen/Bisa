@@ -6,12 +6,12 @@
 #include <TSystem.h>
 #include <TStyle.h>
 
-class HitDistribution : Bisa::Plot
+class HitDistribution : public Bisa::Plot
 {
 public:
 
-    HitDistribution(const char* name)
-     : Bisa::Plot(name, 1, 1)
+    HitDistribution(const char* name, const Bisa::Config& config)
+     : Bisa::Plot(name, 1, 1, config)
      , strip_rate_(Form("%s_strip_rate", name_))
      , channel_rate_(Form("%s_channel_rate", name_))
      , strip_count_(Form("%s_strip_count", name_))
@@ -126,13 +126,7 @@ protected:
 
     unsigned int strip(const Bisa::Hit& hit)
     {
-        const std::vector<int> strip_mapping = {
-            0, 4, 8, 12, 16, 20, 24, 28,
-            1, 5, 9, 13, 17, 21, 25, 29,
-            2, 6,10, 14, 18, 22, 26, 30,
-            3, 7,11, 15, 19, 23, 27, 31
-        };
-        return strip_mapping[hit.channel()];
+        return config_.strip(hit.channel());
     }
 
 public:

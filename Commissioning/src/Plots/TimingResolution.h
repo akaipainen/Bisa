@@ -11,8 +11,8 @@
 class TimingResolution : public Bisa::Plot
 {
 public:
-    TimingResolution(const char* name)
-     : Bisa::Plot(name, 2, 1)
+    TimingResolution(const char* name, const Bisa::Config& config)
+     : Bisa::Plot(name, 2, 1, config)
     {
         init();
     }
@@ -35,7 +35,7 @@ public:
         int count_phi = 0;
         for (auto &&hit : hits)
         {
-            if (direction_eta(hit))
+            if (coordinate(hit) == Bisa::ETA)
             {
                 mean_time_eta += time(hit);
                 count_eta++;
@@ -54,7 +54,7 @@ public:
     {
         for (auto &&hit : hits)
         {
-            if (direction_eta(hit)) tdcs_[hit.tdc()]->Fill(time(hit) - mean_time_eta);
+            if (coordinate(hit) == Bisa::ETA) tdcs_[hit.tdc()]->Fill(time(hit) - mean_time_eta);
             else tdcs_[hit.tdc()]->Fill(time(hit) - mean_time_phi);
         }
     }
@@ -120,14 +120,14 @@ private:
         }
     }
 
-    bool direction_eta(const Bisa::Hit& hit)
+    bool coordinate(const Bisa::Hit& hit)
     {
-        return tdc_directions_[hit.tdc()];
+        return config_.coordinate(hit.tdc());
     }
 
     double time(const Bisa::Hit& hit)
     {
-        return hit.bcid_tdc() * 25 + hit.fine_time() * 25.0/128.0;
+        return hit.bcid_tdc() * config_.bcid_resolution() + hit.fine_time() * config_.fine_time_resolution();
     }
 
     void full_width_r_max(const TH1 &hist, TF1 &formula, const double r=0.5)

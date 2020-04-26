@@ -10,8 +10,8 @@ class WidthDistribution : Bisa::Plot
 {
 public:
 
-    WidthDistribution(const char* name)
-     : Bisa::Plot(name, 1, 1)
+    WidthDistribution(const char* name, const Bisa::Config& config)
+     : Bisa::Plot(name, 1, 1, config)
      , strip_(Form("%s_strip", name_))
      , channel_(Form("%s_channel", name_))
     {
@@ -106,7 +106,7 @@ private:
     // TODO: Move to config file
     unsigned int strip(const Bisa::Hit& hit)
     {
-        return strip_mapping_[hit.channel()];
+        return config_.strip(hit.channel());
     }
 
 private:

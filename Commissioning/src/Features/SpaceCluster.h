@@ -18,7 +18,10 @@ public:
 class SpaceClusterSelector : public Bisa::FeatureSelector
 {
 public:
-    SpaceClusterSelector() = default;
+    SpaceClusterSelector(const Bisa::Config& config)
+     : Bisa::FeatureSelector(config)
+    {
+    }
 
     Bisa::FeatureCollection operator()(const Bisa::HitCollection& filterHits) const
     {
@@ -108,55 +111,25 @@ public:
     }
 
 private:
-    // TODO: Replace fixed values for constant functions with configuration service
-    bool adjacent(const Bisa::Hit& hit1, const Bisa::Hit& hit2) const
-    {
-        if (hit1.tdc() == hit2.tdc()) 
-            return std::abs(strip_mapping[hit1.channel()] - strip_mapping[hit2.channel()]) <= 1;
-        
-        else if ((hit1.tdc() == 3 && hit2.tdc() == 4) ||
-                 (hit1.tdc() == 5 && hit2.tdc() == 6) ||
-                 (hit1.tdc() == 7 && hit2.tdc() == 8))
-            return strip_mapping[hit1.channel()] == 31 && strip_mapping[hit2.channel()] == 0;
-        else if ((hit1.tdc() == 4 && hit2.tdc() == 3) ||
-                 (hit1.tdc() == 6 && hit2.tdc() == 5) ||
-                 (hit1.tdc() == 8 && hit2.tdc() == 7))
-            return strip_mapping[hit1.channel()] == 0 && strip_mapping[hit2.channel()] == 31;
-        else
-            return false;
-    }
-
-    bool stacked(const Bisa::Hit& hit1, const Bisa::Hit& hit2) const
-    {
-        if (hit1.tdc() < 3 && hit2.tdc() < 3) 
-            return hit1.channel() == hit2.channel();
-        else if ((hit1.tdc() >= 3 && hit1.tdc() % 2 == 1) &&
-                 (hit2.tdc() >= 3 && hit2.tdc() % 2 == 1))
-            return hit1.channel() == hit2.channel();
-        else if ((hit1.tdc() >= 3 && hit1.tdc() % 2 == 0) &&
-                 (hit2.tdc() >= 3 && hit2.tdc() % 2 == 0))
-            return hit1.channel() == hit2.channel();
-        else
-            return false;
-    }
-
     bool around(const Bisa::Hit& hit1, const Bisa::Hit& hit2) const
     {
-        if (hit1.tdc() < 3 && hit2.tdc() < 3) 
-            return std::abs(strip_mapping[hit1.channel()] - strip_mapping[hit2.channel()]) <= 1;
-        else if ((hit1.tdc() >= 3 && hit1.tdc() % 2 == 1) &&
-                 (hit2.tdc() >= 3 && hit2.tdc() % 2 == 1))
-            return std::abs(strip_mapping[hit1.channel()] - strip_mapping[hit2.channel()]) <= 1;
-        else if ((hit1.tdc() >= 3 && hit1.tdc() % 2 == 0) &&
-                 (hit2.tdc() >= 3 && hit2.tdc() % 2 == 0))
-            return std::abs(strip_mapping[hit1.channel()] - strip_mapping[hit2.channel()]) <= 1;
-        else if ((hit1.tdc() >= 3 && hit2.tdc() >= 3) &&
-                 (hit1.tdc() % 2 == 0 && hit2.tdc() % 2 == 1))
-            return strip_mapping[hit1.channel()] == 0 && strip_mapping[hit2.channel()] == 31;
-        else if ((hit1.tdc() >= 3 && hit2.tdc() >= 3) &&
-                 (hit2.tdc() % 2 == 0 && hit1.tdc() % 2 == 1))
-            return strip_mapping[hit1.channel()] == 31 && strip_mapping[hit2.channel()] == 0;
-        else
-            return false;
+        // Same chamber
+        if (config_.chamber(hit1.tdc()) == config_.chamber(hit2.tdc()))
+        {
+            // Same coordinate
+            if (config_.coordinate(hit1.tdc()) == config_.coordinate(hit2.tdc()))
+            {
+                // Maximum 1 layer apart
+                if (std::abs(config_.layer(hit1.tdc()) - config_.layer(hit2.tdc())) <= 1)
+                {
+                    // Maximum 1 strip apart
+                    if (std::abs(config_.strip(hit1.channel()) - config_.strip(hit2.channel())) <= 1)
+                    {
+                        return true;
+                    }
+                }
+            }
+        }
+        return false;
     }
 };

@@ -4,7 +4,7 @@
 // For use by Bisa applications
 
 #include "Bisa/Application.h"
-// #include "Bisa/Log.h"
+#include "Bisa/Config.h"
 
 // ------- Entry Point -------
 #include "Bisa/EntryPoint.h"

@@ -6,10 +6,11 @@
 namespace Bisa {
     
     Application::Application(const Config& config)
+     : config_(config)
     {
         hits_ = CreateScope<HitCollection>();
 
-        dataStream_ = CreateScope<DataStream>(config);
+        dataStream_ = CreateScope<DataStream>(config_);
         dataStream_->set_new_data_callback([&](HitCollection& hits) {
             *hits_ = hits;
         });
