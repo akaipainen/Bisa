@@ -24,12 +24,6 @@ namespace Bisa {
             BA_CORE_ASSERT(file.is_open(), "Unable to open config file");
             file >> config_data_;
 
-            // Reserve vector capacity
-            // std::fill(tdc_layer_mapping_, tdc_layer_mapping_+17, 0);
-            // std::fill(tdc_orientation_mapping_, tdc_layer_mapping_+17, 0);
-            // std::fill(tdc_coordinate_mapping_, tdc_layer_mapping_+17, 0);
-            // std::fill(tdc_chamber_mapping_, tdc_layer_mapping_+17, 0);
-
             // Initialize values from config file
             init();
 
