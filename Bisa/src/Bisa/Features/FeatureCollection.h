@@ -53,7 +53,8 @@ namespace Bisa {
         void remove(Iterator feature_iter);
 
         // Remove a single feature from this collection
-        void remove(ConstIterator feature_iter);
+        // ConstIterator erase not working on GCC 4.8.5, was fixed in 4.9.0
+        // void remove(ConstIterator feature_iter);
 
         // Remove a single feature from this collection
         void remove(Ref<Feature> feature);
@@ -94,6 +95,12 @@ namespace Bisa {
         
         // Return end iterator (const)
         ConstIterator end() const { return features_.end(); }
+        
+        // Return begin iterator (const)
+        ConstIterator cbegin() const { return features_.begin(); }
+        
+        // Return end iterator (const)
+        ConstIterator cend() const { return features_.end(); }
 
     private:
         ::std::list<Ref<Feature>> features_;

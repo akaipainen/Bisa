@@ -21,13 +21,14 @@ namespace Bisa {
     {
         std::list<Ref<Hit>>::iterator pit = hit_it;
         hits_.erase(pit);
+        hit_ids_.erase(hit_it->unique_id());
     }
 
-    void HitCollection::remove(ConstIterator hit_it)
-    {
-        std::list<Ref<Hit>>::const_iterator pit = hit_it;
-        hits_.erase(pit);
-    }
+    // void HitCollection::remove(ConstIterator hit_it)
+    // {
+    //     std::list<Ref<Hit>>::const_iterator pit = hit_it;
+    //     hits_.erase(pit);
+    // }
 
     void HitCollection::remove(Ref<Hit> hit)
     {
@@ -52,7 +53,7 @@ namespace Bisa {
     {
         for (auto hit_it = other.begin(); hit_it != other.end(); hit_it++)
         {
-            remove(hit_it);
+            remove(hit_it.get());
         }
     }
 

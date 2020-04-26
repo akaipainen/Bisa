@@ -8,15 +8,37 @@ workspace "Bisa"
         "Dist"
     }
 
+    newoption
+    {
+        trigger = "rootsys",
+        value = "path",
+        description = "Path to root directory of ROOT installation"
+    }
+
+    if not _OPTIONS["rootsys"] then
+        _OPTIONS["rootsys"] = "/usr/"
+    end
+
 outputdir = "%{cfg.buildcfg}-%{cfg.system}-%{cfg.architecture}"
-ROOTSYS = "/usr/local/Cellar/root/*/"
 
 function includeRoot()
-    includedirs "%{ROOTSYS}/include/root"
+    includedirs 
+    {
+        _OPTIONS["rootsys"] .. "/include/root"
+    }
 end
 
 function linkRoot()
-    libdirs "%{ROOTSYS}/lib/root"
+    libdirs 
+    {
+        _OPTIONS["rootsys"] .. "/lib/root"
+    }
+
+    filter "system:linux"
+        libdirs
+        {
+            _OPTIONS["rootsys"] .. "/lib64/root"
+        }
 
     filter "kind:not StaticLib"
         links 
@@ -25,7 +47,7 @@ function linkRoot()
             "Graf", "Graf3d", "Gpad", "ROOTVecOps", 
             "Tree", "TreePlayer", "Rint", "Postscript",
             "Matrix", "Physics", "MathCore", "Thread",
-            "Multiproc", "ROOTDataFrame", "pthread"
+            "MultiProc", "ROOTDataFrame", "pthread"
         }
     filter {}
 end
@@ -34,7 +56,7 @@ project "Bisa"
     location "Bisa"
     kind "SharedLib"
     language "C++"
-    cppdialect "C++14"
+    cppdialect "C++11"
     staticruntime "on"
     
     targetdir ("bin/" .. outputdir .. "/%{prj.name}")
@@ -72,10 +94,18 @@ project "Bisa"
             ("{COPY} %{cfg.buildtarget.relpath} ../bin/" .. outputdir .. "/Commissioning")
         }
 
-        defines
-        {
-            "BA_PLATFORM_MACOS"
-        }
+    filter "system:linux"
+        -- buildoptions 
+        -- {
+        --     "-std=c++1y"
+        -- }
+
+    filter "system:macosx"
+    -- cppdialect "C++11"
+
+    filter "system:windows"
+        systemversion "latest"
+        -- cppdialect "C++11"
 
     filter "configurations:Debug"
         defines "BA_DEBUG"
@@ -110,7 +140,7 @@ project "Commissioning"
     location "Commissioning"
     kind "ConsoleApp"
     language "C++"
-    cppdialect "C++14"
+    cppdialect "C++11"
     staticruntime "on"
 
     targetdir ("bin/" .. outputdir .. "/%{prj.name}")
@@ -130,6 +160,9 @@ project "Commissioning"
         {
             "BA_PLATFORM_MACOS"
         }
+    
+    filter "system:windows"
+        systemversion "latest"
 
     filter "configurations:Debug"
         defines "BA_DEBUG"

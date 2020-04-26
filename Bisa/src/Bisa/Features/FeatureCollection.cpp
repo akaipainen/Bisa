@@ -8,6 +8,7 @@ namespace Bisa {
         if (found == feature_ids_.end())
         {
             features_.push_back(feature);
+            feature_ids_.insert(feature->unique_id());
         }
     }
 
@@ -15,13 +16,14 @@ namespace Bisa {
     {
         std::list<Ref<Feature>>::iterator pit = it;
         features_.erase(pit);
+        feature_ids_.erase(it->unique_id());
     }
 
-    void FeatureCollection::remove(ConstIterator it)
-    {
-        std::list<Ref<Feature>>::const_iterator pit = it;
-        features_.erase(pit);
-    }
+    // void FeatureCollection::remove(ConstIterator it)
+    // {
+    //     std::list<Ref<Feature>>::const_iterator pit = it;
+    //     features_.erase(pit);
+    // }
 
     void FeatureCollection::remove(Ref<Feature> feature)
     {
@@ -46,7 +48,7 @@ namespace Bisa {
     {
         for (auto feature_it = features.begin(); feature_it != features.end(); feature_it++)
         {
-            remove(feature_it);
+            remove(feature_it.get());
         }
     }
 

@@ -49,6 +49,7 @@ namespace Bisa {
     public:
         // Default constructor
         HitCollection() = default;
+        HitCollection(const HitCollection& other) = default;
 
         // Add a single hit to this collection
         void add(Ref<Hit> hit);
@@ -57,7 +58,8 @@ namespace Bisa {
         void remove(Iterator hit_iter);
 
         // Remove a single feature from this collection
-        void remove(ConstIterator hit_iter);
+        // ConstIterator erase not working on GCC 4.8.5, was fixed in 4.9.0
+        // void remove(ConstIterator hit_iter);
 
         // Remove a single feature from this collection
         void remove(Ref<Hit> hit);
