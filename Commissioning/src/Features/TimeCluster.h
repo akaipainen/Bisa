@@ -58,8 +58,8 @@ public:
             for (; itHit != featureList.back()->hits().end(); itHit++)
             {
                 // To add hit to the cluster, it must be adjacent to 
-                // and within 10 ns of a hit in the cluster
-                if (std::abs(time(*hit) - time(*itHit)) < 10)
+                // and within 5 ns of a hit in the cluster
+                if (std::abs(time(*hit) - time(*itHit)) < 5)
                 {
                     // If hit is around another hit, add it to the cluster
                     featureList.back()->hits().add(hit);

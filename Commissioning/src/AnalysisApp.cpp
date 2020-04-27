@@ -5,6 +5,8 @@
 #include "Features/TimeCluster.h"
 #include "Features/FirstHitOnStrip.h"
 #include "Features/AdjacentHits.h"
+#include "Features/MuonCandidate.h"
+#include "Features/MuonCandidateNoTime.h"
 
 #include "Plots/EventSummary.h"
 #include "Plots/HitDistribution.h"
@@ -36,6 +38,8 @@ public:
     , noiseBurstSelector(config)
     , timeClusterSelector(config)
     , adjacentHitsSelector(config)
+    , muonCandidateSelector(config)
+    , muonCandidateNoTimeSelector(config)
     {
     }
 
@@ -55,18 +59,17 @@ public:
     {
         Bisa::HitCollection firstHits = firstHitSelector(*hits_);
 
-        Bisa::FeatureCollection spaceClusters = spaceClusterSelector(firstHits);
-
         Bisa::FeatureCollection noiseBursts = noiseBurstSelector(*hits_);
-        
+
+        Bisa::FeatureCollection spaceClusters = spaceClusterSelector(firstHits);
         Bisa::FeatureCollection timeClusters = timeClusterSelector(firstHits);
-
-        Bisa::FeatureCollection spaceTimeCluster = timeClusters & spaceClusters;
-
         Bisa::HitCollection randomNoise = (firstHits - timeClusters.hits()) - spaceClusters.hits();
 
-        Bisa::FeatureCollection adjacentHits = adjacentHitsSelector(firstHits - noiseBursts.hits());
+        Bisa::FeatureCollection muonCandidates = muonCandidateSelector(firstHits);
+        Bisa::FeatureCollection muonSpaceCandidates = muonCandidateNoTimeSelector(firstHits);
 
+        Bisa::FeatureCollection adjacentHits = adjacentHitsSelector(firstHits - noiseBursts.hits());
+        
         if (event_counter_++ < 100)
         {
             EventSummary es1("events_noise_burst", config_);
@@ -79,25 +82,27 @@ public:
             es2.addHits(*hits_, kBlack);
             es2.addHits(spaceClusters.hits(), kRed);
             
-            EventSummary es3("events_space_time_cluster", config_);
-            es3.configureAllHits(*hits_);
-            es3.addHits(*hits_, kBlack);
-            es3.addHits(spaceTimeCluster.hits(), kRed);
-            es3.addHits(randomNoise, kBlue);
+            EventSummary es4("events_muon_candidates", config_);
+            es4.configureAllHits(*hits_);
+            es4.addHits(*hits_, kBlack);
+            es4.addHits(muonCandidates.hits(), kRed);
         }
 
         all_first_hd_.addHits(firstHits);
-        muon_hd_.addHits(spaceTimeCluster.hits());
+        muon_hd_.addHits(muonCandidates.hits());
         random_noise_hd_.addHits(randomNoise);
         noise_burst_hd_.addHits(noiseBursts.hits());
 
         all_first_wd_.addHits(firstHits);
-        muon_wd_.addHits(spaceTimeCluster.hits());
+        muon_wd_.addHits(muonCandidates.hits());
         random_noise_wd_.addHits(randomNoise);
         noise_burst_wd_.addHits(noiseBursts.hits());
 
-        timing_resolution_.calculateMeanTime(spaceTimeCluster.hits());
-        timing_resolution_.fillHits(spaceClusters.hits());
+        if (noiseBursts.size() == 0)
+        {
+            timing_resolution_.calculateMeanTime(muonCandidates.hits());
+            timing_resolution_.fillHits(muonSpaceCandidates.hits());
+        }
 
         adjacent_hits_.addHits(adjacentHits.hits());
     }
@@ -122,8 +127,11 @@ private:
     NoiseBurstSelector noiseBurstSelector;
     TimeClusterSelector timeClusterSelector;
     AdjacentHitsSelector adjacentHitsSelector;
+    MuonCandidateSelector muonCandidateSelector;
+    MuonCandidateNoTimeSelector muonCandidateNoTimeSelector;
 
     unsigned int event_counter_ = 0;
+    unsigned int tdc_7_event_counter_ = 0;
 };
 
 Bisa::Application* Bisa::CreateApplication(const Bisa::Config& config)

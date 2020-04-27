@@ -65,7 +65,7 @@ private:
                 {
                     // Adjacent strips across layer
                     if (std::abs(config_.orientation(hit1.tdc())*32+config_.strip(hit1.channel()) - 
-                                 config_.orientation(hit2.tdc())*32+config_.strip(hit1.channel())) == 1)
+                                 config_.orientation(hit2.tdc())*32+config_.strip(hit2.channel())) == 1)
                     {
                         return true;
                     }

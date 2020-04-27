@@ -2,22 +2,22 @@
 
 #include <Bisa.h>
 
-class NoiseBurst : public Bisa::Feature
+class MuonCandidate : public Bisa::Feature
 {
 public:
-    NoiseBurst()
+    MuonCandidate()
     {
     }
 
-    ~NoiseBurst()
+    ~MuonCandidate()
     {
     }
 };
 
-class NoiseBurstSelector : public Bisa::FeatureSelector
+class MuonCandidateSelector : public Bisa::FeatureSelector
 {
 public:
-    NoiseBurstSelector(const Bisa::Config& config)
+    MuonCandidateSelector(const Bisa::Config& config)
      : Bisa::FeatureSelector(config)
     {
     }
@@ -26,7 +26,7 @@ public:
     {
         Bisa::FeatureCollection fc; // output list of features
 
-        std::deque<Bisa::Ref<NoiseBurst>> featureList;
+        std::deque<Bisa::Ref<MuonCandidate>> featureList;
         std::deque<Bisa::Ref<Bisa::Hit>> hits;
 
         // Initialize hits deque (need ordered container)
@@ -38,7 +38,7 @@ public:
         // Form initial cluster
         if (hits.size() != 0)
         {
-            Bisa::Ref<NoiseBurst> cluster = Bisa::CreateRef<NoiseBurst>();
+            Bisa::Ref<MuonCandidate> cluster = Bisa::CreateRef<MuonCandidate>();
             Bisa::Ref<Bisa::Hit> hit = *hits.begin();
             cluster->hits().add(hit);
             hits.pop_front();
@@ -46,7 +46,7 @@ public:
         }
         else return fc;
 
-        // Loop over all digits to if any can be added to created cluster
+        // Loop over all digits to see if any can be added to created cluster
         unsigned int notAddedCounter = 0;
         while (hits.size() > 0)
         {
@@ -57,9 +57,12 @@ public:
             auto itHit = featureList.back()->hits().begin();
             for (; itHit != featureList.back()->hits().end(); itHit++)
             {
-                // To add hit to the cluster, it must be adjacent to 
-                // and within 10 ns of a hit in the cluster
-                if (adjacent(*hit, *itHit) &&
+                // To add hit to the cluster, it must be stacked adjacent to 
+                // and within 10 ns of a hit in the candidate
+                auto sa = stacked_adjacent(
+                    *hit, *itHit);
+                auto td = std::abs(time(*hit) - time(*itHit));
+                if (stacked_adjacent(*hit, *itHit) &&
                     std::abs(time(*hit) - time(*itHit)) < 10)
                 {
                     // If hit is around another hit, add it to the cluster
@@ -76,7 +79,7 @@ public:
                 // Create a new cluster
                 if (++notAddedCounter == hits.size())
                 {
-                    auto cluster = Bisa::CreateRef<NoiseBurst>();
+                    auto cluster = Bisa::CreateRef<MuonCandidate>();
                     cluster->hits().add(hit);
                     hits.pop_front();
                     featureList.push_back(cluster);
@@ -96,7 +99,7 @@ public:
         {
             // Only consider this a noise burst if there are 8 or more hits
             // in the cluster
-            if (f->hits().size() >= 8)
+            if (f->hits().size() > 1)
             {
                 fc.add(f);
             }
@@ -107,23 +110,22 @@ public:
     }
 
 private:
-    bool adjacent(const Bisa::Hit& hit1, const Bisa::Hit& hit2) const
+    bool stacked_adjacent(const Bisa::Hit& hit1, const Bisa::Hit& hit2) const
     {
-        if (hit1.tdc() == hit2.tdc()) 
-            return std::abs(config_.strip(hit1.channel()) - config_.strip(hit2.channel())) == 1;
-
         // Same chamber
         if (config_.chamber(hit1.tdc()) == config_.chamber(hit2.tdc()))
         {
             // Same coordinate
             if (config_.coordinate(hit1.tdc()) == config_.coordinate(hit2.tdc()))
             {
-                // Same layer
-                if (config_.layer(hit1.tdc()) == config_.layer(hit2.tdc()))
+                // 1 or 2 layers apart
+                if (std::abs(config_.layer(hit1.tdc()) - config_.layer(hit2.tdc())) >= 1)
                 {
-                    // Adjacent strips across layer
-                    if (std::abs(config_.orientation(hit1.tdc())*32+config_.strip(hit1.channel()) - 
-                                 config_.orientation(hit2.tdc())*32+config_.strip(hit2.channel())) == 1)
+                    // 2 or less strips apart
+                    auto a = config_.orientation(hit1.tdc())*32+config_.strip(hit1.channel());
+                    auto b = config_.orientation(hit2.tdc())*32+config_.strip(hit2.channel());
+                    auto c = std::abs((config_.orientation(hit1.tdc())*32+config_.strip(hit1.channel())) - (config_.orientation(hit2.tdc())*32+config_.strip(hit2.channel())));
+                    if (std::abs((config_.orientation(hit1.tdc())*32+config_.strip(hit1.channel())) - (config_.orientation(hit2.tdc())*32+config_.strip(hit2.channel()))) <= 2)
                     {
                         return true;
                     }
@@ -131,30 +133,6 @@ private:
             }
         }
         return false;
-    }
-
-    bool stacked(const Bisa::Hit& hit1, const Bisa::Hit& hit2) const
-    {
-        // Same chamber
-        if (config_.chamber(hit1.tdc()) == config_.chamber(hit2.tdc()))
-        {
-            // Same coordinate
-            if (config_.coordinate(hit1.tdc()) == config_.coordinate(hit2.tdc()))
-            {
-                // Same orientation
-                if (config_.orientation(hit1.tdc()) == config_.orientation(hit2.tdc()))
-                {
-                    // Same channel/strip
-                    return hit1.channel() == hit2.channel();
-                }
-            }
-        }
-        return false;
-    }
-
-    bool around(const Bisa::Hit& hit1, const Bisa::Hit& hit2) const
-    {
-        return stacked(hit1, hit2) || adjacent(hit1, hit2);
     }
 
     double time(const Bisa::Hit& hit) const

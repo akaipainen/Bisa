@@ -119,14 +119,10 @@ private:
             // Same coordinate
             if (config_.coordinate(hit1.tdc()) == config_.coordinate(hit2.tdc()))
             {
-                // Maximum 1 layer apart
-                if (std::abs(config_.layer(hit1.tdc()) - config_.layer(hit2.tdc())) <= 1)
+                // Maximum 1 strip apart
+                if (std::abs(config_.strip(hit1.channel()) - config_.strip(hit2.channel())) <= 1)
                 {
-                    // Maximum 1 strip apart
-                    if (std::abs(config_.strip(hit1.channel()) - config_.strip(hit2.channel())) <= 1)
-                    {
-                        return true;
-                    }
+                    return true;
                 }
             }
         }
