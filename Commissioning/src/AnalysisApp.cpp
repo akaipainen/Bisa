@@ -17,6 +17,7 @@
 #include "Plots/WidthDistribution.h"
 #include "Plots/TimingResolution.h"
 #include "Plots/AdjacentHitsDistribution.h"
+#include "Plots/HitPairsTimeDistance.h"
 
 class AnalysisApp : public Bisa::Application
 {
@@ -33,6 +34,7 @@ public:
     , noise_burst_wd_("noise_burst_width", config)
     , timing_resolution_("timing_resolution", config)
     , adjacent_hits_("adjacent_hits", config)
+    , cable_mapping_("cable_mapping", config)
     , firstHitSelector(config)
     , spaceClusterSelector(config)
     , noiseBurstSelector(config)
@@ -70,22 +72,22 @@ public:
 
         Bisa::FeatureCollection adjacentHits = adjacentHitsSelector(firstHits - noiseBursts.hits());
         
-        if (event_counter_++ < 100)
+        if (noise_burst_event_counter_ < 100)
         {
             EventSummary es1("events_noise_burst", config_);
             es1.configureAllHits(*hits_);
             es1.addHits(*hits_, kBlack);
             es1.addHits(noiseBursts.hits(), kRed);
-            
-            EventSummary es2("events_space_cluster", config_);
-            es2.configureAllHits(*hits_);
-            es2.addHits(*hits_, kBlack);
-            es2.addHits(spaceClusters.hits(), kRed);
-            
+            noise_burst_event_counter_++;
+        }
+
+        if (muon_event_counter_ < 100)
+        { 
             EventSummary es4("events_muon_candidates", config_);
             es4.configureAllHits(*hits_);
             es4.addHits(*hits_, kBlack);
             es4.addHits(muonCandidates.hits(), kRed);
+            muon_event_counter_++;
         }
 
         all_first_hd_.addHits(firstHits);
@@ -105,6 +107,8 @@ public:
         }
 
         adjacent_hits_.addHits(adjacentHits.hits());
+
+        cable_mapping_.addHits(firstHits);
     }
 
 private:
@@ -122,6 +126,8 @@ private:
 
     AdjacentHitsDistribution adjacent_hits_;
 
+    HitPairsTimeDistance cable_mapping_;
+
     FirstHitOnStripSelector firstHitSelector;
     SpaceClusterSelector spaceClusterSelector;
     NoiseBurstSelector noiseBurstSelector;
@@ -130,8 +136,8 @@ private:
     MuonCandidateSelector muonCandidateSelector;
     MuonCandidateNoTimeSelector muonCandidateNoTimeSelector;
 
-    unsigned int event_counter_ = 0;
-    unsigned int tdc_7_event_counter_ = 0;
+    unsigned int muon_event_counter_ = 0;
+    unsigned int noise_burst_event_counter_ = 0;
 };
 
 Bisa::Application* Bisa::CreateApplication(const Bisa::Config& config)

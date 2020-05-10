@@ -66,13 +66,13 @@ public:
         gStyle->SetOptStat(0);
         gStyle->SetOptFit(0);
 
-        gSystem->mkdir("output/strip_mapping_distribution", true);
+        gSystem->mkdir("output/strip_mapping", true);
 
         auto props = Bisa::SummaryTdc<TH1F>::DrawProps();
         props.options = "BAR E0";
 
         strip_.draw(canvas_, props);
-        canvas_->Print("output/strip_mapping_distribution/strip_.pdf");
+        canvas_->Print("output/strip_mapping/adjacent_hits.pdf");
         canvas_->Clear();
     }
 
