@@ -12,8 +12,8 @@ public:
 
     WidthDistribution(const char* name, const Bisa::Config& config)
      : Bisa::Plot(name, 1, 1, config)
-     , strip_(Form("%s_strip", name_))
-     , channel_(Form("%s_channel", name_))
+     , strip_(Form("%s_strip", name_), config)
+     , channel_(Form("%s_channel", name_), config)
     {
         init();
     }
@@ -34,9 +34,13 @@ public:
     }
 
     void init()
-    {   
+    {
+        gDirectory->cd(name_);
+        
         strip_.init(32, 0, 32, 128, 0, 128);
         channel_.init(32, 0, 32, 128, 0, 128);
+        
+        gDirectory->cd("..");
     }
 
     void same_configure(TH2F& hist)
@@ -93,12 +97,25 @@ public:
 
         gSystem->mkdir("output/width_distribution", true);
 
-        strip_.draw(canvas_, Bisa::SummaryTdc<TH2F>::DrawProps());
-        canvas_->Print(Form("output/width_distribution/%s_strip_rate.pdf", name_));
+        auto props = Bisa::SummaryTdc<TH2F>::DrawProps();
+        props.bis7 = true;
+
+        strip_.draw(canvas_, props);
+        canvas_->Print(Form("output/width_distribution/%s_strip_rate_bis7.pdf", name_));
         canvas_->Clear();
 
-        channel_.draw(canvas_, Bisa::SummaryTdc<TH2F>::DrawProps());
-        canvas_->Print(Form("output/width_distribution/%s_channel_rate.pdf", name_));
+        channel_.draw(canvas_, props);
+        canvas_->Print(Form("output/width_distribution/%s_channel_rate_bis7.pdf", name_));
+        canvas_->Clear();
+
+        props.bis7 = false;
+
+        strip_.draw(canvas_, props);
+        canvas_->Print(Form("output/width_distribution/%s_strip_rate_bis8.pdf", name_));
+        canvas_->Clear();
+
+        channel_.draw(canvas_, props);
+        canvas_->Print(Form("output/width_distribution/%s_channel_rate_bis8.pdf", name_));
         canvas_->Clear();
     }
 

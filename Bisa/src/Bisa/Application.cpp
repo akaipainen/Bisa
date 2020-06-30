@@ -15,6 +15,9 @@ namespace Bisa {
             *hits_ = hits;
         });
 
+        file_ = CreateScope<TFile>("output/output.root", "recreate");
+        tree_ = CreateScope<TTree>("tree", "TDC Histograms");
+
         gStyle->SetHistMinimumZero();
         gErrorIgnoreLevel = kWarning;
     }

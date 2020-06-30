@@ -1,5 +1,8 @@
 #pragma once
 
+#include "root/TFile.h"
+#include "root/TTree.h"
+
 #include "Bisa/Core.h"
 #include "Bisa/Config.h"
 #include "Bisa/Features/HitCollection.h"
@@ -20,8 +23,11 @@ namespace Bisa {
     protected:
         Scope<HitCollection> hits_;
         Scope<DataStream> dataStream_;
+        Scope<TFile> file_;
+        Scope<TTree> tree_;
 
         Config config_;
+
     };
 
     // To be defined in CLIENT

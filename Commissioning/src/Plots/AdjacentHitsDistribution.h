@@ -11,7 +11,7 @@ class AdjacentHitsDistribution : public Bisa::Plot
 public:
     AdjacentHitsDistribution(const char* name, const Bisa::Config& config)
      : Bisa::Plot(name, 1, 1, config)
-     , strip_(Form("%s_strip", name_))
+     , strip_(Form("%s_strip", name_), config)
     {
         init();
     }
@@ -26,13 +26,15 @@ public:
     {
         for (auto &&hit : hits)
         {
-            strip_[hit.tdc()].Fill(strip(hit));
+            strip_[hit.tdc()].Fill(strip(hit), 1.0/hits.size());
         }
     }
 
     void init()
     {
+        gDirectory->cd(name_);
         strip_.init(32, 0, 32);
+        gDirectory->cd("..");
     }
 
     void same_configure(TH1F& hist)
@@ -58,6 +60,8 @@ public:
 
             hist.GetXaxis()->SetTitle("Strip");
             hist.GetYaxis()->SetTitle("Width");
+
+            hist.SetMinimum(1);
         });
     }
 
@@ -70,9 +74,16 @@ public:
 
         auto props = Bisa::SummaryTdc<TH1F>::DrawProps();
         props.options = "BAR E0";
+        props.bis7 = true;
 
         strip_.draw(canvas_, props);
-        canvas_->Print("output/strip_mapping/adjacent_hits.pdf");
+        canvas_->Print(Form("output/strip_mapping/%s_bis7.pdf", name_));
+        canvas_->Clear();
+
+        props.bis7 = false;
+
+        strip_.draw(canvas_, props);
+        canvas_->Print(Form("output/strip_mapping/%s_bis8.pdf", name_));
         canvas_->Clear();
     }
 

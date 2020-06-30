@@ -33,7 +33,8 @@ public:
     , random_noise_wd_("random_noise_width", config)
     , noise_burst_wd_("noise_burst_width", config)
     , timing_resolution_("timing_resolution", config)
-    , adjacent_hits_("adjacent_hits", config)
+    , adjacent_hits_left_("adjacent_hits_left", config)
+    , adjacent_hits_right_("adjacent_hits_right", config)
     , cable_mapping_("cable_mapping", config)
     , firstHitSelector(config)
     , spaceClusterSelector(config)
@@ -55,6 +56,7 @@ public:
         {        
             Step();
         }
+        file_->Write();
     }
 
     void Step() override
@@ -70,25 +72,26 @@ public:
         Bisa::FeatureCollection muonCandidates = muonCandidateSelector(firstHits);
         Bisa::FeatureCollection muonSpaceCandidates = muonCandidateNoTimeSelector(firstHits);
 
-        Bisa::FeatureCollection adjacentHits = adjacentHitsSelector(firstHits - noiseBursts.hits());
+        Bisa::FeatureCollection leftAdjacentHits = adjacentHitsSelector(firstHits - noiseBursts.hits(), -1);
+        Bisa::FeatureCollection rightAdjacentHits = adjacentHitsSelector(firstHits - noiseBursts.hits(), 1);
         
-        if (noise_burst_event_counter_ < 100)
-        {
-            EventSummary es1("events_noise_burst", config_);
-            es1.configureAllHits(*hits_);
-            es1.addHits(*hits_, kBlack);
-            es1.addHits(noiseBursts.hits(), kRed);
-            noise_burst_event_counter_++;
-        }
+        // if (noise_burst_event_counter_ < 100)
+        // {
+        //     EventSummary es1("events_noise_burst", config_);
+        //     es1.configureAllHits(*hits_);
+        //     es1.addHits(*hits_, kBlack);
+        //     es1.addHits(noiseBursts.hits(), kRed);
+        //     noise_burst_event_counter_++;
+        // }
 
-        if (muon_event_counter_ < 100)
-        { 
-            EventSummary es4("events_muon_candidates", config_);
-            es4.configureAllHits(*hits_);
-            es4.addHits(*hits_, kBlack);
-            es4.addHits(muonCandidates.hits(), kRed);
-            muon_event_counter_++;
-        }
+        // if (muon_event_counter_ < 100)
+        // { 
+        //     EventSummary es4("events_muon_candidates", config_);
+        //     es4.configureAllHits(*hits_);
+        //     es4.addHits(*hits_, kBlack);
+        //     es4.addHits(muonCandidates.hits(), kRed);
+        //     muon_event_counter_++;
+        // }
 
         all_first_hd_.addHits(firstHits);
         muon_hd_.addHits(muonCandidates.hits());
@@ -106,7 +109,8 @@ public:
             timing_resolution_.fillHits(muonSpaceCandidates.hits());
         }
 
-        adjacent_hits_.addHits(adjacentHits.hits());
+        adjacent_hits_left_.addHits(leftAdjacentHits.hits());
+        adjacent_hits_right_.addHits(rightAdjacentHits.hits());
 
         cable_mapping_.addHits(firstHits);
     }
@@ -124,7 +128,8 @@ private:
 
     TimingResolution timing_resolution_;
 
-    AdjacentHitsDistribution adjacent_hits_;
+    AdjacentHitsDistribution adjacent_hits_left_;
+    AdjacentHitsDistribution adjacent_hits_right_;
 
     HitPairsTimeDistance cable_mapping_;
 

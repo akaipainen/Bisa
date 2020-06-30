@@ -13,6 +13,10 @@ namespace Bisa {
         , canvas_(new TCanvas(name, "", width*500, height*300))
         , config_(config)
         {   
+            if (!gDirectory->GetDirectory(name_))
+            {
+                gDirectory->mkdir(name_);
+            }
         }
 
         virtual ~Plot()

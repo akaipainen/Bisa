@@ -70,40 +70,42 @@ public:
         gSystem->mkdir(Form("output/%s", name_), true);
 
         TF1* formula = new TF1("full_width_3/4_max", "gaus");
-        for (int tdc = 0; tdc < 9; tdc++)
+        for (int tdc = 0; tdc < 18; tdc++)
         {
-            // Create full width half max gaussian fit
-            full_width_r_max(*(tdcs_[tdc]), *formula, 0.2); // get full width 3/4 max
-            TFitResultPtr r = tdcs_[tdc]->Fit(formula, "SRQ0");
-            double mean = r->Parameter(1);
-            tdcs_[tdc]->SetAxisRange(mean - 20, mean + 20);
-            
-            // Resize plot to zoom in to +/- 20ns around mean
-            TF1 extrapolated(*formula);
-            extrapolated.SetRange(mean - 20, mean + 20);
-            extrapolated.SetLineStyle(3);
+            if (tdcs_[tdc]->GetEntries() > 0) {
+                // Create full width half max gaussian fit
+                full_width_r_max(*(tdcs_[tdc]), *formula, 0.2); // get full width 3/4 max
+                TFitResultPtr r = tdcs_[tdc]->Fit(formula, "SRQ0");
+                double mean = r->Parameter(1);
+                tdcs_[tdc]->SetAxisRange(mean - 20, mean + 20);
+                
+                // Resize plot to zoom in to +/- 20ns around mean
+                TF1 extrapolated(*formula);
+                extrapolated.SetRange(mean - 20, mean + 20);
+                extrapolated.SetLineStyle(3);
 
-            // Set stat options for legend
-            gStyle->SetOptFit(1);
-            gStyle->SetOptStat(11);
+                // Set stat options for legend
+                gStyle->SetOptFit(1);
+                gStyle->SetOptStat(11);
 
-            // Draw log scale plot
-            canvas_->cd(1);
-            tdcs_[tdc]->Draw();
-            formula->Draw("SAME");
-            extrapolated.Draw("SAME");
-            gPad->SetLogy(true);
+                // Draw log scale plot
+                canvas_->cd(1);
+                tdcs_[tdc]->Draw();
+                formula->Draw("SAME");
+                extrapolated.Draw("SAME");
+                gPad->SetLogy(true);
 
-            // Draw linear scale plot
-            canvas_->cd(2);
-            tdcs_[tdc]->Draw();
-            formula->Draw("SAME");
-            extrapolated.Draw("SAME");
-            gPad->SetLogy(false);
+                // Draw linear scale plot
+                canvas_->cd(2);
+                tdcs_[tdc]->Draw();
+                formula->Draw("SAME");
+                extrapolated.Draw("SAME");
+                gPad->SetLogy(false);
 
-            // Save canvas to pdf
-            canvas_->Print(Form("output/%s/tdcs_%d.pdf", name_, tdc)); 
-            canvas_->Clear("D");
+                // Save canvas to pdf
+                canvas_->Print(Form("output/%s/tdcs_%d.pdf", name_, tdc)); 
+                canvas_->Clear("D");
+            }
         }
     }
 
@@ -111,13 +113,17 @@ public:
 private:
     void init()
     {
-        for (int tdc = 0; tdc < 9; tdc++)
+        gDirectory->cd(name_);
+
+        for (int tdc = 0; tdc < 18; tdc++)
         {
             tdcs_.push_back(new TH1F(Form("tdcs_%d", tdc), Form("TDC = %d", tdc),
                                         200/25*128, -100, 100)); // binning = number of ticks
             tdcs_.back()->GetXaxis()->SetTitle("Time [ns]");
             tdcs_.back()->GetYaxis()->SetTitle("Count");
         }
+        
+        gDirectory->cd("..");
     }
 
     bool coordinate(const Bisa::Hit& hit)

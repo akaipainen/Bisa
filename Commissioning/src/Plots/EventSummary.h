@@ -36,7 +36,9 @@ public:
 
     void addHits(Bisa::HitCollection hits, EColor color)
     {
-        Bisa::SummaryTdc<TH2F> layer(Form("%s_%lu", name_, layers_.size()));
+        gDirectory->cd(name_);
+        
+        Bisa::SummaryTdc<TH2F> layer(Form("%s_%lu", name_, layers_.size()), config_);
         layer.init(32, 0, 32, 50/25*128, 0, 50);
         layer.for_each([&](TH2F& hist) {
             hist.SetFillColor(color);
@@ -53,6 +55,8 @@ public:
         }
 
         layers_.push_back(layer);
+
+        gDirectory->cd("..");
     }
 
     void save()

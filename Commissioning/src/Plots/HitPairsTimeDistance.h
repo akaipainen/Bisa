@@ -13,8 +13,8 @@ public:
 
     HitPairsTimeDistance(const char* name, const Bisa::Config& config)
      : Bisa::Plot(name, 1, 1, config)
-     , color_(Form("%s_color", name_))
-     , profile_(Form("%s_profile", name_))
+     , color_(Form("%s_color", name_), config)
+     , profile_(Form("%s_profile", name_), config)
     {
         init();
     }
@@ -51,8 +51,12 @@ public:
 
     void init()
     {   
+        gDirectory->cd(Form("/%s", name_));
+
         color_.init(32, 0, 32, 128, 0, 25);
         profile_.init(32, 0, 32, 0, 25);
+        
+        gDirectory->cd("..");
     }
 
     void same_configure(TH2F& hist)
@@ -83,7 +87,7 @@ public:
             hist.GetYaxis()->SetTitle("Time [ns]");
         });
 
-        for (auto tdc = 0; tdc < 9; tdc++)
+        for (auto tdc = 0; tdc < 18; tdc++)
         {
             if (config_.coordinate(tdc) == Bisa::ETA)
             {
@@ -110,14 +114,30 @@ public:
 
         gSystem->mkdir("output/strip_mapping", true);
 
-        auto props = Bisa::SummaryTdc<TH2F>::DrawProps();
-        props.logz = true;
-        color_.draw(canvas_, props);
-        canvas_->Print(Form("output/strip_mapping/%s_color.pdf", name_));
+        auto histprops = Bisa::SummaryTdc<TH2F>::DrawProps();
+        histprops.logz = true;
+        histprops.bis7 = true;
+
+        auto profprops = Bisa::SummaryTdc<TProfile>::DrawProps();
+        profprops.bis7 = true;
+
+        color_.draw(canvas_, histprops);
+        canvas_->Print(Form("output/strip_mapping/%s_color_bis7.pdf", name_));
         canvas_->Clear();
 
-        profile_.draw(canvas_, Bisa::SummaryTdc<TProfile>::DrawProps());
-        canvas_->Print(Form("output/strip_mapping/%s_profile.pdf", name_));
+        profile_.draw(canvas_, profprops);
+        canvas_->Print(Form("output/strip_mapping/%s_profile_bis7.pdf", name_));
+        canvas_->Clear();
+
+        histprops.bis7 = false;
+        profprops.bis7 = false;
+
+        color_.draw(canvas_, histprops);
+        canvas_->Print(Form("output/strip_mapping/%s_color_bis8.pdf", name_));
+        canvas_->Clear();
+
+        profile_.draw(canvas_, profprops);
+        canvas_->Print(Form("output/strip_mapping/%s_profile_bis8.pdf", name_));
         canvas_->Clear();
     }
 
