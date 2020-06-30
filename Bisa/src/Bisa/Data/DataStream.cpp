@@ -124,7 +124,17 @@ namespace Bisa {
             new_hit.set_bcid_fpga(Packet::slice(packet.fpga_header(), 0, 16));
             new_hit.set_felix_counter((packet.raw_bits(26+(packet.num_words()+1)*8, 2)));
 
-            new_hit.set_tdc(Packet::slice(packet.word(word_index), 24, 4));
+            // Handle TDCs 16+17 which cannot be encoded in 4 bits
+            int elink = Packet::slice(packet.raw_bits(8, 2), 2, 4);
+            if (elink == 8)
+            {
+                new_hit.set_tdc(16 + Packet::slice(packet.word(word_index), 24, 4));
+            }
+            else
+            {
+                new_hit.set_tdc(Packet::slice(packet.word(word_index), 24, 4));
+            }
+            
             new_hit.set_channel(Packet::slice(packet.word(word_index), 19, 5));
             new_hit.set_width(pairmode_ ? Packet::slice(packet.word(word_index), 12, 7) : 0);
             new_hit.set_bcid_tdc(pairmode_ ? Packet::slice(packet.word(word_index), 7, 5) : Packet::slice(packet.word(word_index), 7, 12));
