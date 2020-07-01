@@ -18,6 +18,7 @@
 #include "Plots/TimingResolution.h"
 #include "Plots/AdjacentHitsDistribution.h"
 #include "Plots/HitPairsTimeDistance.h"
+#include "Plots/FEClusterSize.h"
 
 class AnalysisApp : public Bisa::Application
 {
@@ -36,6 +37,7 @@ public:
     , adjacent_hits_left_("adjacent_hits_left", config)
     , adjacent_hits_right_("adjacent_hits_right", config)
     , cable_mapping_("cable_mapping", config)
+    , fe_cluster_size_("fec_cluster_size", config)
     , firstHitSelector(config)
     , spaceClusterSelector(config)
     , noiseBurstSelector(config)
@@ -103,6 +105,11 @@ public:
         random_noise_wd_.addHits(randomNoise);
         noise_burst_wd_.addHits(noiseBursts.hits());
 
+        for (auto &&f : spaceClusters)
+        {
+            fe_cluster_size_.addHits(f.hits());
+        }
+
         if (noiseBursts.size() == 0)
         {
             timing_resolution_.calculateMeanTime(muonCandidates.hits());
@@ -132,6 +139,8 @@ private:
     AdjacentHitsDistribution adjacent_hits_right_;
 
     HitPairsTimeDistance cable_mapping_;
+
+    FEClusterSize fe_cluster_size_;
 
     FirstHitOnStripSelector firstHitSelector;
     SpaceClusterSelector spaceClusterSelector;
