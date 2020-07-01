@@ -1,6 +1,7 @@
 #include "Application.h"
 
 #include <TStyle.h>
+#include <TSystem.h>
 #include <TError.h>
 
 namespace Bisa {
@@ -15,6 +16,7 @@ namespace Bisa {
             *hits_ = hits;
         });
 
+        gSystem->mkdir("output", true);
         file_ = CreateScope<TFile>("output/output.root", "recreate");
         tree_ = CreateScope<TTree>("tree", "TDC Histograms");
 

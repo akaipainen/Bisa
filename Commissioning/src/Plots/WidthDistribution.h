@@ -70,7 +70,7 @@ public:
             hist.GetYaxis()->SetTitle("Width");
         });
 
-        for (auto tdc = 0; tdc < 9; tdc++)
+        for (auto tdc = 0; tdc < 18; tdc++)
         {
             if (tdc < 3)           
             {
@@ -98,25 +98,10 @@ public:
         gSystem->mkdir("output/width_distribution", true);
 
         auto props = Bisa::SummaryTdc<TH2F>::DrawProps();
-        props.bis7 = true;
+        props.logz = true;
 
-        strip_.draw(canvas_, props);
-        canvas_->Print(Form("output/width_distribution/%s_strip_rate_bis7.pdf", name_));
-        canvas_->Clear();
-
-        channel_.draw(canvas_, props);
-        canvas_->Print(Form("output/width_distribution/%s_channel_rate_bis7.pdf", name_));
-        canvas_->Clear();
-
-        props.bis7 = false;
-
-        strip_.draw(canvas_, props);
-        canvas_->Print(Form("output/width_distribution/%s_strip_rate_bis8.pdf", name_));
-        canvas_->Clear();
-
-        channel_.draw(canvas_, props);
-        canvas_->Print(Form("output/width_distribution/%s_channel_rate_bis8.pdf", name_));
-        canvas_->Clear();
+        strip_.print("output/width_distribution", props);
+        channel_.print("output/width_distribution", props);
     }
 
 private:

@@ -114,31 +114,11 @@ public:
 
         gSystem->mkdir("output/strip_mapping", true);
 
-        auto histprops = Bisa::SummaryTdc<TH2F>::DrawProps();
-        histprops.logz = true;
-        histprops.bis7 = true;
+        auto props = Bisa::SummaryTdc<TH2F>::DrawProps();
+        props.logz = true;
 
-        auto profprops = Bisa::SummaryTdc<TProfile>::DrawProps();
-        profprops.bis7 = true;
-
-        color_.draw(canvas_, histprops);
-        canvas_->Print(Form("output/strip_mapping/%s_color_bis7.pdf", name_));
-        canvas_->Clear();
-
-        profile_.draw(canvas_, profprops);
-        canvas_->Print(Form("output/strip_mapping/%s_profile_bis7.pdf", name_));
-        canvas_->Clear();
-
-        histprops.bis7 = false;
-        profprops.bis7 = false;
-
-        color_.draw(canvas_, histprops);
-        canvas_->Print(Form("output/strip_mapping/%s_color_bis8.pdf", name_));
-        canvas_->Clear();
-
-        profile_.draw(canvas_, profprops);
-        canvas_->Print(Form("output/strip_mapping/%s_profile_bis8.pdf", name_));
-        canvas_->Clear();
+        color_.print("output/strip_mapping", props);
+        profile_.print("output/strip_mapping");
     }
 
 private:

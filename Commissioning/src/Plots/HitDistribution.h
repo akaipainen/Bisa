@@ -91,41 +91,12 @@ public:
 
         auto props = Bisa::SummaryTdc<TH1F>::DrawProps();
         props.options = "BAR E0"; // options
-        props.bis7 = true;
+        props.logy = true;
 
-        strip_rate_.draw(canvas_, props);
-        canvas_->Print(Form("output/hit_distribution/%s_strip_rate_bis7.pdf", name_));
-        canvas_->Clear();
-
-        channel_rate_.draw(canvas_, props);
-        canvas_->Print(Form("output/hit_distribution/%s_channel_rate_bis7.pdf", name_));
-        canvas_->Clear();
-
-        strip_count_.draw(canvas_, props);
-        canvas_->Print(Form("output/hit_distribution/%s_strip_count_bis7.pdf", name_));
-        canvas_->Clear();
-        
-        channel_count_.draw(canvas_, props);
-        canvas_->Print(Form("output/hit_distribution/%s_channel_count_bis7.pdf", name_));
-        canvas_->Clear();
-
-        props.bis7 = false;
-
-        strip_rate_.draw(canvas_, props);
-        canvas_->Print(Form("output/hit_distribution/%s_strip_rate_bis8.pdf", name_));
-        canvas_->Clear();
-
-        channel_rate_.draw(canvas_, props);
-        canvas_->Print(Form("output/hit_distribution/%s_channel_rate_bis8.pdf", name_));
-        canvas_->Clear();
-
-        strip_count_.draw(canvas_, props);
-        canvas_->Print(Form("output/hit_distribution/%s_strip_count_bis8.pdf", name_));
-        canvas_->Clear();
-        
-        channel_count_.draw(canvas_, props);
-        canvas_->Print(Form("output/hit_distribution/%s_channel_count_bis8.pdf", name_));
-        canvas_->Clear();
+        strip_rate_.print("output/hit_distribution", props);
+        channel_rate_.print("output/hit_distribution", props);
+        strip_count_.print("output/hit_distribution", props);
+        channel_count_.print("output/hit_distribution", props);
     }
 
 protected:

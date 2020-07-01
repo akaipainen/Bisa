@@ -74,17 +74,9 @@ public:
 
         auto props = Bisa::SummaryTdc<TH1F>::DrawProps();
         props.options = "BAR E0";
-        props.bis7 = true;
+        props.logy = true;
 
-        strip_.draw(canvas_, props);
-        canvas_->Print(Form("output/strip_mapping/%s_bis7.pdf", name_));
-        canvas_->Clear();
-
-        props.bis7 = false;
-
-        strip_.draw(canvas_, props);
-        canvas_->Print(Form("output/strip_mapping/%s_bis8.pdf", name_));
-        canvas_->Clear();
+        strip_.print("output/strip_mapping", props);
     }
 
 private:

@@ -6,6 +6,7 @@
 
 #include <TString.h>
 #include <TCanvas.h>
+#include <TSystem.h>
 #include <TH1.h>
 
 namespace Bisa {
@@ -61,7 +62,7 @@ namespace Bisa {
             {
                 tdcs_.emplace_back(
                     new H(
-                        Form("%s_tdc_%d", name_, i),
+                        Form("%s_tdc_%d", name_.c_str(), i),
                         Form("TDC %d", i),
                         std::forward<Args>(args)...
                     )
@@ -158,11 +159,96 @@ namespace Bisa {
                     else if (config_.orientation(tdc) == 1) gPad->SetMargin(0.0, 0.1, 0.1, 0.1);
                     else                                    gPad->SetMargin(0.1, 0.0, 0.1, 0.1);
 
-                    if (props.logy) gPad->SetLogy();
-                    if (props.logz) gPad->SetLogz();
+                    if (props.logy) 
+                    {
+                        tdcs_[tdc]->SetMinimum(1);
+                        gPad->SetLogy();
+                    }
+                    if (props.logz) 
+                    {
+                        tdcs_[tdc]->SetMinimum(1);
+                        gPad->SetLogz();
+                    }
+                    if (!props.logy && !props.logz)
+                    {
+                        tdcs_[tdc]->SetMinimum(0);
+                        gPad->SetLogy(false);
+                        gPad->SetLogz(false);
+                    }
                     
                     tdcs_[tdc]->Draw(props.options);
                 }
+            }
+        }
+
+        void print(const char* path, DrawProps props = DrawProps())
+        {
+            TCanvas canvas("canvas", "print canvas", 500, 300);
+
+            if (props.logy)
+            {
+                gSystem->mkdir(Form("%s/log", path), true);
+                gSystem->mkdir(Form("%s/lin", path), true);
+
+                props.logy = false;
+                props.bis7 = true;
+                draw(&canvas, props);
+                canvas.Print(Form("%s/lin/%s_lin_bis7.pdf", path, name_.c_str()));
+                canvas.Clear();
+                props.bis7 = false;
+                draw(&canvas, props);
+                canvas.Print(Form("%s/lin/%s_lin_bis8.pdf", path, name_.c_str()));
+                canvas.Clear();
+
+                props.logy = true;
+                props.bis7 = true;
+                draw(&canvas, props);
+                canvas.Print(Form("%s/log/%s_log_bis7.pdf", path, name_.c_str()));
+                canvas.Clear();
+                props.bis7 = false;
+                draw(&canvas, props);
+                canvas.Print(Form("%s/log/%s_log_bis8.pdf", path, name_.c_str()));
+                canvas.Clear();
+            }
+
+            if (props.logz)
+            {
+                gSystem->mkdir(Form("%s/log", path), true);
+                gSystem->mkdir(Form("%s/lin", path), true);
+
+                props.logz = false;
+                props.bis7 = true;
+                draw(&canvas, props);
+                canvas.Print(Form("%s/lin/%s_lin_bis7.pdf", path, name_.c_str()));
+                canvas.Clear();
+                props.bis7 = false;
+                draw(&canvas, props);
+                canvas.Print(Form("%s/lin/%s_lin_bis8.pdf", path, name_.c_str()));
+                canvas.Clear();
+
+                props.logz = true;
+                props.bis7 = true;
+                draw(&canvas, props);
+                canvas.Print(Form("%s/log/%s_log_bis7.pdf", path, name_.c_str()));
+                canvas.Clear();
+                props.bis7 = false;
+                draw(&canvas, props);
+                canvas.Print(Form("%s/log/%s_log_bis8.pdf", path, name_.c_str()));
+                canvas.Clear();
+            }
+
+            if (!props.logy && !props.logz)
+            {
+                gSystem->mkdir(Form("%s/lin", path), true);
+
+                props.bis7 = true;
+                draw(&canvas, props);
+                canvas.Print(Form("%s/lin/%s_lin_bis7.pdf", path, name_.c_str()));
+                canvas.Clear();
+                props.bis7 = false;
+                draw(&canvas, props);
+                canvas.Print(Form("%s/lin/%s_lin_bis8.pdf", path, name_.c_str()));
+                canvas.Clear();
             }
         }
 
@@ -170,7 +256,7 @@ namespace Bisa {
         const Config& config_;
         
         std::vector<H*> tdcs_;
-        const char* name_;
+        std::string name_;
 
     };
 
