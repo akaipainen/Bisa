@@ -52,6 +52,11 @@ public:
     {
         Bisa::FeatureCollection fc; // output list of features
 
+        // if (filterHits.trigger_id() == 647)
+        // {
+        //     std::cout;
+        // }
+
         for (auto hit1_iter = filterHits.begin(); hit1_iter != filterHits.end(); hit1_iter++)
         {
             for (auto hit2_iter = filterHits.begin(); hit2_iter != filterHits.end(); hit2_iter++)
@@ -110,7 +115,10 @@ private:
     int orientation(const Bisa::Hit& hit1, const Bisa::Hit& hit2) const
     {
         if (hit1.tdc() == hit2.tdc()) 
-            return config_.strip(hit2.channel()) - config_.strip(hit1.channel());
+        {
+            int o = config_.strip(hit2.channel()) - config_.strip(hit1.channel());
+            return o;
+        }
 
         // Same chamber
         if (config_.chamber(hit1.tdc()) == config_.chamber(hit2.tdc()))

@@ -21,22 +21,32 @@ public:
 
     void configureAllHits(Bisa::HitCollection hits)
     {
-        auto itHit = hits.begin();
-        event_id_ = itHit->trigger_id();
-        first_time_ = time(*itHit);
-        for (itHit++; itHit != hits.end(); itHit++)
+        std::vector<double> times;
+        for (auto &&h : hits)
         {
-            auto t = time(*itHit);
-            if (t < first_time_)
-            {
-                first_time_ = t;
-            }
+            times.push_back(time(h));
         }
+        std::sort(times.begin(), times.end());
+        
+        first_time_ = times[times.size() / 2] - 15*config_.fine_time_resolution();
+        // BA_INFO("Event ID: {} | Start time: {}", hits.trigger_id(), first_time_);
+
+        event_id_ = hits.trigger_id();
+        // first_time_ = time(*itHit);
+        // for (itHit++; itHit != hits.end(); itHit++)
+        // {
+        //     auto t = time(*itHit);
+        //     if (t < first_time_)
+        //     {
+        //         first_time_ = t;
+        //     }
+        //     if (t > first_time_ + 1) // If more then one away
+        // }
     }
 
     void addHits(Bisa::HitCollection hits, EColor color)
     {
-        gDirectory->cd(name_);
+        gDirectory->cd("event_display");
         
         Bisa::SummaryTdc<TH2F> layer(Form("%s_%lu", name_, layers_.size()), config_);
         layer.init(32, 0, 32, 50/25*128, 0, 50);
@@ -64,18 +74,15 @@ public:
         gStyle->SetOptStat(0);
         gStyle->SetOptFit(0);
 
-        Bisa::SummaryTdc<TH2F>::DrawProps props = {
-            true,
-            false,
-            false,
-            "BOX"
-        };
-        Bisa::SummaryTdc<TH2F>::DrawProps propsSame = {
-            false,
-            false,
-            false,
-            "BOX SAME"
-        };
+        Bisa::SummaryTdc<TH2F>::DrawProps props = Bisa::SummaryTdc<TH2F>::DrawProps();
+        props.options = "BOX";
+        props.bis7 = true;
+        props.divide = true; 
+        
+        Bisa::SummaryTdc<TH2F>::DrawProps sameprops = Bisa::SummaryTdc<TH2F>::DrawProps();
+        sameprops.options = "SAME BOX";
+        sameprops.bis7 = true;
+        sameprops.divide = false; 
 
         // Print first canvas with something on it
         for (auto &&l : layers_)
@@ -94,11 +101,11 @@ public:
         auto itLayer = next(layers_.begin());
         for (; itLayer != layers_.end(); itLayer++)
         {
-            itLayer->draw(canvas_, propsSame);
+            itLayer->draw(canvas_, sameprops);
         }
 
-        gSystem->mkdir(Form("output/%s", name_), true);
-        canvas_->Print(Form("output/%s/event_%u.pdf", name_, event_id_));
+        gSystem->mkdir(Form("output/event_display/%s", name_), true);
+        canvas_->Print(Form("output/event_display/%s/event_%u.pdf", name_, event_id_));
     }
 
 private:
@@ -118,4 +125,6 @@ private:
     
     double first_time_;
     unsigned int event_id_;
+
+    static bool created_dir_;
 };

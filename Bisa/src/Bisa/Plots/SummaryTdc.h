@@ -17,6 +17,7 @@ namespace Bisa {
     public:
 
         struct DrawProps {
+            bool divide;
             bool bis7;
             bool logy;
             bool logz;
@@ -126,7 +127,7 @@ namespace Bisa {
 
         void draw(TCanvas* canvas, DrawProps props=DrawProps())
         {
-            canvas->Divide(3, 3, 0, 0);
+            if (props.divide) canvas->Divide(3, 3, 0, 0);
             for (unsigned int tdc = 0; tdc < 18; tdc++)
             {
                 if (config_.chamber(tdc) == (props.bis7 ? 7 : 8))
@@ -184,6 +185,7 @@ namespace Bisa {
         void print(const char* path, DrawProps props = DrawProps())
         {
             TCanvas canvas("canvas", "print canvas", 500, 300);
+            props.divide = true;
 
             if (props.logy)
             {
