@@ -33,7 +33,7 @@ namespace Bisa {
         bool fill_next_event();
 
     private:
-        virtual void init(const Config& config);
+        virtual void init();
         virtual void shutdown();
 
         void fill_buffer_with_next_packet();
@@ -84,6 +84,8 @@ namespace Bisa {
         HitCollection decode_packet(Packet packet);
 
     private:
+        const Config& config_;
+
         std::fstream data_file_;
         std::deque<HitCollection> hits_buffer_;
         IdCounter id_counter_;

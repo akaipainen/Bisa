@@ -5,8 +5,9 @@
 namespace Bisa {
     
     DataStream::DataStream(const Config& config)
+     : config_(config)
     {
-        init(config);
+        init();
     }
 
     DataStream::~DataStream()
@@ -16,7 +17,7 @@ namespace Bisa {
 
     bool DataStream::fill_next_event()
     {
-        while (!file_finished_ && hits_buffer_.size() < 10)
+        while (!file_finished_ && hits_buffer_.size() < 20)
         {
             // BA_CORE_INFO("Hits buffer size: {}", hitsBuffer_.size());
             fill_buffer_with_next_packet();
@@ -27,7 +28,7 @@ namespace Bisa {
             hits_buffer_.pop_front();
             return true;
         }
-        return false;        
+        return false;
     }
 
     void DataStream::fill_buffer_with_next_packet()
@@ -65,13 +66,21 @@ namespace Bisa {
             BA_CORE_WARN("Skipping packet: Missing trailing 'aa'");
             ok = false;
         }
+        // If error word (not start in 4...)
+        if (data[2*13] != '4')
+        {
+            BA_CORE_WARN("Skipping packet: Error word (byte does not start in 4)");
+            ok = false;
+        }
         // If number of bytes is < 24, this is an error. Log it
-        if (num_bytes < 24) {
+        if (num_bytes < 24) 
+        {
             BA_CORE_WARN("Skipping packet: {} bytes", num_bytes);
             ok = false;
         }
         // If number of bytes is > 10000, this is an error. Log it
-        if (num_bytes > 1000) {
+        if (num_bytes > 1000) 
+        {
             BA_CORE_WARN("Skipping packet: {} bytes", num_bytes);
             ok = false;
         }
@@ -98,13 +107,13 @@ namespace Bisa {
         }
     }
 
-    void DataStream::init(const Config& config)
+    void DataStream::init()
     {   
-        pairmode_ = config.pairmode();
+        pairmode_ = config_.pairmode();
 
-        BA_CORE_INFO("Creating data stream from file: {0}", config.path_to_data());
+        BA_CORE_INFO("Creating data stream from file: {0}", config_.path_to_data());
 
-        data_file_.open(config.path_to_data());
+        data_file_.open(config_.path_to_data());
         BA_CORE_ASSERT(data_file_.is_open(), "Could not open file!")
 
         id_counter_ = IdCounter(255);
@@ -120,8 +129,8 @@ namespace Bisa {
         for (auto word_index = 0; word_index < packet.num_words(); word_index++)
         {
             Hit new_hit;
-            new_hit.set_trigger_id(id_counter_.get(Packet::slice(packet.fpga_header(), 16, 8)));
-            new_hit.set_bcid_fpga(Packet::slice(packet.fpga_header(), 0, 16));
+            new_hit.set_trigger_id(id_counter_.get(Packet::slice(packet.fpga_header(), 8, 16)));
+            new_hit.set_bcid_fpga(Packet::slice(packet.fpga_header(), 0, 8));
             new_hit.set_felix_counter((packet.raw_bits(26+(packet.num_words()+1)*8, 2)));
 
             // Handle TDCs 16+17 which cannot be encoded in 4 bits
@@ -132,7 +141,25 @@ namespace Bisa {
             }
             else
             {
-                new_hit.set_tdc(Packet::slice(packet.word(word_index), 24, 4));
+                int tdc = Packet::slice(packet.word(word_index), 24, 4);
+                // int channel = Packet::slice(packet.word(word_index), 19, 5);
+                // if (tdc == 4 && config_.strip(channel) < 16)
+                // {
+                //     tdc = 5;
+                // }
+                // else if (tdc == 5 && config_.strip(channel) < 16)
+                // {
+                //     tdc = 4;
+                // }
+                // else if (tdc == 7 && config_.strip(channel) > 23)
+                // {
+                //     tdc = 8;
+                // }
+                // else if (tdc == 8 && config_.strip(channel) > 23)
+                // {
+                //     tdc = 7;
+                // }
+                new_hit.set_tdc(tdc);
             }
             
             new_hit.set_channel(Packet::slice(packet.word(word_index), 19, 5));

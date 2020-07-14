@@ -76,35 +76,38 @@ public:
                 // Create full width half max gaussian fit
                 full_width_r_max(*(tdcs_[tdc]), *formula, 0.2); // get full width 3/4 max
                 TFitResultPtr r = tdcs_[tdc]->Fit(formula, "SRQ0");
-                double mean = r->Parameter(1);
-                tdcs_[tdc]->SetAxisRange(mean - 20, mean + 20);
-                
-                // Resize plot to zoom in to +/- 20ns around mean
-                TF1 extrapolated(*formula);
-                extrapolated.SetRange(mean - 20, mean + 20);
-                extrapolated.SetLineStyle(3);
+                if (r >= 0)
+                {
+                    double mean = r->Parameter(1);
+                    tdcs_[tdc]->SetAxisRange(mean - 20, mean + 20);
+                    
+                    // Resize plot to zoom in to +/- 20ns around mean
+                    TF1 extrapolated(*formula);
+                    extrapolated.SetRange(mean - 20, mean + 20);
+                    extrapolated.SetLineStyle(3);
 
-                // Set stat options for legend
-                gStyle->SetOptFit(1);
-                gStyle->SetOptStat(11);
+                    // Set stat options for legend
+                    gStyle->SetOptFit(1);
+                    gStyle->SetOptStat(11);
 
-                // Draw log scale plot
-                canvas_->cd(1);
-                tdcs_[tdc]->Draw();
-                formula->Draw("SAME");
-                extrapolated.Draw("SAME");
-                gPad->SetLogy(true);
+                    // Draw log scale plot
+                    canvas_->cd(1);
+                    tdcs_[tdc]->Draw();
+                    formula->Draw("SAME");
+                    extrapolated.Draw("SAME");
+                    gPad->SetLogy(true);
 
-                // Draw linear scale plot
-                canvas_->cd(2);
-                tdcs_[tdc]->Draw();
-                formula->Draw("SAME");
-                extrapolated.Draw("SAME");
-                gPad->SetLogy(false);
+                    // Draw linear scale plot
+                    canvas_->cd(2);
+                    tdcs_[tdc]->Draw();
+                    formula->Draw("SAME");
+                    extrapolated.Draw("SAME");
+                    gPad->SetLogy(false);
 
-                // Save canvas to pdf
-                canvas_->Print(Form("output/%s/tdcs_%d.pdf", name_, tdc)); 
-                canvas_->Clear("D");
+                    // Save canvas to pdf
+                    canvas_->Print(Form("output/%s/tdcs_%d.pdf", name_, tdc)); 
+                    canvas_->Clear("D");
+                }
             }
         }
     }

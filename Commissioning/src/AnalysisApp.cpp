@@ -63,6 +63,18 @@ public:
         {        
             Step();
         }
+        printf("Event Counter: %d\n"
+                "Muon Event Counter: %d\n"
+                "Clean Muon Event Counter: %d\n"
+                "Noise Burst Event Counter: %d\n"
+                "\tSingle Layer: %d\n"
+                "\tMultiple Layer: %d\n",
+                event_counter_,
+                muon_event_counter_,
+                clean_muon_event_counter_,
+                noise_burst_event_counter_,
+                single_layer_noise_burst_event_counter_,
+                multiple_layer_noise_burst_event_counter_);
         file_->Write();
     }
 
@@ -95,13 +107,21 @@ public:
             filtered_hits_on_tdc_[hit.tdc()]++;
         }
 
-        // if (noise_burst_event_counter_ < 100)
+        // if (noiseBursts.hits().size() > 0)
         // {
-        //     EventSummary es1("events_noise_burst", config_);
-        //     es1.configureAllHits(*hits_);
-        //     es1.addHits(*hits_, kBlack);
-        //     es1.addHits(noiseBursts.hits(), kRed);
-        //     noise_burst_event_counter_++;
+        //     if (muonCandidates.hits().size() > 0)
+        //     {
+        //         EventSummary es1("events_muon_incidence", config_);
+        //         es1.configureAllHits(*hits_);
+        //         es1.addHits(*hits_, kRed);
+        //         es1.addHits(muonCandidates.hits(), kBlue);
+        //     }
+        //     else
+        //     {
+        //         EventSummary es1("events_no_muons", config_);
+        //         es1.configureAllHits(*hits_);
+        //         es1.addHits(*hits_, kRed);
+        //     }
         // }
 
         // if (muon_event_counter_ < 100)
@@ -112,23 +132,24 @@ public:
         //     es4.addHits(muonCandidates.hits(), kRed);
         //     muon_event_counter_++;
         // }
-        for (auto &&h : leftAdjacentHits.hits())
-        {
-            if (filtered_hits_on_tdc_[h.tdc()] <= 3)
-            {
-                if (h.tdc() == 4 && config_.strip(h.channel()) == 17)
-                {
-                    // BA_INFO("Event ID: {} | Num Hits: {}", h.trigger_id(), hits_->size());
 
-                    EventSummary es4("events_adjacent_left_t4s17", config_);
-                    es4.configureAllHits(*hits_);
-                    es4.addHits(*hits_, kRed);
-                    es4.addHits(muonCandidates.hits() - noiseBursts.hits(), kBlue);
-                    // es4.addHits(firstHits - noiseBursts.hits(), kRed);
-                    break;
-                }
-            }
-        }
+        // for (auto &&h : leftAdjacentHits.hits())
+        // {
+        //     if (filtered_hits_on_tdc_[h.tdc()] <= 3)
+        //     {
+        //         if (h.tdc() == 4 && config_.strip(h.channel()) == 17)
+        //         {
+        //             // BA_INFO("Event ID: {} | Num Hits: {}", h.trigger_id(), hits_->size());
+
+        //             EventSummary es4("events_adjacent_left_t4s17", config_);
+        //             es4.configureAllHits(*hits_);
+        //             es4.addHits(*hits_, kRed);
+        //             es4.addHits(muonCandidates.hits() - noiseBursts.hits(), kBlue);
+        //             // es4.addHits(firstHits - noiseBursts.hits(), kRed);
+        //             break;
+        //         }
+        //     }
+        // }
 
         Bisa::HitCollection selectSpikeHits = selectHitsSelector(firstHits, 4, 17);
 
@@ -182,6 +203,35 @@ public:
         // }
 
         cable_mapping_.addHits(firstHits);
+
+        // Update counters
+        event_counter_++;
+        if (muonCandidates.size() > 0)
+        {
+            muon_event_counter_++;
+            if (noiseBursts.hits().size() == 0)
+            {
+                clean_muon_event_counter_++;
+            }
+        }
+        if (noiseBursts.size() > 0)
+        {
+            noise_burst_event_counter_++;
+            auto feature_it = noiseBursts.begin();
+            int layer = config_.layer(feature_it->hits().begin()->tdc());
+            for (; feature_it != noiseBursts.end(); feature_it++)
+            {
+                if (config_.layer(feature_it->hits().begin()->tdc()) != layer)
+                {
+                    multiple_layer_noise_burst_event_counter_++;
+                    break;
+                }
+            }
+            if (feature_it == noiseBursts.end())
+            {
+                single_layer_noise_burst_event_counter_++;
+            }
+        }
     }
 
 private:
@@ -214,8 +264,12 @@ private:
     MuonCandidateSelector muonCandidateSelector;
     MuonCandidateNoTimeSelector muonCandidateNoTimeSelector;
 
-    unsigned int muon_event_counter_ = 0;
     unsigned int noise_burst_event_counter_ = 0;
+    unsigned int single_layer_noise_burst_event_counter_ = 0;
+    unsigned int multiple_layer_noise_burst_event_counter_ = 0;
+    unsigned int muon_event_counter_ = 0;
+    unsigned int clean_muon_event_counter_ = 0;
+    unsigned int event_counter_ = 0;
 };
 
 Bisa::Application* Bisa::CreateApplication(const Bisa::Config& config)
