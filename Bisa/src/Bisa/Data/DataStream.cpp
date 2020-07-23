@@ -116,7 +116,7 @@ namespace Bisa {
         data_file_.open(config_.path_to_data());
         BA_CORE_ASSERT(data_file_.is_open(), "Could not open file!")
 
-        id_counter_ = IdCounter(255);
+        id_counter_ = IdCounter(65536);
     }
 
     void DataStream::shutdown()

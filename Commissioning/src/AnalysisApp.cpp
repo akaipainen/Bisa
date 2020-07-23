@@ -65,7 +65,7 @@ public:
         }
         printf("Event Counter: %d\n"
                 "Muon Event Counter: %d\n"
-                "Clean Muon Event Counter: %d\n"
+                "\tClean Muon Event Counter: %d\n"
                 "Noise Burst Event Counter: %d\n"
                 "\tSingle Layer: %d\n"
                 "\tMultiple Layer: %d\n",
@@ -75,6 +75,26 @@ public:
                 noise_burst_event_counter_,
                 single_layer_noise_burst_event_counter_,
                 multiple_layer_noise_burst_event_counter_);
+        printf("Muon hits on each layer:\n"
+                "\tEta:\n"
+                "\t\tLayer 1-2: %d\n"
+                "\t\tLayer 1-3: %d\n"
+                "\t\tLayer 2-3: %d\n"
+                "\t\tLayer 1-2-3: %d\n"
+                "\tPhi:\n"
+                "\t\tLayer 1-2: %d\n"
+                "\t\tLayer 1-3: %d\n"
+                "\t\tLayer 2-3: %d\n"
+                "\t\tLayer 1-2-3: %d\n",
+                muon_eta_layers_hit_[3],
+                muon_eta_layers_hit_[4],
+                muon_eta_layers_hit_[5],
+                muon_eta_layers_hit_[6],
+                muon_phi_layers_hit_[3],
+                muon_phi_layers_hit_[4],
+                muon_phi_layers_hit_[5],
+                muon_phi_layers_hit_[6]);
+        printf("Efficiency:%f\n", float(efficiency_num_) / float(efficiency_denom_));
         file_->Write();
     }
 
@@ -204,6 +224,64 @@ public:
 
         cable_mapping_.addHits(firstHits);
 
+        // Efficiency calculation
+        unsigned int fixed1 = 0;
+        unsigned int fixed2 = 1;
+        unsigned int changing = 2;
+        if (noiseBursts.hits().size() == 0)
+        {
+            for (auto &&hit1 : muonCandidates.hits())
+            {
+                if (config_.chamber(hit1.tdc()) == 7)
+                {
+                    fixed1 = 0;
+                    fixed2 = 2;
+                    changing = 1;
+                }
+                else
+                {
+                    fixed1 = 0;
+                    fixed2 = 1;
+                    changing = 2;
+                }
+                if (config_.layer(hit1.tdc()) == fixed1)
+                {
+                    for (auto &&hit2 : muonCandidates.hits())
+                    {
+                        if (config_.layer(hit2.tdc()) == fixed2)
+                        {
+                            if (std::abs(config_.orientation(hit1.tdc())*32+config_.strip(hit1.channel()) - 
+                                        config_.orientation(hit2.tdc())*32+config_.strip(hit2.channel())) < 3 &&
+                                config_.chamber(hit1.tdc()) == config_.chamber(hit2.tdc()))
+                            {
+                                efficiency_denom_++;
+
+                                // Check for 3rd hit
+                                for (auto &&hit3 : muonCandidates.hits())
+                                {
+                                    if (config_.chamber(hit3.tdc()) == config_.chamber(hit1.tdc()))
+                                    {
+                                        if (config_.layer(hit3.tdc()) == changing)
+                                        {
+                                            if (std::abs(config_.orientation(hit1.tdc())*32+config_.strip(hit1.channel()) - 
+                                                        config_.orientation(hit3.tdc())*32+config_.strip(hit3.channel())) < 3 &&
+                                                std::abs(config_.orientation(hit2.tdc())*32+config_.strip(hit2.channel()) - 
+                                                        config_.orientation(hit3.tdc())*32+config_.strip(hit3.channel())) < 3)
+                                            {
+                                                efficiency_num_++;
+                                                break;
+                                            }
+                                        }
+                                    }
+                                }
+                                
+                            }
+                        }
+                    }
+                }            
+            }           
+        }
+
         // Update counters
         event_counter_++;
         if (muonCandidates.size() > 0)
@@ -213,6 +291,35 @@ public:
             {
                 clean_muon_event_counter_++;
             }
+
+            unsigned int muon_eta_layer_sum_ = 0;
+            unsigned int muon_phi_layer_sum_ = 0;
+            for (auto &&hit : muonCandidates.hits())
+            {
+                if (config_.coordinate(hit.tdc()) == Bisa::ETA)
+                {
+                    unsigned int layer = config_.layer(hit.tdc()) + 1;
+                    if (muon_eta_layers_.find(layer) == muon_eta_layers_.end())
+                    {
+                        muon_eta_layer_sum_ += layer;
+                        muon_eta_layers_.insert(layer);
+                    }
+                }
+                else
+                {
+                    unsigned int layer = config_.layer(hit.tdc()) + 1;
+                    if (muon_phi_layers_.find(layer) == muon_phi_layers_.end())
+                    {
+                        muon_phi_layer_sum_ += layer;
+                        muon_phi_layers_.insert(layer);
+                    }
+                }
+            }
+            muon_phi_layers_.clear();
+            muon_eta_layers_.clear();
+            muon_eta_layers_hit_[muon_eta_layer_sum_] += 1;
+            muon_phi_layers_hit_[muon_phi_layer_sum_] += 1;
+
         }
         if (noiseBursts.size() > 0)
         {
@@ -267,7 +374,13 @@ private:
     unsigned int noise_burst_event_counter_ = 0;
     unsigned int single_layer_noise_burst_event_counter_ = 0;
     unsigned int multiple_layer_noise_burst_event_counter_ = 0;
+    unsigned int efficiency_num_ = 0;
+    unsigned int efficiency_denom_ = 0;
     unsigned int muon_event_counter_ = 0;
+    std::unordered_set<unsigned int> muon_eta_layers_;
+    std::unordered_set<unsigned int> muon_phi_layers_;
+    std::vector<unsigned int> muon_eta_layers_hit_ = std::vector<unsigned int>(7, 0);
+    std::vector<unsigned int> muon_phi_layers_hit_ = std::vector<unsigned int>(7, 0);
     unsigned int clean_muon_event_counter_ = 0;
     unsigned int event_counter_ = 0;
 };
