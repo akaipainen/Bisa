@@ -67,13 +67,13 @@ namespace Bisa {
             ok = false;
         }
         // If error word (not start in 4...)
-        if (data[2*13] != '4')
+        if (data[2*15] != '4')
         {
             BA_CORE_WARN("Skipping packet: Error word (byte does not start in 4)");
             ok = false;
         }
         // If number of bytes is < 24, this is an error. Log it
-        if (num_bytes < 24) 
+        if (num_bytes < 26) 
         {
             BA_CORE_WARN("Skipping packet: {} bytes", num_bytes);
             ok = false;
