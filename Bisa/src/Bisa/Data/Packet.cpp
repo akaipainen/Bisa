@@ -65,12 +65,12 @@ namespace Bisa {
 
         unsigned long Packet::word(unsigned int i)
         {
-            return raw_bits(26 + i * 8, 8);
+            return raw_bits(30 + i * 8, 8);
         }
 
         unsigned long Packet::num_words()
         {
-            return (size_/2 - 20) / 4;
+            return (size_/2 - 22) / 4;
         }
 
         unsigned long Packet::fpga_header()

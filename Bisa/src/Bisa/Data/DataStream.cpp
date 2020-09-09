@@ -129,9 +129,9 @@ namespace Bisa {
         for (auto word_index = 0; word_index < packet.num_words(); word_index++)
         {
             Hit new_hit;
-            new_hit.set_trigger_id(id_counter_.get(Packet::slice(packet.fpga_header(), 8, 16)));
-            new_hit.set_bcid_fpga(Packet::slice(packet.fpga_header(), 0, 8));
-            new_hit.set_felix_counter((packet.raw_bits(26+(packet.num_words()+1)*8, 2)));
+            new_hit.set_trigger_id(id_counter_.get(Packet::slice(packet.raw_bits(18, 4), 0, 16)));
+            new_hit.set_bcid_fpga(Packet::slice(packet.fpga_header(), 0, 24));
+            new_hit.set_felix_counter((packet.raw_bits(30+(packet.num_words()+1)*8, 2)));
 
             // Handle TDCs 16+17 which cannot be encoded in 4 bits
             int elink = Packet::slice(packet.raw_bits(8, 2), 2, 4);
