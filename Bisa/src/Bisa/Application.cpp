@@ -9,11 +9,9 @@ namespace Bisa {
     Application::Application(const Config& config)
      : config_(config)
     {
-        hits_ = CreateScope<HitCollection>();
-
         dataStream_ = CreateScope<DataStream>(config_);
         dataStream_->set_new_data_callback([&](HitCollection& hits) {
-            *hits_ = hits;
+            hits_ = std::move(hits);
         });
 
         gSystem->mkdir("output", true);
@@ -34,7 +32,7 @@ namespace Bisa {
         {
             auto ok = dataStream_->fill_next_event();
             BA_CORE_INFO("Data found: {}", ok);
-            for (auto &&h : *hits_)
+            for (auto &&h : hits_)
             {
                 BA_CORE_INFO("{}", h.to_string());
             }

@@ -32,10 +32,13 @@ public:
     void extra_configure()
     {
         strip_rate_.for_each([&] (TH1F& hist) {
-            hist.Scale(1/(0.0000016*event_counter_));
+            hist.Scale(1/(0.0000014*event_counter_));
         });
         channel_rate_.for_each([&] (TH1F& hist) {
-            hist.Scale(1/(0.0000016*event_counter_));
+            hist.Scale(1/(0.0000014*event_counter_));
+        });
+        channel_rate_.for_each([&] (TH1F& hist) {
+            hist.GetYaxis()->SetTitle("Rate [Hz]");
         });
     }
 

@@ -8,6 +8,8 @@
 #include "Bisa/Features/HitCollection.h"
 #include "Bisa/Data/DataStream.h"
 
+int main(int argc, char** argv);
+
 namespace Bisa {
     
     class BISA_API Application
@@ -21,12 +23,15 @@ namespace Bisa {
         virtual void Step();
 
     protected:
-        Scope<HitCollection> hits_;
+        HitCollection hits_;
         Scope<DataStream> dataStream_;
         Scope<TFile> file_;
         Scope<TTree> tree_;
 
         Config config_;
+
+    private:
+        friend int ::main(int argc, char** argv);
 
     };
 

@@ -3,43 +3,30 @@
 #include "bapch.h"
 
 #include "Bisa/Features/HitCollection.h"
-#include "Bisa/Features/Feature.h"
 
 namespace Bisa {
 
     class BISA_API FeatureCollection
     {
     public:
-        class Iterator : public ::std::list<Ref<Feature>>::iterator
-        {
+
+        class Iterator : public ::std::vector<HitCollection>::iterator {
         protected:
-            using parent = ::std::list<Ref<Feature>>::iterator;
+            using parent = ::std::vector<HitCollection>::iterator;
 
         public:
             Iterator(parent it)
              : parent(::std::move(it)) { }
-
-            Feature& operator*() { return *(parent::operator*()); }
-
-            Ref<Feature> operator->() { return *(parent::operator->()); }
-
-            Ref<Feature> get() { return *(parent::operator->()); }
         };
 
-        class ConstIterator : public ::std::list<Ref<Feature>>::const_iterator
+        class ConstIterator : public ::std::vector<HitCollection>::const_iterator
         {
         protected:
-            using parent = ::std::list<Ref<Feature>>::const_iterator;
+            using parent = ::std::vector<HitCollection>::const_iterator;
 
         public:
             ConstIterator(parent it)
              : parent(::std::move(it)) { }
-
-            Feature& operator*() { return *(parent::operator*()); }
-
-            Ref<Feature> operator->() { return *(parent::operator->()); }
-
-            Ref<Feature> get() { return *(parent::operator->()); }
         };
 
     public:
@@ -47,39 +34,13 @@ namespace Bisa {
         FeatureCollection() = default;
 
         // Add a single feature to this collection
-        void add(Ref<Feature> feature);
-
-        // Remove a single feature from this collection
-        void remove(Iterator feature_iter);
-
-        // Remove a single feature from this collection
-        // ConstIterator erase not working on GCC 4.8.5, was fixed in 4.9.0
-        // void remove(ConstIterator feature_iter);
-
-        // Remove a single feature from this collection
-        void remove(Ref<Feature> feature);
+        void add(const HitCollection& feature);
 
         // Return the number of features in this collection
         unsigned int size() const { return features_.size(); }
-        
-        // Add a collection of features to this collection
-        void add(const FeatureCollection& features);
 
-        // Remove a collection of features from this collection
-        void remove(const FeatureCollection& features);
-
-        // Return a HitCollection of all hits in this feature collection (non-const)
+        // Return a HitCollection of all hits in this feature collection
         HitCollection hits();
-
-        // Return a new feature collection consisting of features that
-        // are the pairwise set intersection of hits in each of the previous 
-        // collections (maybe not needed)
-        FeatureCollection operator&(const FeatureCollection& other) const;
-
-        // Return a new feature collection consisting of features that
-        // are the pairwise set union of hits in each of the previous 
-        // collections (maybe not needed)
-        // FeatureCollection operator|(const FeatureCollection& other) const;
 
         // Return string interpretation of this object (debug tool)
         ::std::string to_string() const;
@@ -95,16 +56,9 @@ namespace Bisa {
         
         // Return end iterator (const)
         ConstIterator end() const { return features_.end(); }
-        
-        // Return begin iterator (const)
-        ConstIterator cbegin() const { return features_.begin(); }
-        
-        // Return end iterator (const)
-        ConstIterator cend() const { return features_.end(); }
 
     private:
-        ::std::list<Ref<Feature>> features_;
-        ::std::unordered_set<unsigned int> feature_ids_;
+        ::std::vector<HitCollection> features_;
 
         unsigned int trigger_id_;
     };

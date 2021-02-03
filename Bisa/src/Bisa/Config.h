@@ -28,10 +28,14 @@ namespace Bisa {
             init();
 
             BA_CORE_INFO("Initialized config");
+            BA_CORE_INFO("Trigger: {}", trigger_enabled_ ? "Enabled" : "Disabled");
         }
+
+        void set_path_to_data(std::string path) { filename_ = path; }
 
         std::string path_to_data() const { return filename_; }
         bool pairmode() const { return pairmode_; }
+        bool trigger_enabled() const { return trigger_enabled_; }
         double bcid_resolution() const { return bcid_resolution_; }
         double fine_time_resolution() const { return fine_time_resolution_; }
         double run_duration() const { return run_duration_; }
@@ -42,6 +46,8 @@ namespace Bisa {
         int orientation(unsigned int tdc) const { return tdc_orientation_mapping_[tdc]; }
         int coordinate(unsigned int tdc) const { return tdc_coordinate_mapping_[tdc]; }
         int chamber(unsigned int tdc) const { return tdc_chamber_mapping_[tdc]; }
+
+        float time(unsigned int bcid, unsigned int fine_time) const { return bcid_resolution() * bcid + fine_time_resolution() * fine_time; }
         
     private:
         void init()
@@ -50,6 +56,7 @@ namespace Bisa {
             config_data_.at("path_to_data").get_to(filename_);
             config_data_.at("pairmode").get_to(pairmode_);
             config_data_.at("run_duration_seconds").get_to(run_duration_);
+            config_data_.at("trigger_enabled").get_to(trigger_enabled_);
 
             // Initialize TDC constants
             config_data_.at("tdc").at("bcid_resolution_ns").get_to(bcid_resolution_);
@@ -176,6 +183,8 @@ namespace Bisa {
         std::string filename_;
         bool pairmode_;
         double run_duration_;
+
+        bool trigger_enabled_;
 
         double bcid_resolution_;
         double fine_time_resolution_;

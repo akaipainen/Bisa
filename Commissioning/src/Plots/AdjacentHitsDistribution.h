@@ -26,7 +26,7 @@ public:
     {
         for (auto &&hit : hits)
         {
-            strip_[hit.tdc()].Fill(strip(hit), 1.0/hits.size());
+            strip_[hit.tdc()].Fill(strip(hit), 1);
         }
     }
 

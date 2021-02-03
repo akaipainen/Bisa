@@ -12,6 +12,7 @@ namespace Bisa {
         // Default constructor
         Feature()
          : unique_id_(s_unique_id_counter++)
+         , trigger_id_(0)
         {
         }
 
@@ -19,6 +20,7 @@ namespace Bisa {
         Feature(const HitCollection& hits)
          : hits_(hits)
          , unique_id_(s_unique_id_counter++)
+         , trigger_id_(hits.trigger_id())
         {
         }
 
@@ -28,8 +30,16 @@ namespace Bisa {
             return hits_;
         }
 
+        unsigned int size()
+        {
+            return hits_.size();
+        }
+
         // Get unique id of this feature
         unsigned int unique_id() { return unique_id_; }
+        
+        // Get trigger id of this feature
+        unsigned int trigger_id() { return trigger_id_; }
 
         // Compare if two features are the same
         bool operator==(const Feature& other)
@@ -48,6 +58,7 @@ namespace Bisa {
     private:
         HitCollection hits_;
         unsigned int unique_id_;
+        unsigned int trigger_id_;
 
     };
 

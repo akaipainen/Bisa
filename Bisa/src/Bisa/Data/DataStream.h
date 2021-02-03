@@ -95,6 +95,8 @@ namespace Bisa {
 
         unsigned int number_of_packets_;
         bool file_finished_ = false;
+
+        unsigned int running_id_;
     };
 
 }

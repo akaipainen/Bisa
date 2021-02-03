@@ -2,22 +2,23 @@
 
 #include <Bisa.h>
 
-class TimeCluster : public Bisa::Feature
+class LayerSpaceCluster : public Bisa::Feature
 {
 public:
-    TimeCluster()
+    LayerSpaceCluster()
     {
+
     }
 
-    ~TimeCluster()
+    ~LayerSpaceCluster()
     {
     }
 };
 
-class TimeClusterSelector : public Bisa::FeatureSelector
+class LayerSpaceClusterSelector : public Bisa::FeatureSelector
 {
 public:
-    TimeClusterSelector(const Bisa::Config& config)
+    LayerSpaceClusterSelector(const Bisa::Config& config)
      : Bisa::FeatureSelector(config)
     {
     }
@@ -26,19 +27,21 @@ public:
     {
         Bisa::FeatureCollection fc; // output list of features
 
-        std::deque<Bisa::Ref<TimeCluster>> featureList;
-        std::deque<Bisa::Ref<Bisa::Hit>> hits;
+        // BA_TRACE("Initializing variables");
 
+        std::deque<Bisa::Ref<LayerSpaceCluster>> featureList;
+        std::deque<Bisa::Ref<Bisa::Hit>> hits;
         // Initialize hits deque (need ordered container)
-        for (auto itHit = filterHits.begin(); itHit != filterHits.end(); itHit++)
+        for (auto hit_it = filterHits.begin(); hit_it != filterHits.end(); hit_it++)
         {
-            hits.push_back(itHit.get());
+            hits.push_back(hit_it.get());
         }
 
         // Form initial cluster
+        // BA_TRACE("Form initial cluster");
         if (hits.size() != 0)
         {
-            Bisa::Ref<TimeCluster> cluster = Bisa::CreateRef<TimeCluster>();
+            Bisa::Ref<LayerSpaceCluster> cluster = Bisa::CreateRef<LayerSpaceCluster>();
             Bisa::Ref<Bisa::Hit> hit = *hits.begin();
             cluster->hits().add(hit);
             hits.pop_front();
@@ -47,21 +50,23 @@ public:
         else return fc;
 
         // Loop over all digits to if any can be added to created cluster
+        // BA_TRACE("Loop over all digits to see if any can be added to created cluster");
         unsigned int notAddedCounter = 0;
         while (hits.size() > 0)
         {
             // Process first hit in hits deque
+            // BA_TRACE("Process first hit in hits deque");
             auto hit = *hits.begin();
             // Loop through all hits in last cluster to check if
             // it satisfies the condition
+            // BA_TRACE("Loop through all hits");
             auto itHit = featureList.back()->hits().begin();
             for (; itHit != featureList.back()->hits().end(); itHit++)
             {
-                // To add hit to the cluster, it must be adjacent to 
-                // and within 5 ns of a hit in the cluster
-                if (std::abs(time(*hit) - time(*itHit)) < 20)
+                if (around(*hit, *itHit))
                 {
                     // If hit is around another hit, add it to the cluster
+                    // BA_TRACE("Adding hit to cluster");
                     featureList.back()->hits().add(hit);
                     hits.pop_front();
                     notAddedCounter = 0;
@@ -75,7 +80,7 @@ public:
                 // Create a new cluster
                 if (++notAddedCounter == hits.size())
                 {
-                    auto cluster = Bisa::CreateRef<TimeCluster>();
+                    auto cluster = Bisa::CreateRef<LayerSpaceCluster>();
                     cluster->hits().add(hit);
                     hits.pop_front();
                     featureList.push_back(cluster);
@@ -90,19 +95,41 @@ public:
             }
         }
 
+        // BA_TRACE("Finished creating ({}) space clusters", featureList.size());
+
+
         // Fill fc
         for (auto &&f : featureList)
         {
-            if (f->hits().size() > 1) fc.add(f);
+            fc.add(f);
         }
+
+        // BA_TRACE("Size: {}", fc.size());
         
         // Return the FeatureCollection
         return fc;
     }
 
 private:
-    double time(const Bisa::Hit& hit) const
+    bool around(const Bisa::Hit& hit1, const Bisa::Hit& hit2) const
     {
-        return hit.bcid_tdc() * config_.bcid_resolution() + hit.fine_time() * config_.fine_time_resolution();
+        // Same chamber
+        if (config_.chamber(hit1.tdc()) == config_.chamber(hit2.tdc()))
+        {
+            // Same coordinate
+            if (config_.coordinate(hit1.tdc()) == config_.coordinate(hit2.tdc()))
+            {
+                // Same layer
+                if (config_.layer(hit1.tdc()) == config_.layer(hit2.tdc()))
+                {
+                    // Maximum 1 strip apart
+                    if (std::abs(config_.strip(hit1.channel()) - config_.strip(hit2.channel())) <= 1)
+                    {
+                        return true;
+                    }
+                }
+            }
+        }
+        return false;
     }
 };

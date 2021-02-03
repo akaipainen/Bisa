@@ -9,9 +9,7 @@ namespace Bisa {
     public:
         // Default constructor
         Hit()
-         : unique_id_(s_unique_id_counter_++)
-        {
-        }
+         : unique_id_(s_unique_id_counter_++) { }
 
         // Constructor to initialize all variables
         Hit(unsigned int trigger_id, 
@@ -84,12 +82,12 @@ namespace Bisa {
         }
 
         // Compare if two hits are the same
-        bool operator==(const Hit& other)
+        bool operator==(const Hit& other) const
         {
             return unique_id_ == other.unique_id_;
         }
         // Compare if two hits are different
-        bool operator!=(const Hit& other)
+        bool operator!=(const Hit& other) const
         {
             return !operator==(other);
         }

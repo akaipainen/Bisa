@@ -102,11 +102,11 @@ public:
 protected:
     void same_configure(TH1F& hist)
     {
-        for (int strip = 0; strip < 32; strip++)
-        {
-            hist.GetXaxis()->SetBinLabel(strip+1, Form("%d", strip));
-        }
-        hist.GetXaxis()->SetLabelSize(0.04);
+        // for (int strip = 0; strip < 32; strip++)
+        // {
+        //     hist.GetXaxis()->SetBinLabel(strip+1, Form("%d", strip));
+        // }
+        hist.GetXaxis()->SetLabelSize(0.1);
 
         hist.SetFillColor(16); // Bar color
         hist.SetLineColor(kBlack); // Error bar color

@@ -105,7 +105,35 @@ public:
         }
 
         gSystem->mkdir(Form("output/event_display/%s", name_), true);
-        canvas_->Print(Form("output/event_display/%s/event_%u.pdf", name_, event_id_));
+        canvas_->Print(Form("output/event_display/%s/event_%u_bis7.pdf", name_, event_id_));
+        canvas_->Clear();
+
+        props.bis7 = false;
+        sameprops.bis7 = false;
+
+        // Print first canvas with something on it
+        for (auto &&l : layers_)
+        {
+            if (l.size() > 0) 
+            {
+                l.draw(canvas_, props);
+                break;
+            }
+            else {
+                layers_.push_back(layers_.front());
+                layers_.pop_front();
+            }
+        }
+
+        itLayer = next(layers_.begin());
+        for (; itLayer != layers_.end(); itLayer++)
+        {
+            itLayer->draw(canvas_, sameprops);
+        }
+
+        gSystem->mkdir(Form("output/event_display/%s", name_), true);
+        canvas_->Print(Form("output/event_display/%s/event_%u_bis8.pdf", name_, event_id_));
+        canvas_->Clear();
     }
 
 private:

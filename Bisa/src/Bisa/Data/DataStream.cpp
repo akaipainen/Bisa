@@ -17,7 +17,9 @@ namespace Bisa {
 
     bool DataStream::fill_next_event()
     {
-        while (!file_finished_ && hits_buffer_.size() < 20)
+        unsigned int buffer_size = 20;
+        if (!config_.trigger_enabled()) buffer_size = 500;
+        while (!file_finished_ && hits_buffer_.size() < buffer_size)
         {
             // BA_CORE_INFO("Hits buffer size: {}", hitsBuffer_.size());
             fill_buffer_with_next_packet();
@@ -93,17 +95,41 @@ namespace Bisa {
         auto it = hits_buffer_.begin();
         for (; it != hits_buffer_.end(); it++)
         {
-            if (hits.trigger_id() == it->trigger_id())
+            // If trigger is enabled, check for trigger id
+            if (config_.trigger_enabled() && hits.trigger_id() == it->trigger_id())
             {
                 // BA_CORE_TRACE("Merging hits with Trigger ID = {} in buffer", hits.triggerId());
-                it->add(hits);
+                *it = *it | hits;
                 break;
+            }
+            // If trigger is not enabled, compare FPGA bcid
+            else if (!config_.trigger_enabled()) {
+                // If FPGA BCID are 1 apart
+                if (std::abs(int(hits.begin()->bcid_fpga()) - int(it->begin()->bcid_fpga())) <= 1)
+                {
+                    // If TDC BCID are 25 ns apart in fine time
+                    if (std::abs(config_.time(hits.begin()->bcid_tdc(), hits.begin()->fine_time())
+                               - config_.time(it->begin()->bcid_tdc(), it->begin()->fine_time())) <= 15)
+                    {
+                        // BA_CORE_INFO("Merged at trigger id: {}", hits.trigger_id());
+                        hits.set_trigger_id(it->trigger_id());
+                        *it = *it | hits;
+                        break;
+                    }
+                    
+                }
             }
         }
         if (it == hits_buffer_.end())
         {
             // BA_CORE_TRACE("Adding packet with Trigger ID = {} to buffer", hits.triggerId());
             hits_buffer_.emplace_back(hits);
+            
+            // Correct the trigger id for recently added new hits
+            if (!config_.trigger_enabled())
+            {
+                hits_buffer_.back().set_trigger_id(running_id_++);
+            }
         }
     }
 
@@ -168,7 +194,7 @@ namespace Bisa {
             new_hit.set_fine_time(Packet::slice(packet.word(word_index), 0, 7));
 
             // BA_CORE_TRACE("Added new hit to hits ({})", newHit.toString());
-            hits.add(CreateRef<Hit>(new_hit));
+            hits.add(new_hit);
         }
         // BA_CORE_TRACE("Finished decoding packet ({})", hits.toString());
         return hits;
