@@ -14,25 +14,28 @@ namespace Bisa {
         // ConstIterator is const version of Iterator,
         // both are derived classes of list::(const_)iterator
 
-        class Iterator : public ::std::vector<Hit>::iterator
-        {
-        protected:
-            using parent = ::std::vector<Hit>::iterator;
+        typedef std::set<Hit>::iterator Iterator;
+        typedef std::set<Hit>::const_iterator ConstIterator;
 
-        public:
-            Iterator(parent it)
-             : parent(std::move(it)) { }
-        };
+        // class Iterator : public ::std::vector<Hit>::iterator
+        // {
+        // protected:
+        //     using parent = ::std::vector<Hit>::iterator;
 
-        class ConstIterator : public ::std::vector<Hit>::const_iterator
-        {
-        protected:
-            using parent = std::vector<Hit>::const_iterator;
+        // public:
+        //     Iterator(parent it)
+        //      : parent(std::move(it)) { }
+        // };
 
-        public:
-            ConstIterator(parent it)
-             : parent(std::move(it)) { }
-        };
+        // class ConstIterator : public ::std::vector<Hit>::const_iterator
+        // {
+        // protected:
+        //     using parent = std::vector<Hit>::const_iterator;
+
+        // public:
+        //     ConstIterator(parent it)
+        //      : parent(std::move(it)) { }
+        // };
 
     public:
         // Default constructor
@@ -52,9 +55,12 @@ namespace Bisa {
         void set_trigger_id(const unsigned int id)
         { 
             trigger_id_ = id;
-            for (auto &&hit : hits_)
+            auto temp = hits_;
+            hits_.clear();
+            for (auto hit : temp)
             {
                 hit.set_trigger_id(trigger_id_);
+                hits_.insert(hit);
             }
         }
 
@@ -88,9 +94,11 @@ namespace Bisa {
         // Return end iterator (const)
         ConstIterator end() const { return hits_.end(); }
 
+        // Get the underlying vector address
+        ::std::set<Hit> * get_hits_address() { return &hits_; }
+
     private:
-        ::std::vector<Hit> hits_;
-        ::std::unordered_set<unsigned int> hit_ids_;
+        ::std::set<Hit> hits_;
         unsigned int trigger_id_ = 0;
     };
 

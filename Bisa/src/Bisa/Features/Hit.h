@@ -1,6 +1,7 @@
 #pragma once
 
 #include "bapch.h"
+#include "Bisa/Config.h"
 
 namespace Bisa {
 
@@ -8,8 +9,7 @@ namespace Bisa {
     {
     public:
         // Default constructor
-        Hit()
-         : unique_id_(s_unique_id_counter_++) { }
+        Hit() { }
 
         // Constructor to initialize all variables
         Hit(unsigned int trigger_id, 
@@ -19,16 +19,17 @@ namespace Bisa {
             unsigned int channel,
             unsigned int width,
             unsigned int bcid_tdc,
-            unsigned int fine_time)
+            unsigned int fine_time,
+            const Bisa::Config &config)
          : trigger_id_(trigger_id)
          , bcid_fpga_(bcid_fpga)
          , felix_counter_(felix_counter)
          , tdc_(tdc)
          , channel_(channel)
+         , strip_(config.strip(channel))
          , width_(width)
          , bcid_tdc_(bcid_tdc)
          , fine_time_(fine_time)
-         , unique_id_(s_unique_id_counter_++)
         {
         }
 
@@ -42,14 +43,14 @@ namespace Bisa {
         unsigned int tdc() const           { return tdc_; }
         // Get TDC channel
         unsigned int channel() const       { return channel_; }
+        // Get TDC strip
+        unsigned int strip() const         { return strip_; }
         // Get width (time over threshold)
         unsigned int width() const         { return width_; }
         // Get bcid from TDC
         unsigned int bcid_tdc() const      { return bcid_tdc_; }
         // Get fine time from TDC
         unsigned int fine_time() const     { return fine_time_; }
-        // Get Hit unique id
-        unsigned int unique_id() const     { return unique_id_; }
         
         // Set trigger id
         void set_trigger_id(unsigned int trigger_id)       { trigger_id_ = trigger_id; }
@@ -59,8 +60,9 @@ namespace Bisa {
         void set_felix_counter(unsigned int felix_counter) { felix_counter_ = felix_counter; }
         // Set tdc
         void set_tdc(unsigned int tdc)                     { tdc_ = tdc; }
-        // Set TDC channel
-        void set_channel(unsigned int channel)             { channel_ = channel; }
+        // Set TDC channel and strip
+        void set_channel(unsigned int channel, const Bisa::Config &config)
+        { channel_ = channel; strip_ = config.strip(channel_); }
         // Set width (time over threshold)
         void set_width(unsigned int width)                 { width_ = width; }
         // Set bcid from TDC
@@ -69,13 +71,13 @@ namespace Bisa {
         void set_fine_time(unsigned int fine_time)         { fine_time_ = fine_time; }
 
         // Return details of Hit as a string (debug tool)
-        std::string to_string()
+        std::string to_string() const
         {
             std::stringstream ret;
-            ret << "Unique ID: " << unique_id_;
             ret << ", Trigger ID: " << trigger_id_;
             ret << ", TDC: " << tdc_;
             ret << ", Channel: " << channel_;
+            ret << ", Strip: " << strip_;
             ret << ", BCID (TDC): " << bcid_tdc_;
             ret << ", Fine Time: " << fine_time_;
             return ret.str();
@@ -84,12 +86,50 @@ namespace Bisa {
         // Compare if two hits are the same
         bool operator==(const Hit& other) const
         {
-            return unique_id_ == other.unique_id_;
+            if (trigger_id_ == other.trigger_id_ &&
+                bcid_fpga_ == other.bcid_fpga_ &&
+                felix_counter_ == other.felix_counter_ &&
+                tdc_ == other.tdc_ &&
+                channel_ == other.channel_ &&
+                width_ == other.width_ &&
+                bcid_tdc_ == other.bcid_tdc_ &&
+                fine_time_ == other.fine_time_)
+                return true;
+            return false;
         }
         // Compare if two hits are different
         bool operator!=(const Hit& other) const
         {
             return !operator==(other);
+        }
+
+        // set comparator < for hits
+        bool operator<(const Hit& other) const
+        {
+            // if (bcid_fpga_ < other.bcid_fpga_) return true;
+            // if (felix_counter_ < other.felix_counter_) return true;
+            if (trigger_id_ == other.trigger_id_)
+            {
+                if (tdc_ == other.tdc_)
+                {
+                    if (channel_ == other.channel_)
+                    {
+                        if (bcid_tdc_ == other.bcid_tdc_)
+                        {
+                            if (fine_time_ == other.fine_time_)
+                            {
+                                if (width_ == other.width_) return false;
+                                return width_ < other.width_;
+                            }
+                            return fine_time_ < other.fine_time_;
+                        }
+                        return bcid_tdc_ < other.bcid_tdc_;
+                    }
+                    return channel_ < other.channel_;
+                }
+                return tdc_ < other.tdc_;
+            }
+            return trigger_id_ < other.trigger_id_;
         }
 
     private:
@@ -99,13 +139,10 @@ namespace Bisa {
 
         unsigned int tdc_;
         unsigned int channel_;
+        unsigned int strip_;
         unsigned int width_;
         unsigned int bcid_tdc_;
         unsigned int fine_time_;
-
-        unsigned int unique_id_;
-
-        static unsigned int s_unique_id_counter_;
     };
 
 }

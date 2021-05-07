@@ -74,7 +74,7 @@ namespace Bisa {
     template <typename T>
     using Scope = std::unique_ptr<T>;
     template <typename T, typename ... Args>
-    constexpr Scope<T> CreateScope(Args&& ... args)
+    constexpr Scope<T> make_unique(Args&& ... args)
     {
         return std::unique_ptr<T>(new T(std::forward<Args>(args)...));
     }
@@ -82,7 +82,7 @@ namespace Bisa {
     template<typename T>
 	using Ref = std::shared_ptr<T>;
 	template<typename T, typename ... Args>
-	constexpr Ref<T> CreateRef(Args&& ... args)
+	constexpr Ref<T> make_shared(Args&& ... args)
 	{
 		return std::shared_ptr<T>(new T(std::forward<Args>(args)...));
 	}

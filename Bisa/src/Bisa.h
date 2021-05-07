@@ -6,19 +6,13 @@
 #include "Bisa/Application.h"
 #include "Bisa/Config.h"
 
-// ------- Entry Point -------
-// #include "Bisa/EntryPoint.h"
-// ---------------------------
-
-
-// Features
-#include "Bisa/Features/Feature.h"
-// #include "Bisa/Features/FeatureSelector.h"
 #include "Bisa/Features/FeatureCollection.h"
 #include "Bisa/Features/HitCollection.h"
-// #include "Bisa/Features/HitSelector.h"
+#include "Bisa/Plot.h"
+#include "Bisa/Experiment.h"
 
 // Plots
-#include "Bisa/Plots/Plot.h"
 #include "Bisa/Plots/SummaryTdc.h"
+#include "Bisa/Plots/SummaryLayer.h"
 #include "Bisa/Plots/SummaryAgg.h"
+// #include "Bisa/Plots/Graph.h"

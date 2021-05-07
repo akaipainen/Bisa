@@ -62,12 +62,16 @@ namespace utils
 
     inline bool hits_time_apart(const Bisa::Hit &hit1, const Bisa::Hit &hit2, const Bisa::Config &config, unsigned int time)
     {
-        if (abs(config.time(hit1.bcid_tdc(), hit1.fine_time()) - config.time(hit2.bcid_tdc(), hit1.fine_time())) <= time)
+        if (abs(config.time(hit1.bcid_tdc(), hit1.fine_time()) - config.time(hit2.bcid_tdc(), hit2.fine_time())) <= time)
         {
             return true;
         }
         return false;
     }
 
+    inline double hits_time_apart(const Bisa::Hit &hit1, const Bisa::Hit &hit2, const Bisa::Config &config)
+    {
+        return abs(config.time(hit1.bcid_tdc(), hit1.fine_time()) - config.time(hit2.bcid_tdc(), hit2.fine_time()));
+    }
 
 } // namespace utils

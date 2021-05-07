@@ -89,7 +89,7 @@ public:
         {
             if (l.size() > 0) 
             {
-                l.draw(canvas_, props);
+                l.draw(canvas(), props);
                 break;
             }
             else {
@@ -101,12 +101,12 @@ public:
         auto itLayer = next(layers_.begin());
         for (; itLayer != layers_.end(); itLayer++)
         {
-            itLayer->draw(canvas_, sameprops);
+            itLayer->draw(canvas(), sameprops);
         }
 
         gSystem->mkdir(Form("output/event_display/%s", name_), true);
-        canvas_->Print(Form("output/event_display/%s/event_%u_bis7.pdf", name_, event_id_));
-        canvas_->Clear();
+        canvas()->Print(Form("output/event_display/%s/event_%u_bis7.pdf", name_, event_id_));
+        canvas()->Clear();
 
         props.bis7 = false;
         sameprops.bis7 = false;
@@ -116,7 +116,7 @@ public:
         {
             if (l.size() > 0) 
             {
-                l.draw(canvas_, props);
+                l.draw(canvas(), props);
                 break;
             }
             else {
@@ -128,12 +128,12 @@ public:
         itLayer = next(layers_.begin());
         for (; itLayer != layers_.end(); itLayer++)
         {
-            itLayer->draw(canvas_, sameprops);
+            itLayer->draw(canvas(), sameprops);
         }
 
         gSystem->mkdir(Form("output/event_display/%s", name_), true);
-        canvas_->Print(Form("output/event_display/%s/event_%u_bis8.pdf", name_, event_id_));
-        canvas_->Clear();
+        canvas()->Print(Form("output/event_display/%s/event_%u_bis8.pdf", name_, event_id_));
+        canvas()->Clear();
     }
 
 private:

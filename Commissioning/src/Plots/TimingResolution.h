@@ -65,7 +65,7 @@ public:
 
     void draw()
     {
-        canvas_->Divide(2, 1);
+        canvas()->Divide(2, 1);
 
         gSystem->mkdir(Form("output/%s", name_), true);
 
@@ -91,22 +91,22 @@ public:
                     gStyle->SetOptStat(11);
 
                     // Draw log scale plot
-                    canvas_->cd(1);
+                    canvas()->cd(1);
                     tdcs_[tdc]->Draw();
                     formula->Draw("SAME");
                     extrapolated.Draw("SAME");
                     gPad->SetLogy(true);
 
                     // Draw linear scale plot
-                    canvas_->cd(2);
+                    canvas()->cd(2);
                     tdcs_[tdc]->Draw();
                     formula->Draw("SAME");
                     extrapolated.Draw("SAME");
                     gPad->SetLogy(false);
 
                     // Save canvas to pdf
-                    canvas_->Print(Form("output/%s/tdcs_%d.pdf", name_, tdc)); 
-                    canvas_->Clear("D");
+                    canvas()->Print(Form("output/%s/tdcs_%d.pdf", name_, tdc)); 
+                    canvas()->Clear("D");
                 }
             }
         }

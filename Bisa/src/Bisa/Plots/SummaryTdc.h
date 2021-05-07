@@ -1,7 +1,7 @@
 #pragma once
 #include "bapch.h"
 
-#include "Plot.h"
+#include "../Plot.h"
 #include "Bisa/Config.h"
 
 #include <TString.h>

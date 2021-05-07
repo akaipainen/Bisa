@@ -7,12 +7,11 @@
 #include <TString.h>
 #include <TCanvas.h>
 #include <TSystem.h>
-#include <TH1.h>
+#include <TGraph.h>
 
 namespace Bisa {
 
-    template <typename H>
-    class SummaryAgg
+    class Graph
     {
     public:
 
@@ -22,28 +21,28 @@ namespace Bisa {
             const char* options;
         };
 
-        SummaryAgg(const char* name, const Config& config)
+        Graph(const char* name, const Config& config)
          : name_(name)
          , config_(config)
         {
         }
 
-        ~SummaryAgg()
+        ~Graph()
         {
-            delete agg_;
+            delete graph_;
         }
 
-        SummaryAgg(const SummaryAgg<H>& other)
+        Graph(const TGraph& other)
          : name_(other.name_)
          , config_(other.config_)
         {
-            agg_ = new H(other->agg_);
+            graph_ = new TGraph(other->graph_);
         }
 
-        SummaryAgg<H>& operator=(const SummaryAgg<H>& other)
+        TGraph& operator=(const TGraph& other)
         {
             auto temp(other);
-            std::swap(agg_, temp.agg_);
+            std::swap(graph_, temp.graph_);
             std::swap(config_, temp.config_);
             return *this;
         }
@@ -51,68 +50,45 @@ namespace Bisa {
         template <typename ... Args>
         void init(Args ... args)
         {
-            agg_ = new H(
-                    Form("%s_agg", name_.c_str()),
-                    "",
-                    std::forward<Args>(args)...
-            );
+            graph_ = new TGraph(std::forward<Args>(args)...);
         }
 
-        template <typename ... Args>
-        void init_(Args ... args)
+        TGraph& operator()()
         {
-            agg_ = new H(std::forward<Args>(args)...);
-        }
-
-        unsigned int size() const
-        {
-            return agg_->GetEntries();
-        }
-
-        H& operator()()
-        {
-            return *agg_;
+            return *graph_;
         }
 
         void apply(std::function<void(H&)> f)
         {
-            f(*agg_);
+            f(*graph_);
         }
 
         void setTitles(const std::string& xtitle, const std::string& ytitle)
         {
-            agg_->GetXaxis()->SetTitle(xtitle);
-            agg_->GetYaxis()->SetTitle(ytitle);
-        }
-
-        void configure()
-        {
-            // Set histogram maximum
-            double max = agg_->GetMaximum();
-            agg_->SetMaximum(max * 1.1);
-            agg_->SetMinimum(0);
+            graph_->GetXaxis()->SetTitle(xtitle);
+            graph_->GetYaxis()->SetTitle(ytitle);
         }
 
         void draw(TCanvas* canvas, DrawProps props=DrawProps())
         {
             if (props.logy) 
             {
-                agg_->SetMinimum(1);
+                graph_->SetMinimum(1);
                 gPad->SetLogy();
             }
             if (props.logz) 
             {
-                agg_->SetMinimum(1);
+                graph_->SetMinimum(1);
                 gPad->SetLogz();
             }
             if (!props.logy && !props.logz)
             {
-                agg_->SetMinimum(0);
+                graph_->SetMinimum(0);
                 gPad->SetLogy(false);
                 gPad->SetLogz(false);
             }
             
-            agg_->Draw(props.options);
+            graph_->Draw(props.options);
         }
 
         void print(const char* path, DrawProps props = DrawProps())
@@ -164,7 +140,7 @@ namespace Bisa {
     private:
         const Config& config_;
         
-        H* agg_;
+        TGraph* graph_;
         std::string name_;
 
     };

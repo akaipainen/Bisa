@@ -21,9 +21,14 @@ int main(int argc, char** argv)
 
     Bisa::Config config(argv[1]);
 
-    if (argc == 3)
+    if (argc >= 3)
     {
         config.set_path_to_data(std::string(argv[2]));
+    }
+
+    if (argc >= 4)
+    {
+        config.set_voltage(atoi(argv[3]));
     }
 
     auto app = Bisa::CreateApplication(config);

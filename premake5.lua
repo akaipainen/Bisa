@@ -16,7 +16,7 @@ workspace "Bisa"
     }
 
     if not _OPTIONS["rootsys"] then
-        _OPTIONS["rootsys"] = "/usr/"
+        _OPTIONS["rootsys"] = "/usr/local"
     end
 
 outputdir = "%{cfg.buildcfg}-%{cfg.system}-%{cfg.architecture}"

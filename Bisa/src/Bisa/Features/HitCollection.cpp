@@ -8,18 +8,13 @@ namespace Bisa {
                        "Adding new hit with different Trigger ID to HitCollection");
         
         // Only add the new Hit if not already in Collection
-        auto found = hit_ids_.find(new_hit.unique_id());
-        if (found == hit_ids_.end()) 
-        {
-            hits_.emplace_back(new_hit);
-            hit_ids_.emplace(new_hit.unique_id());
-            trigger_id_ = new_hit.trigger_id();
-        }
+
+        hits_.insert(new_hit);
+        trigger_id_ = new_hit.trigger_id();
     }
 
     void HitCollection::clear()
     {
-        hit_ids_.clear();
         hits_.clear();
     }
 
@@ -30,7 +25,7 @@ namespace Bisa {
         const HitCollection& bigger = other.hits_.size() < hits_.size() ? *this : other;
         for (auto itHit = smaller.begin(); itHit != smaller.end(); itHit++)
         {
-            if (bigger.hit_ids_.find(itHit->unique_id()) != bigger.hit_ids_.end())
+            if (bigger.hits_.find(*itHit) != bigger.hits_.end())
             {
                 hc.add(*itHit);
             }
@@ -43,7 +38,10 @@ namespace Bisa {
         HitCollection hc(*this);
         for (auto itHit = other.begin(); itHit != other.end(); itHit++)
         {
-            hc.add(*itHit);
+            if (hits_.find(*itHit) == hits_.end())
+            {
+                hc.add(*itHit);
+            }
         }
         return hc;
     }
@@ -53,7 +51,7 @@ namespace Bisa {
         HitCollection hc;
         for (auto itHit = begin(); itHit != end(); itHit++)
         {
-            if (other.hit_ids_.find(itHit->unique_id()) == other.hit_ids_.end())
+            if (other.hits_.find(*itHit) == other.hits_.end())
             {
                 hc.add(*itHit);
             }

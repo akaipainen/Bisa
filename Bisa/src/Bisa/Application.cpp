@@ -9,14 +9,14 @@ namespace Bisa {
     Application::Application(const Config& config)
      : config_(config)
     {
-        dataStream_ = CreateScope<DataStream>(config_);
+        dataStream_ = make_unique<DataStream>(config_);
         dataStream_->set_new_data_callback([&](HitCollection& hits) {
             hits_ = std::move(hits);
         });
 
-        gSystem->mkdir("output", true);
-        file_ = CreateScope<TFile>("output/output.root", "recreate");
-        tree_ = CreateScope<TTree>("tree", "TDC Histograms");
+        gSystem->mkdir(config_.output_path().c_str(), true);
+        file_ = make_unique<TFile>(Form("%s/output.root", config_.output_path().c_str()), "recreate");
+        tree_ = make_unique<TTree>("tree", "TDC Histograms");
 
         gStyle->SetHistMinimumZero();
         gErrorIgnoreLevel = kWarning;

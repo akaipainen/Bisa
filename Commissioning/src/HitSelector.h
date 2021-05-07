@@ -12,6 +12,9 @@ public:
     
     ~HitSelector() { }
 
+    // Return only the first hits on each strip
+    Bisa::HitCollection firstHits(const Bisa::HitCollection &hits);
+
     // Require hits to be time correlated with a hit from a feature
     Bisa::HitCollection featureCorrelated(const Bisa::HitCollection& hits, 
                                           const Bisa::FeatureCollection& features, 
@@ -30,6 +33,14 @@ public:
 
     // Restrict collection to only having hits with the smallest bcid in the event (removing later hits)
     Bisa::HitCollection smallestBcid(const Bisa::HitCollection& hits);
+
+    // Restrict collection to only having hits within a certain number 
+    // of bcid ticks of the first FPGA timestamp
+    Bisa::HitCollection withinFirstFpgaTimestamp(const Bisa::HitCollection& hits, unsigned int nTicks);
+
+    // Select only eta/phi hits
+    Bisa::HitCollection phi(const Bisa::HitCollection& hits);
+    Bisa::HitCollection eta(const Bisa::HitCollection& hits);
 
 private:
     const Bisa::Config& config_;

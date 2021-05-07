@@ -123,7 +123,7 @@ namespace Bisa {
         if (it == hits_buffer_.end())
         {
             // BA_CORE_TRACE("Adding packet with Trigger ID = {} to buffer", hits.triggerId());
-            hits_buffer_.emplace_back(hits);
+            hits_buffer_.push_back(hits);
             
             // Correct the trigger id for recently added new hits
             if (!config_.trigger_enabled())
@@ -188,7 +188,7 @@ namespace Bisa {
                 new_hit.set_tdc(tdc);
             }
             
-            new_hit.set_channel(Packet::slice(packet.word(word_index), 19, 5));
+            new_hit.set_channel(Packet::slice(packet.word(word_index), 19, 5), config_);
             new_hit.set_width(pairmode_ ? Packet::slice(packet.word(word_index), 12, 7) : 0);
             new_hit.set_bcid_tdc(pairmode_ ? Packet::slice(packet.word(word_index), 7, 5) : Packet::slice(packet.word(word_index), 7, 12));
             new_hit.set_fine_time(Packet::slice(packet.word(word_index), 0, 7));
