@@ -21,7 +21,7 @@ PadTrigger::~PadTrigger()
 void PadTrigger::add_hits(const Bisa::HitCollection &hits)
 {
     bool pad_trigger_check = check_trigger_.add_hits(hits);
-    if (!pad_trigger_check) BA_TRACE("Invalid PAD Trigger ID: {}", hits.trigger_id());
+    // if (!pad_trigger_check) BA_TRACE("Invalid PAD Trigger ID: {}", hits.trigger_id());
     int num_layers = num_layers_.add_hits(hits);
     double min_timing = min_timing_.add_hits(hits);
     int nsc = pad_trigger_efficiency_.add_hits(hits);
