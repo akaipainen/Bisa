@@ -134,9 +134,9 @@ Bisa::FeatureCollection FeatureSelector::restrictMaxHitsPerLayer(const Bisa::Fea
         }
 
         bool skip = false;
-        for (auto &&layerHits : layerHits)
+        for (auto &&layer_hits : layerHits)
         {
-            if (layerHits.second > maxSize)
+            if (layer_hits.second > maxSize)
             {
                 skip = true;
                 return Bisa::FeatureCollection(); // skip entire event
