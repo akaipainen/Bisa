@@ -19,8 +19,6 @@ public:
      , pad_trigger_("pad_trigger", tree_.get(), config)
      , scint_trigger_("scint_trigger", tree_.get(), config)
     {
-        // Need to generate ROOT dictionary
-        // tree_->Branch("basic", hits_.get_hits_address(), 32000, 2);
     }
 
     ~AnalysisApp()
@@ -45,7 +43,7 @@ public:
         pad_trigger_.add_hits(hits_);
         scint_trigger_.add_hits(hits_);
 
-        tree_->Fill(); // fill the tree with the data from this step
+        // tree_->Fill(); // fill the tree with the data from this step
     }
 
 private:

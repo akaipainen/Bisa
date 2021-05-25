@@ -7,6 +7,8 @@
 #include "num_layers_plot.h"
 #include "min_timing_plot.h"
 #include "tdc_combinatorics_plot.h"
+#include "trigger_efficiency_plot.h"
+#include "scint_chamber_time_plot.h"
 
 #include <TTree.h>
 
@@ -29,4 +31,8 @@ private:
 
     TDCCombinatoricsPlot tdc_combos_;
     TDCCombinatoricsPlot tdc_combos_2_hits_;
+
+    TriggerEfficiencyPlot pad_trigger_efficiency_;
+
+    ScintChamberTimePlot scint_chamber_time_plot_;
 };

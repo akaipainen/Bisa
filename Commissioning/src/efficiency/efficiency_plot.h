@@ -55,8 +55,8 @@ private:
                         config_.chamber(hit1.tdc()) == config_.chamber(hit2.tdc()) &&
                         config_.coordinate(hit1.tdc()) == config_.coordinate(hit2.tdc()))
                     {
-                        // Spatial strip requirement for probe hits
-                        if (true)
+                        // Spatial+Timing requirement for probe hits
+                        if (time_apart(hit1, hit2) < 2)
                         {
                             probe_found = true;
                             for (auto &&hit3 : hits) // Search for test hit
@@ -65,8 +65,8 @@ private:
                                     config_.chamber(hit3.tdc()) == config_.chamber(hit1.tdc()) &&
                                     config_.coordinate(hit3.tdc()) == config_.coordinate(hit1.tdc()))
                                 {
-                                    // Spatial strip requirement for test hit
-                                    if (true)
+                                    // Spatial+Timing requirement for test hit
+                                    if (time_apart(hit3, hit1) < 2 || time_apart(hit3, hit2) < 2)
                                     {
                                         return 1;
                                     }
@@ -79,6 +79,16 @@ private:
         }
         if (probe_found) return 0;
         return -1;
+    }
+
+    unsigned int distance(const Bisa::Hit &hit1, const Bisa::Hit &hit2)
+    {
+        return std::abs((int) hit1.strip() - (int) hit2.strip());
+    }
+
+    double time_apart(const Bisa::Hit &hit1, const Bisa::Hit &hit2)
+    {
+        return std::abs(config_.time(hit1.bcid_tdc(), hit1.fine_time()) - config_.time(hit2.bcid_tdc(), hit2.fine_time()));
     }
 
     TH1F p_;

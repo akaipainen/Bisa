@@ -2,6 +2,9 @@
 
 #include <Bisa.h>
 
+#include "../FeatureSelector.h"
+#include "../SelectorFilter.h"
+
 // Plots
 #include "strip_distribution_plot.h"
 #include "channel_distribution_plot.h"
@@ -20,6 +23,8 @@ public:
     void add_hits(const Bisa::HitCollection &hits);
 
 private:
+    StripDistributionPlot muon_strip_dist_;
+
     StripDistributionPlot strip_dist_;
     ChannelDistributionPlot channel_dist_;
     TdcTimingDifferencePlot timing_diff_;

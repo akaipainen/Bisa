@@ -32,14 +32,22 @@ public:
                 gDirectory->cd(name__);
             }
 
-            eta_ = {Form("%s_eta", name__), Form("%s_eta", title), 32, 0, 32, 3, 0, 3};
-            phi_ = {Form("%s_phi", name__), Form("%s_phi", title), 64, 0, 64, 3, 0, 3};
+            eta_7_ = {Form("%s_eta7", name__), Form("%s_eta7", title), 32, 0, 32, 3, 0, 3};
+            phi_7_ = {Form("%s_phi7", name__), Form("%s_phi7", title), 64, 0, 64, 3, 0, 3};
+            eta_8_ = {Form("%s_eta8", name__), Form("%s_eta8", title), 32, 0, 32, 3, 0, 3};
+            phi_8_ = {Form("%s_phi8", name__), Form("%s_phi8", title), 64, 0, 64, 3, 0, 3};
 
-            eta_.GetXaxis()->SetTitle("Strip #");
-            eta_.GetYaxis()->SetTitle("Layer #");
+            eta_7_.GetXaxis()->SetTitle("Strip #");
+            eta_7_.GetYaxis()->SetTitle("Layer #");
 
-            eta_.GetXaxis()->SetTitle("Strip #");
-            eta_.GetYaxis()->SetTitle("Layer #");
+            phi_7_.GetXaxis()->SetTitle("Strip #");
+            phi_7_.GetYaxis()->SetTitle("Layer #");
+
+            eta_8_.GetXaxis()->SetTitle("Strip #");
+            eta_8_.GetYaxis()->SetTitle("Layer #");
+
+            phi_8_.GetXaxis()->SetTitle("Strip #");
+            phi_8_.GetYaxis()->SetTitle("Layer #");
         }
     }
 
@@ -49,15 +57,23 @@ public:
         {
             gStyle->SetOptStat(0);
 
-            canvas()->Divide(2, 1);
+            canvas()->Divide(2, 2);
 
             canvas()->cd(1);
-            eta_.SetMaximum(max_time_);
-            eta_.Draw("COL");
+            eta_7_.SetMaximum(max_time_);
+            eta_7_.Draw("COLZ");
             
             canvas()->cd(2);
-            phi_.SetMaximum(max_time_);
-            phi_.Draw("COLZ");
+            phi_7_.SetMaximum(max_time_);
+            phi_7_.Draw("COLZ");
+
+            canvas()->cd(3);
+            eta_8_.SetMaximum(max_time_);
+            eta_8_.Draw("COLZ");
+            
+            canvas()->cd(4);
+            phi_8_.SetMaximum(max_time_);
+            phi_8_.Draw("COLZ");
             
             print(Form("%s_%d", name__, trigger_id_), name__); // save plot to pdf
         }
@@ -84,21 +100,35 @@ public:
             for (auto &&hit : hits)
             {
                 trigger_id_ = hit.trigger_id();
-                if (config_.coordinate(hit.tdc()) == Bisa::ETA)
+                int strip = config_.orientation(hit.tdc())*32 + hit.strip();
+                int layer = config_.layer(hit.tdc());
+                double time_weight = config_.time(hit.bcid_tdc(), hit.fine_time()) - min_time_;
+
+                if (config_.coordinate(hit.tdc()) == Bisa::ETA && config_.chamber(hit.tdc()) == 7)
                 {
-                    eta_.Fill(config_.orientation(hit.tdc())*32 + config_.strip(hit.channel()), config_.layer(hit.tdc()), config_.time(hit.bcid_tdc(), hit.fine_time()) - min_time_);
+                    eta_7_.Fill(strip, layer, time_weight);
                 }
-                else if (config_.coordinate(hit.tdc()) == Bisa::PHI)
+                else if (config_.coordinate(hit.tdc()) == Bisa::ETA && config_.chamber(hit.tdc()) == 8)
                 {
-                    phi_.Fill(config_.orientation(hit.tdc())*32 + config_.strip(hit.channel()), config_.layer(hit.tdc()), config_.time(hit.bcid_tdc(), hit.fine_time()) - min_time_);
+                    eta_8_.Fill(strip, layer, time_weight);
+                }
+                else if (config_.coordinate(hit.tdc()) == Bisa::PHI && config_.chamber(hit.tdc()) == 7)
+                {
+                    phi_7_.Fill(strip, layer, time_weight);
+                }
+                else if (config_.coordinate(hit.tdc()) == Bisa::PHI && config_.chamber(hit.tdc()) == 8)
+                {
+                    phi_8_.Fill(strip, layer, time_weight);
                 }
             }
         }
     }
 
 private:
-    TH2F eta_;
-    TH2F phi_;
+    TH2F eta_7_;
+    TH2F phi_7_;
+    TH2F eta_8_;
+    TH2F phi_8_;
 
     const char *name__;
     unsigned int trigger_id_ = 0;

@@ -107,6 +107,10 @@ Bisa::HitCollection HitSelector::restrictHitsOnLayer(const Bisa::HitCollection& 
         {
             hc.add(hit);
         }
+        else
+        {
+            return Bisa::HitCollection();
+        }
     }
     return hc;
 }

@@ -6,40 +6,74 @@
 #include <TString.h>
 #include <TStyle.h>
 
-class CheckPadTriggerPlot : public Bisa::Plot
+class TriggerEfficiencyPlot : public Bisa::Plot
 {
 public:
-    CheckPadTriggerPlot(const char *name, const char *title, Bisa::Experiment *experiment, const Bisa::Config &config)
+    TriggerEfficiencyPlot(const char *name, const char *title, Bisa::Experiment *experiment, const Bisa::Config &config)
      : Bisa::Plot(name, title, experiment, config)
      , p_(name, title, 2, 0, 2)
     {
         p_.GetXaxis()->SetTitle("Triggers [1 = Trigger; 0 = No Trigger]");
         p_.GetYaxis()->SetTitle("Percentage [%]");
-        experiment_->tree()->Branch(name_, &trigger_);
+
+        experiment_->tree()->Branch(name, &trigger_);
     }
 
-    ~CheckPadTriggerPlot() 
+    ~TriggerEfficiencyPlot() 
     {
+        // BA_INFO(1.0 / event_counter_);
         gStyle->SetOptStat(110);
-
-        p_.Scale(1.0 / event_counter_); // Get percentage for efficiency
-
+        p_.Scale(100.0 / probe_counter_); // Get percentage for efficiency
         canvas()->cd(); // switch to canvas
-
         p_.Draw("HIST"); // draw this plot to canvas
-
         print(); // save plot to pdf
     }
 
-    bool add_hits(const Bisa::HitCollection &hits)
+    int add_hits(const Bisa::HitCollection &hits)
     {
-        trigger_ = pad_trigger(hits);
-        p_.Fill(trigger_);
-        ++event_counter_;
+        trigger_ = test_probe(hits);
+        if (trigger_ >= 0)
+        {
+            probe_counter_++;
+            p_.Fill(trigger_);
+        }
         return trigger_;
     }
 
 private:
+    // Return 1 if chamber trigger found, 0 if no chamber, -1 if no scintillator
+    int test_probe(const Bisa::HitCollection &hits)
+    {
+        Bisa::HitCollection scint_hits;
+        // float scint_time = 0;
+        Bisa::HitCollection chamber_hits;
+        // float chamber_time = 0;
+
+        for (auto &&hit1 : hits)
+        {
+            if (config_.chamber(hit1.tdc()) == 7)
+            {
+                chamber_hits.add(hit1);
+                // chamber_time = std::min(chamber_time, config_.time(hit1.bcid_tdc(), hit1.fine_time()));
+            }
+            else // bis8 = scintillator hits
+            {
+                scint_hits.add(hit1);
+                // scint_time = std::min(scint_time, config_.time(hit1.bcid_tdc(), hit1.fine_time()));
+            }
+        }
+
+        if (pad_trigger(scint_hits))
+        {
+            if (pad_trigger(chamber_hits))
+            {
+                return 1;
+            }
+            return 0;
+        }
+        return -1;
+    }
+
     bool pad_trigger(const Bisa::HitCollection &hits)
     {
         for (auto &&hit1 : hits)
@@ -77,7 +111,7 @@ private:
     }
 
     TH1F p_;
-    bool trigger_;
+    int trigger_;
 
-    int event_counter_ = 0;
+    int probe_counter_ = 0;
 };

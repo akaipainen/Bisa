@@ -139,7 +139,7 @@ Bisa::FeatureCollection FeatureSelector::restrictMaxHitsPerLayer(const Bisa::Fea
             if (layerHits.second > maxSize)
             {
                 skip = true;
-                break;
+                return Bisa::FeatureCollection(); // skip entire event
             }
         }
 

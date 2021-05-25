@@ -1,6 +1,7 @@
 #include "efficiency.h"
 
 #include "../HitSelector.h"
+#include "../FeatureSelector.h"
 
 Efficiency::Efficiency(const char *name, int voltage, TTree *tree, const Bisa::Config &config)
  : Bisa::Experiment(name, tree, config)
@@ -21,8 +22,11 @@ Efficiency::~Efficiency()
 {
 }
 
-void Efficiency::add_hits(const Bisa::HitCollection &hits)
+void Efficiency::add_hits(const Bisa::HitCollection &hits_)
 {
+    HitSelector hs(config_);
+    Bisa::HitCollection hits = hs.restrictHitsOnLayer(hits_, 4);
+
     auto eta_hits = select_eta(hits);
     auto phi_hits = select_phi(hits);
 

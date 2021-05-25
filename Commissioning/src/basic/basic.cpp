@@ -4,6 +4,7 @@
 
 Basic::Basic(const char *name, TTree *tree, const Bisa::Config &config)
  : Bisa::Experiment(name, tree, config)
+ , muon_strip_dist_("muon_strip_distribution", "Muon Strip Distribution", this, config)
  , strip_dist_("strip_distribution", "Hit Strip Distribution", this, config)
  , channel_dist_("channel_distribution", "Channel Strip Distribution", this, config)
  , timing_diff_("tdc_timing_difference", "TDC Timing Difference for all Pairs of Hits", this, config)
@@ -53,6 +54,12 @@ void Basic::add_hits(const Bisa::HitCollection &hits)
     // Create plots
     EventDisplay event_display = {"event_display", "Event Display", 100, this, config_};
     event_display.add_hits(hits);
+
+    FeatureSelector fs(config_);
+    Bisa::FeatureCollection muon_hits = fs.basicSelector(hits, SelectorFilter::muon_candidate_same_strip);
+    muon_hits = fs.requireMultipleLayers(muon_hits, 3);
+    muon_hits = fs.restrictMaxHitsPerLayer(muon_hits, 4);
+    muon_strip_dist_.add_hits(muon_hits.hits());
 
     strip_dist_.add_hits(hits);
     channel_dist_.add_hits(hits);

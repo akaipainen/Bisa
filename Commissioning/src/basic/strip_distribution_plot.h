@@ -25,19 +25,25 @@ public:
         for (int i = 0; i < 18; i++)
         {
             ps_[i].Draw("HIST");
-            print(Form("%s_tdc%d", name_, i), "strip_distributions");
+            print(Form("tdc%d", i), name_);
             canvas()->Clear();
         }
 
         canvas()->Divide(3, 3);
 
-        for (int i = 0; i < 18; i++)
+        for (int i = 0; i < 9; i++)
         {
             configure_pad(i);
             ps_[i].Draw("HIST");
         }
+        print(Form("%s_bis7", name_));
 
-        print();
+        for (int i = 9; i < 18; i++)
+        {
+            configure_pad(i);
+            ps_[i].Draw("HIST");
+        }
+        print(Form("%s_bis8", name_));
     }
 
     void add_hits(const Bisa::HitCollection &hits) override

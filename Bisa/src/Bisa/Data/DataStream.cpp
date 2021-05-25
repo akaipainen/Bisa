@@ -17,8 +17,8 @@ namespace Bisa {
 
     bool DataStream::fill_next_event()
     {
-        unsigned int buffer_size = 20;
-        if (!config_.trigger_enabled()) buffer_size = 500;
+        unsigned int buffer_size = 200;
+        if (!config_.trigger_enabled()) buffer_size = 200;
         while (!file_finished_ && hits_buffer_.size() < buffer_size)
         {
             // BA_CORE_INFO("Hits buffer size: {}", hitsBuffer_.size());
@@ -51,7 +51,7 @@ namespace Bisa {
         // Read packet into data
         int num_bytes;
         data_file_ >> num_bytes;
-        char* data = new char[num_bytes*2 + 1];
+        char data[num_bytes*2 + 1];
         data[num_bytes*2] = '\0';
 
         // file_stream_.ignore(40); // ignore the header
