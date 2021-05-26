@@ -1,5 +1,5 @@
 #!/bin/zsh
-mkdir -p "/Users/alex/workspace/cern/Bisa/output_results"
+mkdir -p "output_results"
 
 rm -rf "output"
 
