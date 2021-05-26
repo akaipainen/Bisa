@@ -8,6 +8,7 @@ data/*
 *.pdf
 *.root
 *.txt
+!bin/run_directory.sh
 
 # Xcode
 *.xcodeproj
