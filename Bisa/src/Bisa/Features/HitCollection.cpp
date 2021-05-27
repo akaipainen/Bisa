@@ -18,6 +18,16 @@ namespace Bisa {
         hits_.clear();
     }
 
+    // std::set<unsigned int> HitCollection::layers() const
+    // {
+    //     std::set<unsigned int> layers_;
+    //     for (auto &&hit : *this)
+    //     {
+    //         layers_.insert(config.layer(hit.tdc()));
+    //     }
+    //     return layers_;
+    // }
+
     HitCollection HitCollection::operator&(const HitCollection& other) const
     {
         HitCollection hc;

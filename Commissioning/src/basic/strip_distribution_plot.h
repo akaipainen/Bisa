@@ -22,9 +22,11 @@ public:
         canvas()->SetTitle("Chamber Strip Distribution");
 
         canvas()->cd();
+        double max_scale = 0;
         for (int i = 0; i < 18; i++)
         {
             ps_[i].Draw("HIST");
+            max_scale = std::max(max_scale, ps_[i].GetMaximum());
             print(Form("tdc%d", i), name_);
             canvas()->Clear();
         }
@@ -34,6 +36,7 @@ public:
         for (int i = 0; i < 9; i++)
         {
             configure_pad(i);
+            ps_[i].SetMaximum(max_scale * 1.1);
             ps_[i].Draw("HIST");
         }
         print(Form("%s_bis7", name_));

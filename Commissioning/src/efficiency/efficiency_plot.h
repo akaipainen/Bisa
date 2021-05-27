@@ -25,7 +25,7 @@ public:
     {
         // BA_INFO(1.0 / event_counter_);
         gStyle->SetOptStat(0);
-        p_.Scale(100.0 / probe_counter_); // Get percentage for efficiency
+        p_.Scale(100.0 / tag_counter_); // Get percentage for efficiency
         canvas()->cd(); // switch to canvas
         p_.Draw("HIST"); // draw this plot to canvas
         print(); // save plot to pdf
@@ -33,39 +33,56 @@ public:
 
     void add_hits(const Bisa::HitCollection &hits)
     {
-        trigger_ = test_probe(hits);
-        if (trigger_ >= 0) probe_counter_++;
+        trigger_ = tag_probe(hits);
+        if (trigger_ >= 0) tag_counter_++;
         if (trigger_ == 1) p_.Fill(voltage_);
     }
 
 private:
-    // Return 1 if test found, 0 if no test, -1 if no probe
-    int test_probe(const Bisa::HitCollection &hits)
+    // Return 1 if test found, 0 if no test, -1 if no tag
+    int tag_probe(const Bisa::HitCollection &hits)
     {
-        unsigned int probe_layer_1 = layer_ != 0 ? 0 : 1;
-        unsigned int probe_layer_2 = layer_ != 2 ? 2 : 1;
-        bool probe_found = false;
+        // Bisa::FeatureCollection clusters = Selector::basicSelector(hits, [] (const Bisa::Hit &hit1, const Bisa::Hit &hit2, const Bisa::Config &config) {
+        //     if (config.layer(hit1.tdc()) == config.layer(hit2.tdc()) &&
+        //         config.chamber(hit1.tdc()) == config.chamber(hit2.tdc()))
+        //     {
+        //         // timing requirement
+        //         if (std::abs(config.time(hit1.bcid_tdc(), hit1.fine_time()) - config.time(hit2.bcid_tdc(), hit2.fine_time())) < 5)
+        //         {
+        //             // spatial requirement
+        //             if (std::abs(config.rpc_strip(hit1.tdc(), hit1.channel()) - config.rpc_strip(hit2.tdc(), hit2.channel())) <= 1)
+        //             {
+        //                 return true;
+        //             }
+        //         }
+        //     }
+        //     return false;
+        // });
+
+        unsigned int tag_layer_1 = layer_ != 0 ? 0 : 1;
+        unsigned int tag_layer_2 = layer_ != 2 ? 2 : 1;
+        bool tag_found = false;
         for (auto &&hit1 : hits)
         {
-            if (config_.layer(hit1.tdc()) == probe_layer_1)
+            if (config_.layer(hit1.tdc()) == tag_layer_1)
             {
                 for (auto &&hit2 : hits)
                 {
-                    if (config_.layer(hit2.tdc()) == probe_layer_2 &&
+                    if (config_.layer(hit2.tdc()) == tag_layer_2 &&
                         config_.chamber(hit1.tdc()) == config_.chamber(hit2.tdc()) &&
                         config_.coordinate(hit1.tdc()) == config_.coordinate(hit2.tdc()))
                     {
-                        // Spatial+Timing requirement for probe hits
+                        // Spatial+Timing requirement for tag hits
                         if (time_apart(hit1, hit2) < 2)
                         {
-                            probe_found = true;
-                            for (auto &&hit3 : hits) // Search for test hit
+                            tag_found = true;
+                            for (auto &&hit3 : hits) // Search for probe hit
                             {
                                 if (config_.layer(hit3.tdc()) == layer_ &&
                                     config_.chamber(hit3.tdc()) == config_.chamber(hit1.tdc()) &&
                                     config_.coordinate(hit3.tdc()) == config_.coordinate(hit1.tdc()))
                                 {
-                                    // Spatial+Timing requirement for test hit
+                                    // Spatial+Timing requirement for probe hit
                                     if (time_apart(hit3, hit1) < 2 || time_apart(hit3, hit2) < 2)
                                     {
                                         return 1;
@@ -77,7 +94,7 @@ private:
                 }   
             }
         }
-        if (probe_found) return 0;
+        if (tag_found) return 0;
         return -1;
     }
 
@@ -96,5 +113,5 @@ private:
     int layer_;
     int trigger_;
 
-    int probe_counter_ = 0;
+    int tag_counter_ = 0;
 };

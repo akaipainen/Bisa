@@ -44,6 +44,7 @@ namespace Bisa {
         int voltage() const { return voltage_; }
 
         int strip(unsigned int channel) const { return strip_mapping_[channel]; }
+        int rpc_strip(unsigned int tdc, unsigned int channel) const { return 32 * orientation(tdc) + strip(channel); }
 
         double strip_area_bis7_eta() const { return bis7_eta_strip_length_ * bis7_strip_width_; }
         double strip_area_bis7_phi() const { return bis7_phi_strip_length_ * bis7_strip_width_; }

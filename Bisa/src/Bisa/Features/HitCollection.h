@@ -51,6 +51,9 @@ namespace Bisa {
         // Get the trigger id of this collection 
         unsigned int trigger_id() const { return trigger_id_; }
 
+        // Return the layers associated with this collection
+        // std::set<unsigned int> layers() const;
+
         // Set the trigger id of this collection 
         void set_trigger_id(const unsigned int id)
         { 

@@ -55,10 +55,9 @@ void Basic::add_hits(const Bisa::HitCollection &hits)
     EventDisplay event_display = {"event_display", "Event Display", 100, this, config_};
     event_display.add_hits(hits);
 
-    FeatureSelector fs(config_);
-    Bisa::FeatureCollection muon_hits = fs.basicSelector(hits, SelectorFilter::muon_candidate_same_strip);
-    muon_hits = fs.requireMultipleLayers(muon_hits, 3);
-    muon_hits = fs.restrictMaxHitsPerLayer(muon_hits, 4);
+    Bisa::FeatureCollection muon_hits = Selector::basicSelector(hits, config_, SelectorFilter::muon_candidate);
+    muon_hits = Selector::requireMultipleLayers(muon_hits, 2, config_);
+    muon_hits = Selector::restrictMaxHitsPerLayer(muon_hits, 3, config_);
     muon_strip_dist_.add_hits(muon_hits.hits());
 
     strip_dist_.add_hits(hits);

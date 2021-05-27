@@ -1,7 +1,7 @@
 #include "efficiency.h"
 
 #include "../HitSelector.h"
-#include "../FeatureSelector.h"
+#include "../Selector.h"
 
 Efficiency::Efficiency(const char *name, int voltage, TTree *tree, const Bisa::Config &config)
  : Bisa::Experiment(name, tree, config)

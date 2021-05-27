@@ -2,7 +2,7 @@
 
 #include <Bisa.h>
 
-#include "../FeatureSelector.h"
+#include "../Selector.h"
 #include "../SelectorFilter.h"
 
 // Plots

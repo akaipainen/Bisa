@@ -41,8 +41,8 @@ protected:
 
         // Configure margins                                        L    R    T    B
         if (config_.coordinate(tdc) == Bisa::ETA)  gPad->SetMargin(0.1, 0.1, 0.1, 0.1);
-        else if (config_.orientation(tdc) == 1)    gPad->SetMargin(0.0, 0.1, 0.1, 0.1);
-        else                                       gPad->SetMargin(0.1, 0.0, 0.1, 0.1);
+        else if (config_.orientation(tdc) == 1)    gPad->SetMargin(1.0, 0.1, 0.1, 0.1);
+        else                                       gPad->SetMargin(0.1, 1.0, 0.1, 0.1);
     }
 
     std::vector<TH1F> ps_;
