@@ -58,6 +58,8 @@ namespace Bisa {
         
         // - Extra getters
 
+        // Get RPC strip
+        unsigned int rpc_strip() const     { return rpc_strip_; }
         // Get layer
         unsigned int layer() const         { return layer_; }
         // Get orientation
@@ -82,6 +84,7 @@ namespace Bisa {
             tdc_ = tdc;
             layer_ = config.layer(tdc);
             orientation_ = config.orientation(tdc);
+            rpc_strip_ = orientation_ * 32 + strip_;
             coordinate_ = config.coordinate(tdc);
             chamber_ = config.chamber(tdc);
         }
@@ -89,7 +92,8 @@ namespace Bisa {
         void set_channel(unsigned int channel)
         { 
             channel_ = channel; 
-            strip_ = CHANNEL_STRIP_MAPPING[channel]; 
+            strip_ = CHANNEL_STRIP_MAPPING[channel];
+            rpc_strip_ = orientation_ * 32 + strip_;
         }
         // Set width (time over threshold)
         void set_width(unsigned int width)                 { width_ = width; }
@@ -182,6 +186,7 @@ namespace Bisa {
         // Extra hit data
         unsigned int strip_;
         unsigned int layer_;
+        unsigned int rpc_strip_;
         unsigned int orientation_;
         Coordinate coordinate_;
         unsigned int chamber_;

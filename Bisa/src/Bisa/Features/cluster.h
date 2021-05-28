@@ -36,6 +36,10 @@ public:
         coordinate_ = hit.coordinate();
         layer_ = hit.layer();
         chamber_ = hit.chamber();
+
+        max_strip_ = std::max(max_strip_, hit.rpc_strip());
+        min_strip_ = std::min(min_strip_, hit.rpc_strip());
+        min_time_ = std::min(min_time_, hit.time());
     }
 
     Coordinate coordinate() const { return coordinate_; }
@@ -51,43 +55,17 @@ public:
 
     int max_strip_hit() const
     {
-        int max_hit = 0;
-        for (auto &&hit : hits_)
-        {
-            if (hit.strip() > max_hit)
-            {
-                max_hit = hit.strip();
-            }
-        }
-        return max_hit;
+        return max_strip_;
     }
 
     int min_strip_hit() const
     {
-        BA_CORE_ASSERT(!hits_.empty(), "Getting hits from non-empty cluster");
-        int min_hit = 100;
-        for (auto &&hit : hits_)
-        {
-            if (hit.strip() < min_hit)
-            {
-                min_hit = hit.strip();
-            }
-        }
-        return min_hit;
+        return min_strip_;
     }
 
     double min_time() const
     {
-        BA_CORE_ASSERT(!hits_.empty(), "Getting hits from non-empty cluster");
-        double min_time = 32 * 25;
-        for (auto &&hit : hits_)
-        {
-            if (hit.time() < min_time)
-            {
-                min_time = hit.time();
-            }
-        }
-        return min_time;
+        return min_time_;
     }
 
     HitCollection hits() const
@@ -99,6 +77,9 @@ protected:
     Coordinate coordinate_;
     unsigned int layer_ = 10;
     unsigned int chamber_ = 10;
+    unsigned int max_strip_ = 0;
+    unsigned int min_strip_ = 100;
+    double min_time_ = 32 * 25;
 };
 
 }

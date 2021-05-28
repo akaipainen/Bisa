@@ -23,7 +23,7 @@
     },
 
     "scintillator": {
-        "tdcs": [9, 10, 11, 15, 16, 17]
+        "tdcs": []
     },
 
     "experiments": {
@@ -37,7 +37,7 @@
 
         },
         "muons": {
-            "cluster_size": 5,
+            "cluster_size": 10,
             "cluster_distance": 1,
             "require_3_layers": true,
             "eta_and_phi": true,

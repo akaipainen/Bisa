@@ -35,7 +35,7 @@ namespace Selector
                 if (hit.chamber() == hit_it->chamber() &&
                     hit.coordinate() == hit_it->coordinate() &&
                     hit.layer() == hit_it->layer() &&
-                    std::abs((int) hit.strip() - (int) hit_it->strip()) <= 4 &&
+                    std::abs((int) hit.rpc_strip() - (int) hit_it->rpc_strip()) <= 4 &&
                     std::abs(hit.time() - hit_it->time()) <= 5)
                 {
                     clusters.back().add(hit);
