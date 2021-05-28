@@ -13,7 +13,7 @@ public:
     {
     }
 
-    ~Cluster() {}
+    virtual ~Cluster() {}
 
     void add(const Hit &hit) override
     {
@@ -42,9 +42,15 @@ public:
     unsigned int layer() const { return layer_; }
     unsigned int chamber() const { return chamber_; }
 
+    unsigned int distance(const Cluster &other) const
+    {
+        int d = std::min(min_strip_hit() - other.max_strip_hit(), other.min_strip_hit() - max_strip_hit());
+        if (d < 0) return 0;
+        return d;
+    }
+
     int max_strip_hit() const
     {
-        BA_CORE_ASSERT(!hits_.empty(), "Getting hits from non-empty cluster");
         int max_hit = -1;
         for (auto &&hit : hits_)
         {
@@ -82,6 +88,11 @@ public:
             }
         }
         return min_time;
+    }
+
+    HitCollection hits() const
+    {
+        return *this;
     }
 
 protected:

@@ -36,8 +36,12 @@
         "pad_trigger": {
 
         },
-        "mapping": {
-
+        "muons": {
+            "cluster_size": 5,
+            "cluster_distance": 1,
+            "require_3_layers": true,
+            "eta_and_phi": true,
+            "timing_ns": 5
         },
         "efficiency": {
             "tag_cluster_size": 3,

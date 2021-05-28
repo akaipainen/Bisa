@@ -9,6 +9,7 @@
 #include "Bisa/Features/FeatureCollection.h"
 #include "Bisa/Features/HitCollection.h"
 #include "Bisa/Features/cluster.h"
+#include "Bisa/Features/muon.h"
 
 #include "Bisa/Plot.h"
 #include "Bisa/Experiment.h"

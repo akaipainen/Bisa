@@ -49,7 +49,7 @@ public:
         print(Form("%s_bis8", name_));
     }
 
-    void add_hits(const Bisa::HitCollection &hits) override
+    virtual void add_hits(const Bisa::HitCollection &hits) override
     {
         for (auto &&hit : hits)
         {
