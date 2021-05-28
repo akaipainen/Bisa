@@ -51,7 +51,7 @@ public:
 
     int max_strip_hit() const
     {
-        int max_hit = -1;
+        int max_hit = 0;
         for (auto &&hit : hits_)
         {
             if (hit.strip() > max_hit)

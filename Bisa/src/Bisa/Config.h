@@ -37,6 +37,11 @@ namespace Bisa {
             BA_CORE_ASSERT(file.is_open(), "Unable to open config file");
             file >> data_;
 
+            tdc_layer_mapping_.resize(18, 0);
+            tdc_orientation_mapping_.resize(18, 0);
+            tdc_coordinate_mapping_.resize(18, ETA);
+            tdc_chamber_mapping_.resize(18, 0);
+
             // Initialize chamber tdc mapping
             int counter = 0;
             for (auto &&tdc : data_.at("bis7").at("eta_layer_0_tdcs").get<std::vector<unsigned int>>())
@@ -159,10 +164,10 @@ namespace Bisa {
     private:
         json data_;
 
-        unsigned int tdc_layer_mapping_[18]; // 0, 1, 2
-        unsigned int tdc_orientation_mapping_[18]; // LEFT/RIGHT
-        Coordinate tdc_coordinate_mapping_[18]; // ETA/PHI
-        unsigned int tdc_chamber_mapping_[18]; // 0/1/7/8 (0=off, 1=scintillator, 7=bis7, 8=bis8)
+        std::vector<unsigned int> tdc_layer_mapping_; // 0, 1, 2
+        std::vector<unsigned int> tdc_orientation_mapping_; // LEFT/RIGHT
+        std::vector<Coordinate>   tdc_coordinate_mapping_; // ETA/PHI
+        std::vector<unsigned int> tdc_chamber_mapping_; // 0/1/7/8 (0=off, 1=scintillator, 7=bis7, 8=bis8)
     };
 
     extern Config config; // global config

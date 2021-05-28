@@ -7,6 +7,7 @@
 #include "efficiency/efficiency.h"
 #include "pad_trigger/pad_trigger.h"
 #include "scintillator_trigger/scintillator_trigger.h"
+#include "muons/muons.h"
 
 class AnalysisApp : public Bisa::Application
 {
@@ -17,6 +18,7 @@ public:
      , efficiency_("efficiency", 5800, tree_, output_path)
      , pad_trigger_("pad_trigger", tree_, output_path)
      , scint_trigger_("scint_trigger", tree_, output_path)
+     , muons_("muons", tree_, output_path)
     {
     }
 
@@ -41,6 +43,7 @@ public:
         efficiency_.add_hits(hits_);
         pad_trigger_.add_hits(hits_);
         scint_trigger_.add_hits(hits_);
+        muons_.add_hits(hits_);
 
         // tree_->Fill(); // fill the tree with the data from this step
     }
@@ -51,6 +54,7 @@ private:
     Efficiency efficiency_;
     PadTrigger pad_trigger_;
     ScintillatorTrigger scint_trigger_;
+    Muons muons_;
 };
 
 Bisa::Application* Bisa::CreateApplication(const char *datafile, const char *output_path)

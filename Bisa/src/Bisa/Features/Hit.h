@@ -65,7 +65,7 @@ namespace Bisa {
         // Get coordinate
         Coordinate coordinate() const      { return coordinate_; }
         // Get chamber
-        unsigned int chamber() const       { return fine_time_; }
+        unsigned int chamber() const       { return chamber_; }
         // Get time
         double time() const                { return time_; }
 
