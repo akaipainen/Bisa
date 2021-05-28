@@ -11,7 +11,7 @@
 class ScintillatorTrigger : public Bisa::Experiment
 {
 public:
-    ScintillatorTrigger(const char *name, TTree *tree, const Bisa::Config &config);
+    ScintillatorTrigger(const char *name, TTree *tree, const char *output_path);
 
     ~ScintillatorTrigger();
 
@@ -21,6 +21,7 @@ private:
     Bisa::HitCollection on_tdcs(const Bisa::HitCollection &hits, const std::set<unsigned int> &tdcs);
     
     Bisa::HitCollection on_coord(const Bisa::HitCollection &hits, Bisa::Coordinate coord);
+    Bisa::HitCollection on_chamber(const Bisa::HitCollection &hits, unsigned int chamber);
 
     FPGATimingPlot scint_fpga_timing_;
     FPGATimingPlot chamber_fpga_timing_;

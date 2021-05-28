@@ -6,11 +6,13 @@
 #include <TString.h>
 #include <TStyle.h>
 
+#include "../Selector.h"
+
 class EfficiencyPlot : public Bisa::Plot
 {
 public:
-    EfficiencyPlot(const char *name, const char *title, int voltage, int layer, Bisa::Experiment *experiment, const Bisa::Config &config)
-     : Bisa::Plot(name, title, experiment, config)
+    EfficiencyPlot(const char *name, const char *title, int voltage, int layer, Bisa::Experiment *experiment)
+     : Bisa::Plot(name, title, experiment)
      , p_(Form("%s_%d", name, voltage), title, 15, 4500, 6000)
      , voltage_(voltage)
      , layer_(layer)
@@ -42,50 +44,52 @@ private:
     // Return 1 if test found, 0 if no test, -1 if no tag
     int tag_probe(const Bisa::HitCollection &hits)
     {
-        // Bisa::FeatureCollection clusters = Selector::basicSelector(hits, [] (const Bisa::Hit &hit1, const Bisa::Hit &hit2, const Bisa::Config &config) {
-        //     if (config.layer(hit1.tdc()) == config.layer(hit2.tdc()) &&
-        //         config.chamber(hit1.tdc()) == config.chamber(hit2.tdc()))
-        //     {
-        //         // timing requirement
-        //         if (std::abs(config.time(hit1.bcid_tdc(), hit1.fine_time()) - config.time(hit2.bcid_tdc(), hit2.fine_time())) < 5)
-        //         {
-        //             // spatial requirement
-        //             if (std::abs(config.rpc_strip(hit1.tdc(), hit1.channel()) - config.rpc_strip(hit2.tdc(), hit2.channel())) <= 1)
-        //             {
-        //                 return true;
-        //             }
-        //         }
-        //     }
-        //     return false;
-        // });
+        Bisa::FeatureCollection<Bisa::Cluster> clusters = Selector::clusterize(hits);
 
         unsigned int tag_layer_1 = layer_ != 0 ? 0 : 1;
         unsigned int tag_layer_2 = layer_ != 2 ? 2 : 1;
         bool tag_found = false;
-        for (auto &&hit1 : hits)
+        for (auto &&cluster1 : clusters)
         {
-            if (config_.layer(hit1.tdc()) == tag_layer_1)
+            if ((cluster1.chamber() == 7 || cluster1.chamber() == 8) &&
+                cluster1.layer() == tag_layer_1 &&
+                cluster1.size() <= Bisa::config.exparam()["efficiency"]["tag_cluster_size"])
             {
-                for (auto &&hit2 : hits)
+                for (auto &&cluster2 : clusters)
                 {
-                    if (config_.layer(hit2.tdc()) == tag_layer_2 &&
-                        config_.chamber(hit1.tdc()) == config_.chamber(hit2.tdc()) &&
-                        config_.coordinate(hit1.tdc()) == config_.coordinate(hit2.tdc()))
+                    if (cluster2.chamber() == cluster1.chamber() &&
+                        cluster2.layer() == tag_layer_2 &&
+                        cluster2.coordinate() == cluster1.coordinate() &&
+                        cluster2.size() <= Bisa::config.exparam()["efficiency"]["tag_cluster_size"])
                     {
-                        // Spatial+Timing requirement for tag hits
-                        if (time_apart(hit1, hit2) < 2)
+                        // Spatial requirement for tag clusters
+                        if (cluster1.min_strip_hit() - cluster2.max_strip_hit() <= Bisa::config.exparam()["efficiency"]["tag_cluster_distance"] ||
+                            cluster2.min_strip_hit() - cluster1.max_strip_hit() <= Bisa::config.exparam()["efficiency"]["tag_cluster_distance"])
                         {
-                            tag_found = true;
-                            for (auto &&hit3 : hits) // Search for probe hit
+                            // Timing requirement for tag clusters
+                            if (std::abs(cluster1.min_time() - cluster2.min_time()) <= Bisa::config.exparam()["efficiency"]["tag_timing_ns"])
                             {
-                                if (config_.layer(hit3.tdc()) == layer_ &&
-                                    config_.chamber(hit3.tdc()) == config_.chamber(hit1.tdc()) &&
-                                    config_.coordinate(hit3.tdc()) == config_.coordinate(hit1.tdc()))
+                                tag_found = true;
+                                for (auto &&cluster3 : clusters) // Search for probe hit
                                 {
-                                    // Spatial+Timing requirement for probe hit
-                                    if (time_apart(hit3, hit1) < 2 || time_apart(hit3, hit2) < 2)
+                                    if (cluster3.layer() == layer_ &&
+                                        cluster3.chamber() == cluster1.chamber() &&
+                                        cluster3.coordinate() == cluster1.coordinate() &&
+                                        cluster3.size() <= Bisa::config.exparam()["efficiency"]["probe_cluster_size"])
                                     {
-                                        return 1;
+                                        // Spatial+Timing requirement for probe hit
+                                        if ((cluster3.min_strip_hit() - cluster2.max_strip_hit() <= Bisa::config.exparam()["efficiency"]["probe_cluster_distance"] ||
+                                             cluster2.min_strip_hit() - cluster3.max_strip_hit() <= Bisa::config.exparam()["efficiency"]["probe_cluster_distance"]) &&
+                                            (cluster1.min_strip_hit() - cluster3.max_strip_hit() <= Bisa::config.exparam()["efficiency"]["probe_cluster_distance"] ||
+                                             cluster3.min_strip_hit() - cluster1.max_strip_hit() <= Bisa::config.exparam()["efficiency"]["probe_cluster_distance"]))
+                                        {
+                                            // Timing requirement for tag clusters
+                                            if (std::abs(cluster3.min_time() - cluster2.min_time()) <= Bisa::config.exparam()["efficiency"]["probe_timing_ns"] &&
+                                                std::abs(cluster3.min_time() - cluster1.min_time()) <= Bisa::config.exparam()["efficiency"]["probe_timing_ns"])
+                                            {
+                                                return 1;
+                                            }
+                                        }
                                     }
                                 }
                             }
@@ -96,16 +100,6 @@ private:
         }
         if (tag_found) return 0;
         return -1;
-    }
-
-    unsigned int distance(const Bisa::Hit &hit1, const Bisa::Hit &hit2)
-    {
-        return std::abs((int) hit1.strip() - (int) hit2.strip());
-    }
-
-    double time_apart(const Bisa::Hit &hit1, const Bisa::Hit &hit2)
-    {
-        return std::abs(config_.time(hit1.bcid_tdc(), hit1.fine_time()) - config_.time(hit2.bcid_tdc(), hit2.fine_time()));
     }
 
     TH1F p_;

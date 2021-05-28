@@ -1,7 +1,7 @@
 #include <Bisa.h>
 #include <Bisa/EntryPoint.h>
 
-#include "HitSelector.h"
+// #include "HitSelector.h"
 
 #include "basic/basic.h"
 #include "efficiency/efficiency.h"
@@ -11,13 +11,12 @@
 class AnalysisApp : public Bisa::Application
 {
 public:
-    AnalysisApp(const Bisa::Config &config)
-     : Bisa::Application(config)
-     , hitSelector_(config)
-     , basic_("basic", tree_.get(), config)
-     , efficiency_("efficiency", config.voltage(), tree_.get(), config)
-     , pad_trigger_("pad_trigger", tree_.get(), config)
-     , scint_trigger_("scint_trigger", tree_.get(), config)
+    AnalysisApp(const char *datafile, const char *output_path)
+     : Bisa::Application(datafile, output_path)
+     , basic_("basic", tree_, output_path)
+     , efficiency_("efficiency", 5800, tree_, output_path)
+     , pad_trigger_("pad_trigger", tree_, output_path)
+     , scint_trigger_("scint_trigger", tree_, output_path)
     {
     }
 
@@ -27,7 +26,7 @@ public:
 
     void Run() override
     {
-        while (dataStream_->fill_next_event())
+        while (data_stream_.fill_next_event())
         {
             Step();
         }
@@ -36,7 +35,7 @@ public:
 
     void Step() override
     {
-        Bisa::HitCollection first_hits = hitSelector_.firstHits(hits_);
+        // Bisa::HitCollection first_hits = hitSelector_.firstHits(hits_);
 
         basic_.add_hits(hits_);
         efficiency_.add_hits(hits_);
@@ -47,9 +46,6 @@ public:
     }
 
 private:
-    // Hit/Feature selectors
-    HitSelector hitSelector_;
-
     // Experiments
     Basic basic_;
     Efficiency efficiency_;
@@ -57,7 +53,7 @@ private:
     ScintillatorTrigger scint_trigger_;
 };
 
-Bisa::Application* Bisa::CreateApplication(const Bisa::Config& config)
+Bisa::Application* Bisa::CreateApplication(const char *datafile, const char *output_path)
 {
-    return new AnalysisApp(config);
+    return new AnalysisApp(datafile, output_path);
 }

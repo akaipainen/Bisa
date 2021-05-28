@@ -6,32 +6,24 @@
 
 using json = nlohmann::json;
 
-extern Bisa::Application* Bisa::CreateApplication(const Config& config);
+extern Bisa::Application* Bisa::CreateApplication(const char *datafile, const char *output_path);
 
 int main(int argc, char** argv)
 {
     Bisa::Log::Init();
     BA_CORE_INFO("Initialized Log!");
 
-    if (argc < 2) 
+    if (argc != 4) 
     {
-        BA_CORE_ERROR("Usage: ./Commissioning <path to config> [override path to data]");
+        BA_CORE_ERROR("Usage: ./Commissioning <path to config> <path to data> <output path>");
         return 0;
     }
 
-    Bisa::Config config(argv[1]);
+    // initialize global config
+    Bisa::config.init(argv[1]);
+    BA_CORE_INFO("Config initialized: {}", argv[1]);
 
-    if (argc >= 3)
-    {
-        config.set_path_to_data(std::string(argv[2]));
-    }
-
-    if (argc >= 4)
-    {
-        config.set_voltage(atoi(argv[3]));
-    }
-
-    auto app = Bisa::CreateApplication(config);
+    auto app = Bisa::CreateApplication(argv[2], argv[3]);
     app->Run();
     delete app;
 }

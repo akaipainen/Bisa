@@ -4,21 +4,26 @@
 
 namespace Bisa {
     
-    DataStream::DataStream(const Config& config)
-     : config_(config)
+    DataStream::DataStream(const char *datafile)
     {
-        init();
+        pairmode_ = config.pairmode();
+
+        BA_CORE_INFO("Creating data stream from file: {0}", datafile);
+
+        data_file_.open(datafile);
+        BA_CORE_ASSERT(data_file_.is_open(), "Could not open file!")
+
+        id_counter_ = IdCounter(65536);
     }
 
     DataStream::~DataStream()
     {
-        shutdown();
     }
 
     bool DataStream::fill_next_event()
     {
         unsigned int buffer_size = 200;
-        if (!config_.trigger_enabled()) buffer_size = 200;
+        if (!config.internal_autotrigger_enabled()) buffer_size = 200;
         while (!file_finished_ && hits_buffer_.size() < buffer_size)
         {
             // BA_CORE_INFO("Hits buffer size: {}", hitsBuffer_.size());
@@ -96,27 +101,25 @@ namespace Bisa {
         for (; it != hits_buffer_.end(); it++)
         {
             // If trigger is enabled, check for trigger id
-            if (config_.trigger_enabled() && hits.trigger_id() == it->trigger_id())
+            if (config.internal_autotrigger_enabled() && hits.trigger_id() == it->trigger_id())
             {
                 // BA_CORE_TRACE("Merging hits with Trigger ID = {} in buffer", hits.triggerId());
                 *it = *it | hits;
                 break;
             }
             // If trigger is not enabled, compare FPGA bcid
-            else if (!config_.trigger_enabled()) {
+            else if (!config.internal_autotrigger_enabled()) {
                 // If FPGA BCID are 1 apart
                 if (std::abs(int(hits.begin()->bcid_fpga()) - int(it->begin()->bcid_fpga())) <= 1)
                 {
                     // If TDC BCID are 25 ns apart in fine time
-                    if (std::abs(config_.time(hits.begin()->bcid_tdc(), hits.begin()->fine_time())
-                               - config_.time(it->begin()->bcid_tdc(), it->begin()->fine_time())) <= 15)
+                    if (std::abs(hits.begin()->time() - it->begin()->time()) <= 15)
                     {
                         // BA_CORE_INFO("Merged at trigger id: {}", hits.trigger_id());
                         hits.set_trigger_id(it->trigger_id());
                         *it = *it | hits;
                         break;
                     }
-                    
                 }
             }
         }
@@ -126,27 +129,11 @@ namespace Bisa {
             hits_buffer_.push_back(hits);
             
             // Correct the trigger id for recently added new hits
-            if (!config_.trigger_enabled())
+            if (!config.internal_autotrigger_enabled())
             {
                 hits_buffer_.back().set_trigger_id(running_id_++);
             }
         }
-    }
-
-    void DataStream::init()
-    {   
-        pairmode_ = config_.pairmode();
-
-        BA_CORE_INFO("Creating data stream from file: {0}", config_.path_to_data());
-
-        data_file_.open(config_.path_to_data());
-        BA_CORE_ASSERT(data_file_.is_open(), "Could not open file!")
-
-        id_counter_ = IdCounter(65536);
-    }
-
-    void DataStream::shutdown()
-    {
     }
 
     HitCollection DataStream::decode_packet(Packet packet)
@@ -168,27 +155,10 @@ namespace Bisa {
             else
             {
                 int tdc = Packet::slice(packet.word(word_index), 24, 4);
-                // int channel = Packet::slice(packet.word(word_index), 19, 5);
-                // if (tdc == 4 && config_.strip(channel) < 16)
-                // {
-                //     tdc = 5;
-                // }
-                // else if (tdc == 5 && config_.strip(channel) < 16)
-                // {
-                //     tdc = 4;
-                // }
-                // else if (tdc == 7 && config_.strip(channel) > 23)
-                // {
-                //     tdc = 8;
-                // }
-                // else if (tdc == 8 && config_.strip(channel) > 23)
-                // {
-                //     tdc = 7;
-                // }
                 new_hit.set_tdc(tdc);
             }
             
-            new_hit.set_channel(Packet::slice(packet.word(word_index), 19, 5), config_);
+            new_hit.set_channel(Packet::slice(packet.word(word_index), 19, 5));
             new_hit.set_width(pairmode_ ? Packet::slice(packet.word(word_index), 12, 7) : 0);
             new_hit.set_bcid_tdc(pairmode_ ? Packet::slice(packet.word(word_index), 7, 5) : Packet::slice(packet.word(word_index), 7, 12));
             new_hit.set_fine_time(Packet::slice(packet.word(word_index), 0, 7));

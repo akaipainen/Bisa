@@ -17,33 +17,13 @@ namespace Bisa {
         typedef std::set<Hit>::iterator Iterator;
         typedef std::set<Hit>::const_iterator ConstIterator;
 
-        // class Iterator : public ::std::vector<Hit>::iterator
-        // {
-        // protected:
-        //     using parent = ::std::vector<Hit>::iterator;
-
-        // public:
-        //     Iterator(parent it)
-        //      : parent(std::move(it)) { }
-        // };
-
-        // class ConstIterator : public ::std::vector<Hit>::const_iterator
-        // {
-        // protected:
-        //     using parent = std::vector<Hit>::const_iterator;
-
-        // public:
-        //     ConstIterator(parent it)
-        //      : parent(std::move(it)) { }
-        // };
-
     public:
         // Default constructor
         HitCollection() = default;
         HitCollection(const HitCollection& other) = default;
 
         // Add a single hit to this collection
-        void add(const Hit& hit);
+        virtual void add(const Hit& hit);
 
         // Clear the entire hit collection
         void clear();
@@ -100,7 +80,7 @@ namespace Bisa {
         // Get the underlying vector address
         ::std::set<Hit> * get_hits_address() { return &hits_; }
 
-    private:
+    protected:
         ::std::set<Hit> hits_;
         unsigned int trigger_id_ = 0;
     };

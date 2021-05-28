@@ -19,18 +19,22 @@ namespace Bisa {
             unsigned int channel,
             unsigned int width,
             unsigned int bcid_tdc,
-            unsigned int fine_time,
-            const Bisa::Config &config)
+            unsigned int fine_time)
          : trigger_id_(trigger_id)
          , bcid_fpga_(bcid_fpga)
          , felix_counter_(felix_counter)
          , tdc_(tdc)
          , channel_(channel)
-         , strip_(config.strip(channel))
          , width_(width)
          , bcid_tdc_(bcid_tdc)
          , fine_time_(fine_time)
         {
+            strip_ = CHANNEL_STRIP_MAPPING[channel];
+            layer_ = config.layer(tdc);
+            orientation_ = config.orientation(tdc);
+            coordinate_ = config.coordinate(tdc);
+            chamber_ = config.chamber(tdc);
+            time_ = BC_RESOLUTION_NS * bcid_tdc + FINE_TIME_RESOLUTION_NS * fine_time;
         }
 
         // Get trigger id
@@ -52,6 +56,20 @@ namespace Bisa {
         // Get fine time from TDC
         unsigned int fine_time() const     { return fine_time_; }
         
+        // - Extra getters
+
+        // Get layer
+        unsigned int layer() const         { return layer_; }
+        // Get orientation
+        unsigned int orientation() const   { return orientation_; }
+        // Get coordinate
+        Coordinate coordinate() const      { return coordinate_; }
+        // Get chamber
+        unsigned int chamber() const       { return fine_time_; }
+        // Get time
+        double time() const                { return time_; }
+
+        
         // Set trigger id
         void set_trigger_id(unsigned int trigger_id)       { trigger_id_ = trigger_id; }
         // Set bcid from FPGA
@@ -59,16 +77,34 @@ namespace Bisa {
         // Set FELIX counter
         void set_felix_counter(unsigned int felix_counter) { felix_counter_ = felix_counter; }
         // Set tdc
-        void set_tdc(unsigned int tdc)                     { tdc_ = tdc; }
+        void set_tdc(unsigned int tdc)
+        {
+            tdc_ = tdc;
+            layer_ = config.layer(tdc);
+            orientation_ = config.orientation(tdc);
+            coordinate_ = config.coordinate(tdc);
+            chamber_ = config.chamber(tdc);
+        }
         // Set TDC channel and strip
-        void set_channel(unsigned int channel, const Bisa::Config &config)
-        { channel_ = channel; strip_ = config.strip(channel_); }
+        void set_channel(unsigned int channel)
+        { 
+            channel_ = channel; 
+            strip_ = CHANNEL_STRIP_MAPPING[channel]; 
+        }
         // Set width (time over threshold)
         void set_width(unsigned int width)                 { width_ = width; }
         // Set bcid from TDC
-        void set_bcid_tdc(unsigned int bcid_tdc)           { bcid_tdc_ = bcid_tdc; }
+        void set_bcid_tdc(unsigned int bcid_tdc)
+        { 
+            bcid_tdc_ = bcid_tdc; 
+            time_ = BC_RESOLUTION_NS * bcid_tdc + FINE_TIME_RESOLUTION_NS * fine_time_;
+        }
         // Set fine time from TDC
-        void set_fine_time(unsigned int fine_time)         { fine_time_ = fine_time; }
+        void set_fine_time(unsigned int fine_time)         
+        { 
+            fine_time_ = fine_time; 
+            time_ = BC_RESOLUTION_NS * bcid_tdc_ + FINE_TIME_RESOLUTION_NS * fine_time_;
+        }
 
         // Return details of Hit as a string (debug tool)
         std::string to_string() const
@@ -139,10 +175,17 @@ namespace Bisa {
 
         unsigned int tdc_;
         unsigned int channel_;
-        unsigned int strip_;
         unsigned int width_;
         unsigned int bcid_tdc_;
         unsigned int fine_time_;
+
+        // Extra hit data
+        unsigned int strip_;
+        unsigned int layer_;
+        unsigned int orientation_;
+        Coordinate coordinate_;
+        unsigned int chamber_;
+        double time_;
     };
 
 }

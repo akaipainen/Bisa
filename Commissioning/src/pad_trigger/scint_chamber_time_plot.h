@@ -10,8 +10,8 @@ class ScintChamberTimePlot : public Bisa::Plot
 {
 public:
 
-    ScintChamberTimePlot(const char *name, const char *title, Bisa::Experiment *experiment, const Bisa::Config &config)
-     : Bisa::Plot(name, title, experiment, config)
+    ScintChamberTimePlot(const char *name, const char *title, Bisa::Experiment *experiment)
+     : Bisa::Plot(name, title, experiment)
      , p_(name, title, 3000, -1500, 1500)
     {
         p_.GetXaxis()->SetTitle("Average time difference [ns]");
@@ -38,14 +38,14 @@ public:
         int scint_hits = 0;
         for (auto &&hit : hits)
         {
-            if (config_.chamber(hit.tdc()) == 8)
+            if (hit.chamber() == 8)
             {
-                scint_avg_time += config_.time(hit.bcid_tdc(), hit.fine_time());
+                scint_avg_time += hit.time();
                 scint_hits++;
             }
             else
             {
-                chamber_avg_time += config_.time(hit.bcid_tdc(), hit.fine_time());
+                chamber_avg_time += hit.time();
                 chamber_hits++;
             }
         }

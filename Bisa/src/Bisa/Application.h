@@ -11,11 +11,10 @@
 int main(int argc, char** argv);
 
 namespace Bisa {
-    
     class BISA_API Application
     {
     public:
-        Application(const Config& config);
+        Application(const char *datafile, const char *output_path);
         virtual ~Application();
 
         virtual void Run();
@@ -24,11 +23,11 @@ namespace Bisa {
 
     protected:
         HitCollection hits_;
-        Scope<DataStream> dataStream_;
-        Scope<TFile> file_;
-        Scope<TTree> tree_;
+        DataStream data_stream_;
+        TFile *file_;
+        TTree *tree_;
 
-        Config config_;
+        std::string output_path_;
 
     private:
         friend int ::main(int argc, char** argv);
@@ -36,6 +35,6 @@ namespace Bisa {
     };
 
     // To be defined in CLIENT
-    Application* CreateApplication(const Config& config);
+    Application* CreateApplication(const char *datafile, const char *output_path);
     
 }

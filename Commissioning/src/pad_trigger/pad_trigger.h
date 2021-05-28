@@ -15,7 +15,7 @@
 class PadTrigger : public Bisa::Experiment
 {
 public:
-    PadTrigger(const char *name, TTree *tree, const Bisa::Config &config);
+    PadTrigger(const char *name, TTree *tree, const char *output_path);
 
     ~PadTrigger();
 
@@ -26,11 +26,11 @@ private:
     NumLayersPlot num_layers_;
 
     MinTimingPlot min_timing_;
-    MinTimingPlot min_timing_2_layers_;
-    MinTimingPlot min_timing_3_layers_;
+    // MinTimingPlot min_timing_2_layers_;
+    // MinTimingPlot min_timing_3_layers_;
 
-    TDCCombinatoricsPlot tdc_combos_;
-    TDCCombinatoricsPlot tdc_combos_2_hits_;
+    // TDCCombinatoricsPlot tdc_combos_;
+    // TDCCombinatoricsPlot tdc_combos_2_hits_;
 
     TriggerEfficiencyPlot pad_trigger_efficiency_;
 

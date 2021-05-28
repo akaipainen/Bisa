@@ -15,7 +15,7 @@ namespace Bisa
     {
     public:
         // Construct an experiment object
-        Experiment(const char *name, TTree *tree, const Config &config);
+        Experiment(const char *name, TTree *tree, const char *output_path);
 
         // Destruct an experiment object and save all plots to experiment folder
         virtual ~Experiment();
@@ -26,6 +26,9 @@ namespace Bisa
         // Get experiment name
         TString name();
 
+        // Get experiment output path
+        TString path();
+
         // Get experiment TTree
         TTree * tree();
 
@@ -33,8 +36,8 @@ namespace Bisa
         // Add a plot to this experiment
         // void add_plot(Plot &&plot);
 
-        const Config &config_;
         TTree * tree_;
         const char * name_;
+        std::string path_;
     };
 }

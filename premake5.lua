@@ -19,7 +19,7 @@ workspace "Bisa"
         _OPTIONS["rootsys"] = "/usr/local"
     end
 
-outputdir = "%{cfg.buildcfg}-%{cfg.system}-%{cfg.architecture}"
+outputdir = "%{cfg.buildcfg}-%{cfg.system}"
 
 function includeRoot()
     includedirs 

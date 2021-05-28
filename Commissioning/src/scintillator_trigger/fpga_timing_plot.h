@@ -10,8 +10,8 @@ class FPGATimingPlot : public Bisa::Plot
 {
 public:
 
-    FPGATimingPlot(const char *name, const char *title, Bisa::Experiment *experiment, const Bisa::Config &config)
-     : Bisa::Plot(name, title, experiment, config)
+    FPGATimingPlot(const char *name, const char *title, Bisa::Experiment *experiment)
+     : Bisa::Plot(name, title, experiment)
      , p_(name, title, 8, 0, 8)
     {
         p_.GetXaxis()->SetTitle("Time difference [ns]");

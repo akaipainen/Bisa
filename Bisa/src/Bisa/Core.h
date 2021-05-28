@@ -70,20 +70,24 @@
 	#define BA_CORE_ASSERT(x, ...)
 #endif
 
-namespace Bisa {
-    template <typename T>
-    using Scope = std::unique_ptr<T>;
-    template <typename T, typename ... Args>
-    constexpr Scope<T> make_unique(Args&& ... args)
-    {
-        return std::unique_ptr<T>(new T(std::forward<Args>(args)...));
-    }
-
-    template<typename T>
-	using Ref = std::shared_ptr<T>;
-	template<typename T, typename ... Args>
-	constexpr Ref<T> make_shared(Args&& ... args)
-	{
-		return std::shared_ptr<T>(new T(std::forward<Args>(args)...));
-	}
+template <typename T, typename ... Args>
+constexpr std::unique_ptr<T> make_unique(Args&& ... args)
+{
+    return std::unique_ptr<T>(new T(std::forward<Args>(args)...));
 }
+
+namespace Bisa {
+    const unsigned int CHANNEL_STRIP_MAPPING[32] = {0,  4,  8, 12, 16, 20, 24, 28, 
+                                                    1,  5,  9, 13, 17, 21, 25, 29, 
+                                                    2,  6, 10, 14, 18, 22, 26, 30, 
+                                                    3,  7, 11, 15, 19, 23, 27, 31};
+
+    const double STRIP_WIDTH_CM = 2.5;
+    const double BIS7_ETA_STRIPS = 32;
+    const double BIS7_PHI_STRIPS = 64;
+    const double BIS8_ETA_STRIPS = 16;
+    const double BIS8_PHI_STRIPS = 64;
+
+    const double BC_RESOLUTION_NS = 25;
+    const double FINE_TIME_RESOLUTION_NS = 0.1953125;
+};

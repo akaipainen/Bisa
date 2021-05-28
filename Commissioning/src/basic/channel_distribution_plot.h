@@ -5,8 +5,8 @@
 class ChannelDistributionPlot : public ChamberDistributionPlot
 {
 public:
-    ChannelDistributionPlot(const char *name, const char *title, Bisa::Experiment *experiment, const Bisa::Config &config)
-     : ChamberDistributionPlot(name, title, experiment, config)
+    ChannelDistributionPlot(const char *name, const char *title, Bisa::Experiment *experiment)
+     : ChamberDistributionPlot(name, title, experiment)
     {
         for (size_t i = 0; i < 18; i++)
         {

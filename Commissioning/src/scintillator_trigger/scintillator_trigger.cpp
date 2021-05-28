@@ -1,13 +1,13 @@
 #include "scintillator_trigger.h"
 
-ScintillatorTrigger::ScintillatorTrigger(const char *name, TTree *tree, const Bisa::Config &config)
- : Bisa::Experiment(name, tree, config)
-//  , check_trigger_("check_pad_trigger", "Reconstructed PAD Triggers", this, config)
- , scint_fpga_timing_("scint_fpga_timing_jitter", "Maximum FPGA Timing Jitter between Scintillator Trigger Hits", this, config)
- , chamber_fpga_timing_("chamber_fpga_timing_jitter", "Maximum FPGA Timing Jitter between Chamber Hits", this, config)
- , check_pad_trigger_("check_pad_trigger_w_scint", "Percentage of PAD Triggers with scintillator trigger", this, config)
- , check_pad_trigger_eta_("check_pad_trigger_w_scint_eta", "Percentage of eta PAD triggers with scintillator trigger", this, config)
- , check_pad_trigger_phi_("check_pad_trigger_w_scint_phi", "Percentage of phi PAD triggers with scintillator trigger", this, config)
+ScintillatorTrigger::ScintillatorTrigger(const char *name, TTree *tree, const char *output_path)
+ : Bisa::Experiment(name, tree, output_path)
+//  , check_trigger_("check_pad_trigger", "Reconstructed PAD Triggers", this)
+ , scint_fpga_timing_("scint_fpga_timing_jitter", "Maximum FPGA Timing Jitter between Scintillator Trigger Hits", this)
+ , chamber_fpga_timing_("chamber_fpga_timing_jitter", "Maximum FPGA Timing Jitter between Chamber Hits", this)
+ , check_pad_trigger_("check_pad_trigger_w_scint", "Percentage of PAD Triggers with scintillator trigger", this)
+ , check_pad_trigger_eta_("check_pad_trigger_w_scint_eta", "Percentage of eta PAD triggers with scintillator trigger", this)
+ , check_pad_trigger_phi_("check_pad_trigger_w_scint_phi", "Percentage of phi PAD triggers with scintillator trigger", this)
 {
 }
 
@@ -17,7 +17,7 @@ ScintillatorTrigger::~ScintillatorTrigger()
 
 void ScintillatorTrigger::add_hits(const Bisa::HitCollection &hits)
 {
-    Bisa::HitCollection scint_hits = on_tdcs(hits, {15, 17});
+    Bisa::HitCollection scint_hits = on_chamber(hits, 1); // 1=scintillator
     Bisa::HitCollection chamber_hits = hits - scint_hits;
 
     scint_fpga_timing_.add_hits(scint_hits);
@@ -32,12 +32,12 @@ void ScintillatorTrigger::add_hits(const Bisa::HitCollection &hits)
     check_pad_trigger_phi_.add_hits(phi_hits);
 }
 
-Bisa::HitCollection ScintillatorTrigger::on_tdcs(const Bisa::HitCollection &hits, const std::set<unsigned int> &tdcs)
+Bisa::HitCollection ScintillatorTrigger::on_coord(const Bisa::HitCollection &hits, Bisa::Coordinate coord)
 {
     Bisa::HitCollection hc;
     for (auto &&hit : hits)
     {
-        if (tdcs.find(hit.tdc()) != tdcs.end())
+        if (hit.coordinate() == coord)
         {
             hc.add(hit);
         }
@@ -45,12 +45,12 @@ Bisa::HitCollection ScintillatorTrigger::on_tdcs(const Bisa::HitCollection &hits
     return hc;
 }
 
-Bisa::HitCollection ScintillatorTrigger::on_coord(const Bisa::HitCollection &hits, Bisa::Coordinate coord)
+Bisa::HitCollection ScintillatorTrigger::on_chamber(const Bisa::HitCollection &hits, unsigned int chamber)
 {
     Bisa::HitCollection hc;
     for (auto &&hit : hits)
     {
-        if (config_.coordinate(hit.tdc()) == coord)
+        if (hit.chamber() == chamber)
         {
             hc.add(hit);
         }

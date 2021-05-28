@@ -9,8 +9,8 @@
 class EventDisplay : public Bisa::Plot
 {
 public:
-    EventDisplay(const char *name, const char *title, unsigned int max_number, Bisa::Experiment *experiment, const Bisa::Config &config)
-     : Bisa::Plot(Form("%s_%d", name, event_counter_[name]), Form("%s %d", title, event_counter_[name]), experiment, config)
+    EventDisplay(const char *name, const char *title, unsigned int max_number, Bisa::Experiment *experiment)
+     : Bisa::Plot(Form("%s_%d", name, event_counter_[name]), Form("%s %d", title, event_counter_[name]), experiment)
      , max_number_(max_number)
      , name__(name)
     {
@@ -85,7 +85,7 @@ public:
         {
             for (auto &&hit : hits)
             {
-                double hit_time = config_.time(hit.bcid_tdc(), hit.fine_time());
+                double hit_time = hit.time();
                 if (hit_time < min_time_)
                 {
                     min_time_ = hit_time;
@@ -100,25 +100,23 @@ public:
             for (auto &&hit : hits)
             {
                 trigger_id_ = hit.trigger_id();
-                int strip = config_.orientation(hit.tdc())*32 + hit.strip();
-                int layer = config_.layer(hit.tdc());
-                double time_weight = config_.time(hit.bcid_tdc(), hit.fine_time()) - min_time_;
+                double time_weight = hit.time() - min_time_;
 
-                if (config_.coordinate(hit.tdc()) == Bisa::ETA && config_.chamber(hit.tdc()) == 7)
+                if (hit.coordinate() == Bisa::ETA && hit.chamber() == 7)
                 {
-                    eta_7_.Fill(strip, layer, time_weight);
+                    eta_7_.Fill(hit.strip(), hit.layer(), time_weight);
                 }
-                else if (config_.coordinate(hit.tdc()) == Bisa::ETA && config_.chamber(hit.tdc()) == 8)
+                else if (hit.coordinate() == Bisa::ETA && hit.chamber() == 8)
                 {
-                    eta_8_.Fill(strip, layer, time_weight);
+                    eta_8_.Fill(hit.strip(), hit.layer(), time_weight);
                 }
-                else if (config_.coordinate(hit.tdc()) == Bisa::PHI && config_.chamber(hit.tdc()) == 7)
+                else if (hit.coordinate() == Bisa::PHI && hit.chamber() == 7)
                 {
-                    phi_7_.Fill(strip, layer, time_weight);
+                    phi_7_.Fill(hit.strip(), hit.layer(), time_weight);
                 }
-                else if (config_.coordinate(hit.tdc()) == Bisa::PHI && config_.chamber(hit.tdc()) == 8)
+                else if (hit.coordinate() == Bisa::PHI && hit.chamber() == 8)
                 {
-                    phi_8_.Fill(strip, layer, time_weight);
+                    phi_8_.Fill(hit.strip(), hit.layer(), time_weight);
                 }
             }
         }

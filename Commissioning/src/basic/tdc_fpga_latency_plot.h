@@ -9,9 +9,9 @@
 class TdcFpgaLatencyPlot : public Bisa::Plot
 {
 public:
-    TdcFpgaLatencyPlot(const char *name, const char *title, Bisa::Experiment *experiment, const Bisa::Config &config)
-     : Bisa::Plot(name, title, experiment, config)
-     , rollover(1 << (config_.pairmode() ? 5 : 12))
+    TdcFpgaLatencyPlot(const char *name, const char *title, Bisa::Experiment *experiment)
+     : Bisa::Plot(name, title, experiment)
+     , rollover(1 << (Bisa::config.pairmode() ? 5 : 12))
      , p_(name, title, rollover, 0, rollover)
     {
         p_.GetXaxis()->SetTitle("Latency [clock ticks]");

@@ -5,8 +5,8 @@
 class StripDistributionPlot : public ChamberDistributionPlot
 {
 public:
-    StripDistributionPlot(const char *name, const char *title, Bisa::Experiment *experiment, const Bisa::Config &config)
-     : ChamberDistributionPlot(name, title, experiment, config)
+    StripDistributionPlot(const char *name, const char *title, Bisa::Experiment *experiment)
+     : ChamberDistributionPlot(name, title, experiment)
     {
         for (size_t i = 0; i < 18; i++)
         {
@@ -53,7 +53,7 @@ public:
     {
         for (auto &&hit : hits)
         {
-            ps_[hit.tdc()].Fill(config_.strip(hit.channel()));
+            ps_[hit.tdc()].Fill(hit.strip());
         }
     }
 };

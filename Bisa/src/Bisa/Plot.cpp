@@ -6,11 +6,10 @@
 
 namespace Bisa
 {
-    Plot::Plot(const char *name, const char *title, Experiment *experiment, const Config& config)
+    Plot::Plot(const char *name, const char *title, Experiment *experiment)
     : name_(name)
     , canvas_(make_unique<TCanvas>(name, title, 500, 300))
     , experiment_(experiment)
-    , config_(config)
     {
     }
 
@@ -23,28 +22,23 @@ namespace Bisa
         return canvas_.get();
     }
 
-    // void Plot::set_experiment(Experiment *experiment)
-    // {
-    //     experiment_ = experiment;
-    // }
-
     void Plot::print(const char *name, const char *folder) const
     {
         if (strcmp(folder, "") == 0)
         {
             if (strcmp(name, "") == 0)
             {
-                canvas_->Print(Form("%s/%s/%s.pdf", config_.output_path().c_str(), experiment_->name().Data(), name_));
+                canvas_->Print(Form("%s/%s.pdf", experiment_->path().Data(), name_));
             } else {
-                canvas_->Print(Form("%s/%s/%s.pdf", config_.output_path().c_str(), experiment_->name().Data(), name));
+                canvas_->Print(Form("%s/%s.pdf", experiment_->path().Data(), name));
             }
         } else {
-            gSystem->mkdir(Form("%s/%s/%s", config_.output_path().c_str(), experiment_->name().Data(), folder), true);
+            gSystem->mkdir(Form("%s/%s", experiment_->path().Data(), folder), true);
             if (strcmp(name, "") == 0)
             {
-                canvas_->Print(Form("%s/%s/%s/%s.pdf", config_.output_path().c_str(), experiment_->name().Data(), folder, name_));
+                canvas_->Print(Form("%s/%s/%s.pdf", experiment_->path().Data(), folder, name_));
             } else {
-                canvas_->Print(Form("%s/%s/%s/%s.pdf", config_.output_path().c_str(), experiment_->name().Data(), folder, name));
+                canvas_->Print(Form("%s/%s/%s.pdf", experiment_->path().Data(), folder, name));
             }
         }
     }

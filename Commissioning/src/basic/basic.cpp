@@ -2,13 +2,13 @@
 
 #include "event_display.h"
 
-Basic::Basic(const char *name, TTree *tree, const Bisa::Config &config)
- : Bisa::Experiment(name, tree, config)
- , muon_strip_dist_("muon_strip_distribution", "Muon Strip Distribution", this, config)
- , strip_dist_("strip_distribution", "Hit Strip Distribution", this, config)
- , channel_dist_("channel_distribution", "Channel Strip Distribution", this, config)
- , timing_diff_("tdc_timing_difference", "TDC Timing Difference for all Pairs of Hits", this, config)
- , tdc_fpga_latency_("tdc_fpga_latency", "TDC-FPGA BCID Latency for all Pairs of Hits", this, config)
+Basic::Basic(const char *name, TTree *tree, const char *output_path)
+ : Bisa::Experiment(name, tree, output_path)
+ , muon_strip_dist_("muon_strip_distribution", "Muon Strip Distribution", this)
+ , strip_dist_("strip_distribution", "Hit Strip Distribution", this)
+ , channel_dist_("channel_distribution", "Channel Strip Distribution", this)
+ , timing_diff_("tdc_timing_difference", "TDC Timing Difference for all Pairs of Hits", this)
+ , tdc_fpga_latency_("tdc_fpga_latency", "TDC-FPGA BCID Latency for all Pairs of Hits", this)
 {
     tree->Branch("trigger_id", &trigger_id_);
     tree->Branch("num_hits", &num_hits_);
@@ -52,13 +52,13 @@ void Basic::add_hits(const Bisa::HitCollection &hits)
     }
 
     // Create plots
-    EventDisplay event_display = {"event_display", "Event Display", 100, this, config_};
+    EventDisplay event_display = {"event_display", "Event Display", 100, this};
     event_display.add_hits(hits);
 
-    Bisa::FeatureCollection muon_hits = Selector::basicSelector(hits, config_, SelectorFilter::muon_candidate);
-    muon_hits = Selector::requireMultipleLayers(muon_hits, 2, config_);
-    muon_hits = Selector::restrictMaxHitsPerLayer(muon_hits, 3, config_);
-    muon_strip_dist_.add_hits(muon_hits.hits());
+    // Bisa::FeatureCollection muon_hits = Selector::basicSelector(hits, SelectorFilter::muon_candidate);
+    // muon_hits = Selector::requireMultipleLayers(muon_hits, 2);
+    // muon_hits = Selector::restrictMaxHitsPerLayer(muon_hits, 3);
+    // muon_strip_dist_.add_hits(muon_hits.hits());
 
     strip_dist_.add_hits(hits);
     channel_dist_.add_hits(hits);

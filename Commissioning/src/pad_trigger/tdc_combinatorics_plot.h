@@ -9,8 +9,8 @@
 class TDCCombinatoricsPlot : public Bisa::Plot
 {
 public:
-    TDCCombinatoricsPlot(const char *name, const char *title, Bisa::Experiment *experiment, const Bisa::Config &config)
-     : Bisa::Plot(name, title, experiment, config)
+    TDCCombinatoricsPlot(const char *name, const char *title, Bisa::Experiment *experiment)
+     : Bisa::Plot(name, title, experiment)
      , p_(name, title, 36, 0, 36)
     {
         p_.GetXaxis()->SetTitle("TDC Combinatorics");
@@ -39,7 +39,7 @@ public:
         {
             for (auto hit2_it = std::next(hit1_it); hit2_it != hits.end(); hit2_it++)
             {
-                if (std::abs(config_.time(hit1_it->bcid_tdc(), hit1_it->fine_time()) - config_.time(hit2_it->bcid_tdc(), hit2_it->fine_time())) < 12.5)
+                if (std::abs(hit1_it->time() - hit2_it->time()) < 12.5)
                 {
                     int min_tdc = std::min(hit1_it->tdc(), hit2_it->tdc());
                     int max_tdc = std::max(hit1_it->tdc(), hit2_it->tdc());

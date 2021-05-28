@@ -10,7 +10,7 @@
 class Efficiency : public Bisa::Experiment
 {
 public:
-    Efficiency(const char *name, int voltage, TTree *tree, const Bisa::Config &config);
+    Efficiency(const char *name, int voltage, TTree *tree, const char *output_path);
 
     ~Efficiency();
 

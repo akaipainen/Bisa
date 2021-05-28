@@ -6,44 +6,48 @@
 
 namespace Bisa {
 
+    template <typename F>
     class BISA_API FeatureCollection
     {
     public:
-
-        class Iterator : public ::std::vector<HitCollection>::iterator {
-        protected:
-            using parent = ::std::vector<HitCollection>::iterator;
-
-        public:
-            Iterator(parent it)
-             : parent(::std::move(it)) { }
-        };
-
-        class ConstIterator : public ::std::vector<HitCollection>::const_iterator
-        {
-        protected:
-            using parent = ::std::vector<HitCollection>::const_iterator;
-
-        public:
-            ConstIterator(parent it)
-             : parent(::std::move(it)) { }
-        };
+        using Iterator = typename std::vector<F>::iterator;
+        using ConstIterator = typename std::vector<F>::const_iterator;
 
     public:
         // Default constructor
         FeatureCollection() = default;
 
         // Add a single feature to this collection
-        void add(const HitCollection& feature);
+        void add(const F& feature)
+        {
+            BA_CORE_ASSERT(feature.trigger_id() == trigger_id_ || size() == 0, 
+                        "Adding Feature with different Trigger ID to FeatureCollection");
+            features_.emplace_back(feature);
+            trigger_id_ = feature.trigger_id();
+        }
 
         // Return the number of features in this collection
         unsigned int size() const { return features_.size(); }
 
-        // Return a HitCollection of all hits in this feature collection
-        HitCollection hits();
+        // Return a F of all hits in this feature collection
+        HitCollection hits()
+        {
+            HitCollection hc;
+            for (auto &&feature : features_)
+            {
+                hc = hc | feature;
+            }
+            return hc;
+        }
 
         // Return string interpretation of this object (debug tool)
-        ::std::string to_string() const;
+        ::std::string to_string() const
+        {
+            std::stringstream ret;
+            ret << "Trigger ID: " << trigger_id_;
+            ret << ", Number of features: " << size();
+            return ret.str();
+        }
 
         // Return begin iterator (non-const)
         Iterator begin() { return features_.begin(); }
@@ -58,7 +62,7 @@ namespace Bisa {
         ConstIterator end() const { return features_.end(); }
 
     private:
-        ::std::vector<HitCollection> features_;
+        ::std::vector<F> features_;
 
         unsigned int trigger_id_;
     };

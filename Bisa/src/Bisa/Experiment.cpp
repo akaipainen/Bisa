@@ -4,12 +4,12 @@
 
 namespace Bisa
 {
-    Experiment::Experiment(const char *name, TTree *tree, const Config &config)
+    Experiment::Experiment(const char *name, TTree *tree, const char *output_path)
      : name_(name)
      , tree_(tree)
-     , config_(config)
+     , path_(Form("%s/%s", output_path, name))
     {
-        gSystem->mkdir(Form("%s/%s", config_.output_path().c_str(), name), true);
+        gSystem->mkdir(path_.c_str(), true);
         gDirectory->cd("/");
         gDirectory->mkdir(Form("%s", name));
         gDirectory->cd(Form("%s", name));
@@ -22,6 +22,11 @@ namespace Bisa
     TString Experiment::name()
     {
         return TString(name_);
+    }
+
+    TString Experiment::path()
+    {
+        return path_;
     }
 
     TTree * Experiment::tree()

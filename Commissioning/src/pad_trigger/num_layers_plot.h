@@ -8,8 +8,8 @@
 class NumLayersPlot : public Bisa::Plot
 {
 public:
-    NumLayersPlot(const char *name, const char *title, Bisa::Experiment *experiment, const Bisa::Config &config)
-     : Bisa::Plot(name, title, experiment, config)
+    NumLayersPlot(const char *name, const char *title, Bisa::Experiment *experiment)
+     : Bisa::Plot(name, title, experiment)
      , p_(name, title, 4, 0, 4)
     {
         p_.GetXaxis()->SetTitle("Number of Layers Hit");
@@ -43,11 +43,14 @@ private:
         int phi[3] = {0, 0, 0};
         for (auto &&hit : hits)
         {
-            if (config_.coordinate(hit.tdc()) == Bisa::ETA)
+            if (hit.chamber() == 7 || hit.chamber() == 8)
             {
-                eta[config_.layer(hit.tdc())]++;
-            } else {
-                phi[config_.layer(hit.tdc())]++;
+                if (hit.coordinate() == Bisa::ETA)
+                {
+                    eta[hit.layer()]++;
+                } else {
+                    phi[hit.layer()]++;
+                }
             }
         }
 

@@ -1,0 +1,51 @@
+{
+    "pairmode": true,
+    "run_duration_s": 10,
+    "internal_autotrigger": true,
+    "external_trigger": false,
+
+    "bis7": {
+        "eta_layer_0_tdcs": [0],
+        "eta_layer_1_tdcs": [1],
+        "eta_layer_2_tdcs": [2],
+        "phi_layer_0_tdcs": [3, 6],
+        "phi_layer_1_tdcs": [4, 7],
+        "phi_layer_2_tdcs": [5, 8]
+    },
+
+    "bis8": {
+        "eta_layer_0_tdcs": [9],
+        "eta_layer_1_tdcs": [10],
+        "eta_layer_2_tdcs": [11],
+        "phi_layer_0_tdcs": [12, 15],
+        "phi_layer_1_tdcs": [13, 16],
+        "phi_layer_2_tdcs": [14, 17]
+    },
+
+    "scintillator": {
+        "tdcs": [9, 10, 11, 15, 16, 17]
+    },
+
+    "experiments": {
+        "basic": {
+            "muon_candidate": {
+                "max_cluster_size": 5,
+                "n_layers": 3
+            }
+        },
+        "pad_trigger": {
+
+        },
+        "mapping": {
+
+        },
+        "efficiency": {
+            "tag_cluster_size": 3,
+            "tag_cluster_distance": 1,
+            "tag_timing_ns": 5,
+            "probe_cluster_size": 32,
+            "probe_cluster_distance": 32,
+            "probe_timing_ns": 5
+        }
+    }
+} 

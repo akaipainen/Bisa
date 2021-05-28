@@ -3,7 +3,6 @@
 #include <Bisa.h>
 
 #include "../Selector.h"
-#include "../SelectorFilter.h"
 
 // Plots
 #include "strip_distribution_plot.h"
@@ -16,7 +15,7 @@
 class Basic : public Bisa::Experiment
 {
 public:
-    Basic(const char *name, TTree *tree, const Bisa::Config &config);
+    Basic(const char *name, TTree *tree, const char *output_path);
 
     ~Basic();
 

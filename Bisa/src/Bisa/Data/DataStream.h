@@ -7,25 +7,12 @@
 
 namespace Bisa {
 
-    struct BISA_API StreamProps
-    {
-        std::string filename;
-        bool pairmode;
-
-        StreamProps(const std::string& filename = "run.dat",
-                    bool pairmode = true)
-         : filename(filename)
-         , pairmode(pairmode)
-        {
-        }
-    };
-
     class BISA_API DataStream
     {
     public:
         using NewEventCallbackFn = std::function<void(HitCollection&)>;
 
-        DataStream(const Config& config);
+        DataStream(const char *datafile);
         virtual ~DataStream();
 
         void set_new_data_callback(const NewEventCallbackFn& callback) { new_event_callback_ = callback; }
@@ -33,8 +20,6 @@ namespace Bisa {
         bool fill_next_event();
 
     private:
-        virtual void init();
-        virtual void shutdown();
 
         void fill_buffer_with_next_packet();
 
@@ -84,8 +69,6 @@ namespace Bisa {
         HitCollection decode_packet(Packet packet);
 
     private:
-        const Config& config_;
-
         std::fstream data_file_;
         std::deque<HitCollection> hits_buffer_;
         IdCounter id_counter_;
