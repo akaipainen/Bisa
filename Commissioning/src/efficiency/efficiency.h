@@ -4,6 +4,7 @@
 
 // Plots
 #include "efficiency_plot.h"
+#include "efficiency_etaphi_plot.h"
 
 #include <TTree.h>
 
@@ -34,4 +35,12 @@ private:
     EfficiencyPlot efficiency_top_phi_;
     EfficiencyPlot efficiency_mid_phi_;
     EfficiencyPlot efficiency_bot_phi_;
+
+    EfficiencyEtaPhiPlot efficiency2_top_eta_;
+    EfficiencyEtaPhiPlot efficiency2_mid_eta_;
+    EfficiencyEtaPhiPlot efficiency2_bot_eta_;
+
+    EfficiencyEtaPhiPlot efficiency2_top_phi_;
+    EfficiencyEtaPhiPlot efficiency2_mid_phi_;
+    EfficiencyEtaPhiPlot efficiency2_bot_phi_;
 };
