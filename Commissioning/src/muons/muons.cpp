@@ -28,7 +28,7 @@ void Muons::add_hits(const Bisa::HitCollection &hits)
         muon_distribution_.add_hits(muons.hits());
         muon_count_.increment();
     }
-    else if (eta_muon || phi_muon)
+    else if (!Bisa::config.exparam()["muons"]["eta_and_phi"] && (eta_muon || phi_muon))
     {
         muon_distribution_.add_hits(muons.hits());
         muon_count_.increment();
