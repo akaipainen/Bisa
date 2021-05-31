@@ -10,6 +10,7 @@ PadTrigger::PadTrigger(const char *name, TTree *tree, const char *output_path)
 //  , tdc_combos_("tdc_combo", "Hit TDC Combinations for Minimum Timings Greater than 12.5ns", this)
 //  , tdc_combos_2_hits_("tdc_combo_2_hits", "Hit TDC Combinations for Minimum Timings Greater than 12.5ns (2 Hits)", this)
  , pad_trigger_efficiency_("trigger_efficiecy", "PAD Trigger Efficiency", this)
+ , clean_muon_pad_trigger_efficiency_("clean_muon_trigger_efficiecy", "Clean Muon PAD Trigger Efficiency", this)
  , scint_chamber_time_plot_("scint_chamber_time_difference", "Scintillator-Chamber Average Time Difference", this)
 {
 }
@@ -24,6 +25,7 @@ void PadTrigger::add_hits(const Bisa::HitCollection &hits)
     int num_layers = num_layers_.add_hits(hits);
     double min_timing = min_timing_.add_hits(hits);
     int nsc = pad_trigger_efficiency_.add_hits(hits);
+    clean_muon_pad_trigger_efficiency_.add_hits(hits);
 
     if (nsc == 1)
     {

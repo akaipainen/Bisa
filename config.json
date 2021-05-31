@@ -23,7 +23,7 @@
     },
 
     "scintillator": {
-        "tdcs": []
+        "tdcs": [17]
     },
 
     "experiments": {
@@ -49,7 +49,10 @@
             "tag_timing_ns": 5,
             "probe_cluster_size": 32,
             "probe_cluster_distance": 32,
-            "probe_timing_ns": 5
+            "probe_timing_ns": 5,
+            "ignore_strips": [
+                {"tdc": 7, "strip": 31}
+            ]
         }
     }
 } 

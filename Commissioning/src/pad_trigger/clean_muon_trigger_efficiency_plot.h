@@ -7,21 +7,22 @@
 #include <TStyle.h>
 
 #include "check_pad_trigger_plot.h"
+#include "../muons/muons.h"
 
-class TriggerEfficiencyPlot : public Bisa::Plot
+class CleanMuonTriggerEfficiencyPlot : public Bisa::Plot
 {
 public:
-    TriggerEfficiencyPlot(const char *name, const char *title, Bisa::Experiment *experiment)
+    CleanMuonTriggerEfficiencyPlot(const char *name, const char *title, Bisa::Experiment *experiment)
      : Bisa::Plot(name, title, experiment)
      , p_(name, title, 2, 0, 2)
     {
-        p_.GetXaxis()->SetTitle("Triggers [1 = Trigger; 0 = No Trigger]");
+        p_.GetXaxis()->SetTitle("Clean muon track");
         p_.GetYaxis()->SetTitle("Percentage [%]");
 
         experiment_->tree()->Branch(name, &trigger_);
     }
 
-    ~TriggerEfficiencyPlot() 
+    ~CleanMuonTriggerEfficiencyPlot() 
     {
         // BA_INFO(1.0 / event_counter_);
         gStyle->SetOptStat(110);
@@ -51,19 +52,20 @@ private:
 
         for (auto &&hit1 : hits)
         {
-            if (hit1.chamber() == 7)
+            if (hit1.chamber() == 1) // scintillator
             {
-                chamber_hits.add(hit1);
+                scint_hits.add(hit1);
             }
             else // bis8 = scintillator hits
             {
-                scint_hits.add(hit1);
+                chamber_hits.add(hit1);
             }
         }
 
         if (scint_hits.size() > 0)
         {
-            if (CheckPadTriggerPlot::pad_trigger(chamber_hits))
+            auto muons = Muons::create_muons(chamber_hits);
+            if (muons.size() > 0)
             {
                 return 1;
             }

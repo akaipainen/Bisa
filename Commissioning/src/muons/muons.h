@@ -15,8 +15,7 @@ public:
 
     void add_hits(const Bisa::HitCollection &hits);
 
-protected:
-    Bisa::FeatureCollection<Bisa::Muon> create_muons(const Bisa::HitCollection &hits)
+    static Bisa::FeatureCollection<Bisa::Muon> create_muons(const Bisa::HitCollection &hits)
     {
         Bisa::FeatureCollection<Bisa::Cluster> clusters = Selector::clusterize(hits);
         Bisa::FeatureCollection<Bisa::Muon> muons;
@@ -77,6 +76,8 @@ protected:
 
         return muons;
     }
+
+protected:
     
     StripDistributionPlot muon_distribution_;
     CounterPlot muon_count_;

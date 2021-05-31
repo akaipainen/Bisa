@@ -15,6 +15,10 @@ Efficiency::Efficiency(const char *name, int voltage, TTree *tree, const char *o
  , efficiency_mid_phi_("efficiency_mid_phi", "Efficiency Mid Phi", voltage, 1, this)
  , efficiency_bot_phi_("efficiency_bot_phi", "Efficiency Bot Phi", voltage, 2, this)
 {
+    for (auto &&j : Bisa::config.exparam()["efficiency"]["ignore_strips"])
+    {
+        ignore_strips_.insert(std::make_pair(j["tdc"], j["strip"]));
+    }
 }
 
 Efficiency::~Efficiency()
@@ -23,6 +27,15 @@ Efficiency::~Efficiency()
 
 void Efficiency::add_hits(const Bisa::HitCollection &hits)
 {
+    for (auto &&hit : hits)
+    {
+        // skip any events that include noisy channels
+        if (ignore_strips_.find({hit.tdc(), hit.strip()}) != ignore_strips_.end())
+        {
+            return;
+        }
+    }
+
     auto eta_hits = select_eta(hits);
     auto phi_hits = select_phi(hits);
 

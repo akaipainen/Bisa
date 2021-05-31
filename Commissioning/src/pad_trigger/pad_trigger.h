@@ -9,6 +9,7 @@
 #include "tdc_combinatorics_plot.h"
 #include "trigger_efficiency_plot.h"
 #include "scint_chamber_time_plot.h"
+#include "clean_muon_trigger_efficiency_plot.h"
 
 #include <TTree.h>
 
@@ -33,6 +34,7 @@ private:
     // TDCCombinatoricsPlot tdc_combos_2_hits_;
 
     TriggerEfficiencyPlot pad_trigger_efficiency_;
+    CleanMuonTriggerEfficiencyPlot clean_muon_pad_trigger_efficiency_;
 
     ScintChamberTimePlot scint_chamber_time_plot_;
 };

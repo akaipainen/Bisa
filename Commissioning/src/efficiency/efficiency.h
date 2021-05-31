@@ -17,6 +17,7 @@ public:
     void add_hits(const Bisa::HitCollection &hits);
 
 private:
+    std::set<std::pair<unsigned int, unsigned int>> ignore_strips_;
     int voltage_;
 
     Bisa::HitCollection select_eta(const Bisa::HitCollection &hits) const;

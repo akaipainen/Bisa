@@ -104,19 +104,19 @@ public:
 
                 if (hit.coordinate() == Bisa::ETA && hit.chamber() == 7)
                 {
-                    eta_7_.Fill(hit.strip(), hit.layer(), time_weight);
+                    eta_7_.Fill(hit.rpc_strip(), hit.layer(), time_weight);
                 }
                 else if (hit.coordinate() == Bisa::ETA && hit.chamber() == 8)
                 {
-                    eta_8_.Fill(hit.strip(), hit.layer(), time_weight);
+                    eta_8_.Fill(hit.rpc_strip(), hit.layer(), time_weight);
                 }
                 else if (hit.coordinate() == Bisa::PHI && hit.chamber() == 7)
                 {
-                    phi_7_.Fill(hit.strip(), hit.layer(), time_weight);
+                    phi_7_.Fill(hit.rpc_strip(), hit.layer(), time_weight);
                 }
                 else if (hit.coordinate() == Bisa::PHI && hit.chamber() == 8)
                 {
-                    phi_8_.Fill(hit.strip(), hit.layer(), time_weight);
+                    phi_8_.Fill(hit.rpc_strip(), hit.layer(), time_weight);
                 }
             }
         }
