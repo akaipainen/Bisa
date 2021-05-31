@@ -34,7 +34,7 @@ public:
                             cluster1.coordinate() == cluster2.coordinate() &&
                             cluster1.layer() != cluster2.layer() &&
                             std::abs(cluster1.min_time() - cluster2.min_time()) <= Bisa::config.exparam()["muons"]["timing_ns"] &&
-                            cluster1.distance(cluster2) < Bisa::config.exparam()["muons"]["cluster_distance"])
+                            cluster1.distance(cluster2) <= Bisa::config.exparam()["muons"]["cluster_distance"])
                         {
                             if (!Bisa::config.exparam()["muons"]["require_3_layers"]) // require 2 layers
                             {
@@ -56,8 +56,8 @@ public:
                                         cluster3.layer() != cluster1.layer() && cluster3.layer() != cluster2.layer() &&
                                         std::abs(cluster3.min_time() - cluster2.min_time()) <= Bisa::config.exparam()["muons"]["timing_ns"] &&
                                         std::abs(cluster3.min_time() - cluster1.min_time()) <= Bisa::config.exparam()["muons"]["timing_ns"] &&
-                                        cluster3.distance(cluster1) < Bisa::config.exparam()["muons"]["cluster_distance"] &&
-                                        cluster3.distance(cluster2) < Bisa::config.exparam()["muons"]["cluster_distance"])
+                                        cluster3.distance(cluster1) <= Bisa::config.exparam()["muons"]["cluster_distance"] &&
+                                        cluster3.distance(cluster2) <= Bisa::config.exparam()["muons"]["cluster_distance"])
                                     {
                                         Bisa::Muon muon;
                                         for (auto &&hit : cluster1.hits() | cluster2.hits() | cluster3.hits())

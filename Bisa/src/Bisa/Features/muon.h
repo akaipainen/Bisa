@@ -30,6 +30,7 @@ public:
         trigger_id_ = hit.trigger_id();
         coordinate_ = hit.coordinate();
         chamber_ = hit.chamber();
+        min_time_ = std::min(min_time_, hit.time());
     }
 
     Coordinate coordinate() const { return coordinate_; }
@@ -43,10 +44,12 @@ public:
         }
         return ls;
     }
+    double min_time() const { return min_time_; }
 
 protected:
     Coordinate coordinate_;
     unsigned int chamber_ = 10;
+    double min_time_;
 };
 
 }
