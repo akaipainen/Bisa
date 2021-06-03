@@ -25,6 +25,7 @@ void PadTrigger::add_hits(const Bisa::HitCollection &hits)
     bool pad_trigger_check = check_trigger_.add_hits(hits);
     int num_layers = num_layers_.add_hits(hits);
     double min_timing = min_timing_.add_hits(hits);
+    tdc_min_timing_.add_hits(hits);
     int nsc = pad_trigger_efficiency_.add_hits(hits);
     clean_muon_pad_trigger_efficiency_.add_hits(hits);
 

@@ -46,8 +46,8 @@ public:
 
     double add_hits(const Bisa::HitCollection &hits)
     {
-        Bisa::Hit hit_1;
-        Bisa::Hit hit_2;
+        unsigned int tdc1;
+        unsigned int tdc2;
         double min_diff = 10000;
         for (auto &&hit1 : hits)
         {
@@ -66,8 +66,8 @@ public:
                             if (diff < min_diff)
                             {
                                 min_diff = diff;
-                                hit_1 = hit1;
-                                hit_2 = hit2;
+                                tdc1 = hit1.tdc();
+                                tdc2 = hit2.tdc();
                             }
                         }
                     }
@@ -75,8 +75,8 @@ public:
             }
         }
 
-        if (hit_1.tdc() > hit_2.tdc()) std::swap(hit_1, hit_2);
-        tdc_combo_[{hit_1.tdc(), hit_2.tdc()}].Fill(min_diff);
+        if (tdc1 > tdc2) std::swap(tdc1, tdc2);
+        tdc_combo_[{tdc1, tdc2}].Fill(min_diff);
         return min_diff;
     }
 
