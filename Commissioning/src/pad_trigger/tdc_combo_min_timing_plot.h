@@ -75,6 +75,7 @@ public:
             }
         }
 
+        if (hit_1.tdc() > hit_2.tdc()) std::swap(hit_1, hit_2);
         tdc_combo_[{hit_1.tdc(), hit_2.tdc()}].Fill(min_diff);
         return min_diff;
     }
