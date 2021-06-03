@@ -6,6 +6,7 @@
 #include "check_pad_trigger_plot.h"
 #include "num_layers_plot.h"
 #include "min_timing_plot.h"
+#include "tdc_combo_min_timing_plot.h"
 #include "tdc_combinatorics_plot.h"
 #include "trigger_efficiency_plot.h"
 #include "scint_chamber_time_plot.h"
@@ -27,6 +28,7 @@ private:
     NumLayersPlot num_layers_;
 
     MinTimingPlot min_timing_;
+    TdcComboMinTimingPlot tdc_min_timing_;
     // MinTimingPlot min_timing_2_layers_;
     // MinTimingPlot min_timing_3_layers_;
 

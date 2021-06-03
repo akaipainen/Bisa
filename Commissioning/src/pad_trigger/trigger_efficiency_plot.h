@@ -51,13 +51,13 @@ private:
 
         for (auto &&hit1 : hits)
         {
-            if (hit1.chamber() == 7)
-            {
-                chamber_hits.add(hit1);
-            }
-            else // bis8 = scintillator hits
+            if (hit1.chamber() == 1) // scintillator
             {
                 scint_hits.add(hit1);
+            }
+            else // chamber hits
+            {
+                chamber_hits.add(hit1);
             }
         }
 
