@@ -48,7 +48,7 @@ private:
                 if (hit1.chamber() == hit2.chamber())
                 {
                     // Same coordinate
-                    if (hit1.coordinate() == hit1.coordinate())
+                    if (hit1.coordinate() == hit2.coordinate())
                     {
                         // Different layer (implicitly different TDC)
                         if (hit1.layer() != hit2.layer())
