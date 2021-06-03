@@ -21,7 +21,7 @@ public:
                 {
                     tdc_combo_.emplace(std::piecewise_construct,
                                        std::make_tuple(i, j),
-                                       std::make_tuple(name, title, 75 / Bisa::FINE_TIME_RESOLUTION_NS, 0, 75));
+                                       std::make_tuple(Form("%s_%d_%d", name, i, j), title, 75 / Bisa::FINE_TIME_RESOLUTION_NS, 0, 75));
                     tdc_combo_[{i, j}].GetXaxis()->SetTitle("Time Difference [ns]");
                 }
             }
