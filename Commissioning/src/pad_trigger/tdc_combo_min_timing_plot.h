@@ -17,7 +17,8 @@ public:
             for (int j = i; j < 18; j++)
             {
                 if (Bisa::config.chamber(i) == Bisa::config.chamber(j) &&
-                    Bisa::config.coordinate(i) == Bisa::config.coordinate(j))
+                    Bisa::config.coordinate(i) == Bisa::config.coordinate(j) &&
+                    Bisa::config.layer(i) != Bisa::config.layer(j))
                 {
                     tdc_combo_.emplace(std::piecewise_construct,
                                        std::make_tuple(i, j),
@@ -46,8 +47,8 @@ public:
 
     double add_hits(const Bisa::HitCollection &hits)
     {
-        unsigned int tdc1;
-        unsigned int tdc2;
+        unsigned int tdc1 = 0;
+        unsigned int tdc2 = 0;
         double min_diff = 10000;
         for (auto &&hit1 : hits)
         {
@@ -75,8 +76,11 @@ public:
             }
         }
 
-        if (tdc1 > tdc2) std::swap(tdc1, tdc2);
-        tdc_combo_[{tdc1, tdc2}].Fill(min_diff);
+        if (min_diff < 10000)
+        {
+            if (tdc1 > tdc2) std::swap(tdc1, tdc2);
+            tdc_combo_[{tdc1, tdc2}].Fill(min_diff);
+        }
         return min_diff;
     }
 
