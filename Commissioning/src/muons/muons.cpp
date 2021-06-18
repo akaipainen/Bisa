@@ -4,6 +4,7 @@ Muons::Muons(const char *name, TTree *tree, const char *output_path)
  : Bisa::Experiment(name, tree, output_path)
  , muon_distribution_("muon_distribution", "Muon Distribution Plot", this)
  , muon_count_("muon_count", "Number of Muons detected", this)
+ , strip_combo_("strip_combo", "Strip Combination Muon Plot", this)
 {
 }
 
@@ -45,4 +46,6 @@ void Muons::add_hits(const Bisa::HitCollection &hits)
         muon_distribution_.add_hits(muons.hits());
         muon_count_.increment();
     }
+
+    strip_combo_.add_hits(hits);
 }

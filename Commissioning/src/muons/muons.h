@@ -5,6 +5,7 @@
 #include "../Selector.h"
 #include "../basic/strip_distribution_plot.h"
 #include "counter_plot.h"
+#include "strip_combo_muon_plot.h"
 
 class Muons : public Bisa::Experiment
 {
@@ -81,4 +82,5 @@ protected:
     
     StripDistributionPlot muon_distribution_;
     CounterPlot muon_count_;
+    StripComboMuonPlot strip_combo_;
 };
