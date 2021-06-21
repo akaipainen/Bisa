@@ -25,13 +25,13 @@ public:
         {
             for (int tdc2 = tdc1 + 1; tdc2 < 18; tdc2++)
             {
-                if (ps_.find({tdc1, tdc2}) != ps_.end())
+                auto p_ = ps_.find({tdc1, tdc2});
+                if (p_ != ps_.end())
                 {
-                    canvas()->Divide(1, 2);
-                    canvas()->cd(1);
-                    ps_[{tdc1, tdc2}].Draw("HIST");
-                    canvas()->cd(2);
-                    ps_[{tdc2, tdc1}].Draw("HIST");
+                    canvas()->cd();
+                    p_->second.LabelsDeflate("X"); // Delete any bins that are not present
+                    p_->second.LabelsOption("av"); // sort by increasing value
+                    p_->second.Draw("HIST");
                     print(Form("%s_%d_%d", name_, tdc1, tdc2), name_);
                     canvas()->Clear();
                 }
@@ -80,22 +80,17 @@ public:
                 {
                     if (hit1.tdc() < hit2.tdc())
                     {
-                        int tdc1 = std::min(hit1.tdc(), hit2.tdc());
-                        int tdc2 = std::max(hit1.tdc(), hit2.tdc());
+                        int tdc1 = hit1.tdc();
+                        int tdc2 = hit2.tdc();
                         if (ps_.find({tdc1, tdc2}) == ps_.end()) // TDC pair not yet made
                         {
                             ps_.emplace(std::piecewise_construct,
                                        std::make_tuple(tdc1, tdc2),
-                                       std::make_tuple(Form("%s_%d_%d", name_, tdc1, tdc2), "", 32, 0, 32));
+                                       std::make_tuple(Form("%s_%d_%d", name_, tdc1, tdc2), "", 1024, 0, 1024));
                             ps_[{tdc1, tdc2}].GetXaxis()->SetTitle("Strips");
-                        
-                            ps_.emplace(std::piecewise_construct,
-                                       std::make_tuple(tdc2, tdc1),
-                                       std::make_tuple(Form("%s_%d_%d", name_, tdc2, tdc1), "", 32, 0, 32));
-                            ps_[{tdc2, tdc1}].GetXaxis()->SetTitle("Strips");
+                            ps_[{tdc1, tdc2}].SetCanExtend(TH1::kAllAxes);
                         }
-                        ps_[{tdc1, tdc2}].Fill(hit1.strip());
-                        ps_[{tdc2, tdc1}].Fill(hit2.strip());
+                        ps_[{tdc1, tdc2}].Fill(Form("%d-%d", hit1.strip(), hit2.strip()), 1);
                     }
                 }
             }
