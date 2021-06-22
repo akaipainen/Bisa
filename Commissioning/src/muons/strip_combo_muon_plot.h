@@ -80,17 +80,20 @@ public:
                 {
                     if (hit1.tdc() < hit2.tdc())
                     {
-                        int tdc1 = hit1.tdc();
-                        int tdc2 = hit2.tdc();
-                        if (ps_.find({tdc1, tdc2}) == ps_.end()) // TDC pair not yet made
+                        if (std::abs((int) hit1.rpc_strip() - (int) hit2.rpc_strip()) <= 1)
                         {
-                            ps_.emplace(std::piecewise_construct,
-                                       std::make_tuple(tdc1, tdc2),
-                                       std::make_tuple(Form("%s_%d_%d", name_, tdc1, tdc2), "", 1024, 0, 1024));
-                            ps_[{tdc1, tdc2}].GetXaxis()->SetTitle("Strips");
-                            ps_[{tdc1, tdc2}].SetCanExtend(TH1::kAllAxes);
+                            int tdc1 = hit1.tdc();
+                            int tdc2 = hit2.tdc();
+                            if (ps_.find({tdc1, tdc2}) == ps_.end()) // TDC pair not yet made
+                            {
+                                ps_.emplace(std::piecewise_construct,
+                                        std::make_tuple(tdc1, tdc2),
+                                        std::make_tuple(Form("%s_%d_%d", name_, tdc1, tdc2), "", 1024, 0, 1024));
+                                ps_[{tdc1, tdc2}].GetXaxis()->SetTitle("Strips");
+                                ps_[{tdc1, tdc2}].SetCanExtend(TH1::kAllAxes);
+                            }
+                            ps_[{tdc1, tdc2}].Fill(Form("%d-%d", hit1.strip(), hit2.strip()), 1);
                         }
-                        ps_[{tdc1, tdc2}].Fill(Form("%d-%d", hit1.strip(), hit2.strip()), 1);
                     }
                 }
             }
