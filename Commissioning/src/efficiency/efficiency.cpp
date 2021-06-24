@@ -21,7 +21,8 @@ Efficiency::Efficiency(const char *name, int voltage, TTree *tree, const char *o
  , efficiency2_mid_phi_("efficiency2_mid_phi", "Efficiency 2 Mid Phi", voltage, 1, Bisa::Coordinate::PHI, this)
  , efficiency2_bot_phi_("efficiency2_bot_phi", "Efficiency 2 Bot Phi", voltage, 2, Bisa::Coordinate::PHI, this)
 {
-    for (auto &&j : Bisa::config.exparam()["efficiency"]["ignore_strips"])
+    std::vector<nlohmann::json> json_pairs = Bisa::config.exparam()["efficiency"]["ignore_strips"];
+    for (auto &&j : json_pairs)
     {
         ignore_strips_.insert(std::make_pair(j["tdc"], j["strip"]));
     }
