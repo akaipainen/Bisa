@@ -5,6 +5,7 @@
 Efficiency::Efficiency(const char *name, int voltage, TTree *tree, const char *output_path)
  : Bisa::Experiment(name, tree, output_path)
  , voltage_(voltage)
+ , cluster_size_("efficiency_top", "Efficiency Top", voltage, this)
  , efficiency_top_("efficiency_top", "Efficiency Top", voltage, 0, this)
  , efficiency_mid_("efficiency_mid", "Efficiency Mid", voltage, 1, this)
  , efficiency_bot_("efficiency_bot", "Efficiency Bot", voltage, 2, this)
@@ -42,6 +43,8 @@ void Efficiency::add_hits(const Bisa::HitCollection &hits)
             return;
         }
     }
+
+    cluster_size_.add_hits(hits);
 
     auto eta_hits = select_eta(hits);
     auto phi_hits = select_phi(hits);

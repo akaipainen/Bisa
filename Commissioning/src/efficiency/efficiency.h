@@ -5,6 +5,7 @@
 // Plots
 #include "efficiency_plot.h"
 #include "efficiency_etaphi_plot.h"
+#include "cluster_size_plot.h"
 
 #include <TTree.h>
 
@@ -23,6 +24,8 @@ private:
 
     Bisa::HitCollection select_eta(const Bisa::HitCollection &hits) const;
     Bisa::HitCollection select_phi(const Bisa::HitCollection &hits) const;
+
+    ClusterSizePlot cluster_size_;
 
     EfficiencyPlot efficiency_top_;
     EfficiencyPlot efficiency_mid_;
