@@ -5,7 +5,7 @@
 Efficiency::Efficiency(const char *name, int voltage, TTree *tree, const char *output_path)
  : Bisa::Experiment(name, tree, output_path)
  , voltage_(voltage)
- , cluster_size_("efficiency_top", "Efficiency Top", voltage, this)
+ , cluster_size_("cluster_size", "Cluster Size", voltage, this)
  , efficiency_top_("efficiency_top", "Efficiency Top", voltage, 0, this)
  , efficiency_mid_("efficiency_mid", "Efficiency Mid", voltage, 1, this)
  , efficiency_bot_("efficiency_bot", "Efficiency Bot", voltage, 2, this)
