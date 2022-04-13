@@ -24,20 +24,23 @@ outputdir = "%{cfg.buildcfg}-%{cfg.system}"
 function includeRoot()
     includedirs 
     {
-        _OPTIONS["rootsys"] .. "/include/root"
+        _OPTIONS["rootsys"] .. "/include/root",
+        _OPTIONS["rootsys"] .. "/root/include"
     }
 end
 
 function linkRoot()
     libdirs 
     {
-        _OPTIONS["rootsys"] .. "/lib/root"
+        _OPTIONS["rootsys"] .. "/lib/root",
+        _OPTIONS["rootsys"] .. "/root/lib"
     }
 
     filter "system:linux"
         libdirs
         {
-            _OPTIONS["rootsys"] .. "/lib64/root"
+            _OPTIONS["rootsys"] .. "/lib64/root",
+            _OPTIONS["rootsys"] .. "/root/lib64"
         }
 
     filter "kind:not StaticLib"
