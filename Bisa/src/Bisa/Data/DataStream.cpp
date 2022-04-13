@@ -10,7 +10,7 @@ namespace Bisa {
 
         BA_CORE_INFO("Creating data stream from file: {0}", datafile);
 
-        data_file_.open(datafile);
+        data_file_.open(datafile, std::ios_base::in);
         BA_CORE_ASSERT(data_file_.is_open(), "Could not open file!")
 
         id_counter_ = IdCounter(65536);
