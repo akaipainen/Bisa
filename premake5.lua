@@ -56,7 +56,7 @@ project "Bisa"
     location "Bisa"
     kind "SharedLib"
     language "C++"
-    cppdialect "C++14"
+    cppdialect "C++11"
     staticruntime "on"
     
     targetdir ("bin/" .. outputdir .. "/%{prj.name}")
@@ -140,7 +140,7 @@ project "Commissioning"
     location "Commissioning"
     kind "ConsoleApp"
     language "C++"
-    cppdialect "C++14"
+    cppdialect "C++11"
     staticruntime "on"
 
     targetdir ("bin/" .. outputdir .. "/%{prj.name}")
