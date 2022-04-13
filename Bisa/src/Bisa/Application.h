@@ -1,7 +1,7 @@
 #pragma once
 
-#include "root/TFile.h"
-#include "root/TTree.h"
+#include <TFile.h>
+#include <TTree.h>
 
 #include "Bisa/Core.h"
 #include "Bisa/Config.h"
