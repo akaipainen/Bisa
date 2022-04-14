@@ -45,7 +45,7 @@ public:
         scint_trigger_.add_hits(hits_);
         muons_.add_hits(hits_);
 
-        // tree_->Fill(); // fill the tree with the data from this step
+        tree_->Fill(); // fill the tree with the data from this step
     }
 
 private:
