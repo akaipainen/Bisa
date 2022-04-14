@@ -101,7 +101,7 @@ project "Bisa"
         -- }
 
     filter "system:macosx"
-    -- cppdialect "C++11"
+        cppdialect "C++14"
 
     filter "system:windows"
         systemversion "latest"
@@ -163,6 +163,9 @@ project "Commissioning"
     
     filter "system:windows"
         systemversion "latest"
+
+    filter "system:macosx"
+        cppdialect "C++14"
 
     filter "configurations:Debug"
         defines "BA_DEBUG"
